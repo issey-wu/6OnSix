@@ -1,0 +1,10 @@
+# Normalize all text files to LF on every machine (macOS, Windows, CI).
+* text=auto eol=lf
+
+# Binary files: never normalize or diff as text.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.ttf binary
+*.otf binary
