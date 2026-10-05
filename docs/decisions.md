@@ -44,3 +44,21 @@ Record one entry per decision: the date, what was decided, the reason, and what 
 ## 2026-09-29: GitHub as the only sync; two development machines
 **Decision:** Keep the repo out of OneDrive and iCloud. Develop on macOS and Windows with a pinned Flutter version, LF line endings, and cross-platform Dart scripts.
 **Why:** Cloud-drive sync corrupts `.git` folders and churns through build output.
+
+## 2026-10-05: Pin Flutter 3.47.6
+**Decision:** Both development machines and CI use Flutter 3.47.6 (Dart 3.13.5), stable channel. The version is recorded in `CLAUDE.md`, `README.md`, and `.github/workflows/ci.yml`.
+**Why:** Formatter and lint output differ between Flutter versions. One pinned version keeps macOS, Windows, and CI in agreement.
+
+## 2026-10-05: very_good_analysis for lints
+**Decision:** Use `very_good_analysis` instead of the template's `flutter_lints`, with one rule disabled: `public_member_api_docs`.
+**Why:** It is strict (strict-casts, strict-inference, strict-raw-types, and about 200 rules) and actively maintained by Very Good Ventures. It includes `avoid_print`, which enforces the logger rule. `flutter_lints` is too lenient, and the `lint` package is less actively maintained. `public_member_api_docs` is meant for published packages; in an app it would force a doc comment on every public widget.
+**Replaced:** `flutter_lints`.
+
+## 2026-10-05: CI on GitHub Actions
+**Decision:** One workflow runs on push and pull request to `main`. Job `check` runs `flutter pub get`, `dart format --set-exit-if-changed`, `flutter analyze`, and `flutter test`. Job `android` runs in parallel and builds a debug APK with JDK 17. Both pin Flutter 3.47.6 via `subosito/flutter-action`.
+**Why:** `main` must always build and pass. The Mac has no Android SDK, so without the APK job, Android breakage would go unnoticed until someone builds on Windows. There is no iOS build in CI; macOS runners are slow and costly, and iOS is verified on the Mac.
+
+## 2026-10-05: Clock and GameRules as hand-written domain types
+**Decision:** `Clock` (with `SystemClock`, which returns UTC) and `GameRules` live in `lib/core/domain/` as plain Dart. Their Riverpod providers live in `lib/app/providers.dart`. `GameRules` defaults: pass threshold 0.8, error cap 10 per 24 hours, retry cooldown 1 hour, and **lockouts off**. These are placeholders until the 4TR1 game-rules open item is decided. The logger is a thin wrapper over `debugPrint` with no package.
+**Why:** Domain rules (scoring, unlocking, streaks) will consume both types, and domain can't import outward or depend on Riverpod. `package:clock`, `package:logging`, and freezed/equatable aren't needed for this little code.
+**Dependency added:** `meta`, for `@immutable` on domain models. It is pure Dart, maintained by the Dart team, and already in the Flutter SDK's dependency tree; domain code can't use Flutter's re-export.

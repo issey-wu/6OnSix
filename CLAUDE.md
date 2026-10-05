@@ -150,7 +150,7 @@ dart format .
 flutter analyze
 flutter test
 flutter run
-# Pinned Flutter version: record here during scaffolding
+# Pinned Flutter version: 3.47.6 (Dart 3.13.5)
 # Content export + validation: record here once the script exists
 ```
 
@@ -167,6 +167,7 @@ flutter run
   - Tag milestones: `v0.1.0` for the midterm, `v1.0.0` for the final.
   - Record notable changes in `CHANGELOG.md`.
 - Never commit secrets, build output, or `CLAUDE.local.md`.
+- Commit messages and PR descriptions can be as detailed as needed, but never include AI or tool authorship lines (no `Co-Authored-By: Claude`, 'Generated with Claude Code', or session links). The same applies to code comments and docs.
 
 ## Working with Issey
 
