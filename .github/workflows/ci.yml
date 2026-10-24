@@ -30,6 +30,8 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: dart format --output=none --set-exit-if-changed .
+      - name: Validate content
+        run: dart run content/export_content.dart --check
       - run: flutter analyze
       - run: flutter test
 

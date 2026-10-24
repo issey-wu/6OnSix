@@ -1,41 +1,45 @@
 import 'package:meta/meta.dart';
 
-/// Game-rule parameters, kept in one place.
-///
-/// The default values are placeholders until the team decides which 4TR1
-/// rules survive (see "Open items" in docs/project-context.md). Lockouts are
-/// off by default; [errorCap] and [retryCooldown] apply only when
-/// [lockoutsEnabled] is true.
+/// XP and review values, kept in one place so a rule change is a one-line
+/// edit. Values follow docs/design.md. There are no lockouts or hearts.
 @immutable
 class GameRules {
   const new({
-    this.passThreshold = 0.8,
-    this.errorCap = 10,
-    this.retryCooldown = const Duration(hours: 1),
-    this.lockoutsEnabled = false,
+    this.lessonXp = 10,
+    this.lessonPerfectBonus = 5,
+    this.reviewXp = 20,
+    this.reviewPerfectBonus = 5,
+    this.reviewQuestionCount = 8,
   });
 
-  /// Fraction of correct answers (0 to 1) needed to pass a lesson.
-  final double passThreshold;
+  final int lessonXp;
+  final int lessonPerfectBonus;
+  final int reviewXp;
+  final int reviewPerfectBonus;
 
-  /// Maximum wrong answers allowed per 24 hours.
-  final int errorCap;
+  /// How many questions a unit review draws from the unit's lessons.
+  final int reviewQuestionCount;
 
-  /// Wait before a failed review can be retried.
-  final Duration retryCooldown;
-
-  /// Whether [errorCap] and [retryCooldown] are enforced.
-  final bool lockoutsEnabled;
+  /// XP earned for finishing a lesson or review.
+  int xpFor({required bool isReview, required bool perfect}) => isReview
+      ? reviewXp + (perfect ? reviewPerfectBonus : 0)
+      : lessonXp + (perfect ? lessonPerfectBonus : 0);
 
   @override
   bool operator ==(Object other) =>
       other is GameRules &&
-      other.passThreshold == passThreshold &&
-      other.errorCap == errorCap &&
-      other.retryCooldown == retryCooldown &&
-      other.lockoutsEnabled == lockoutsEnabled;
+      other.lessonXp == lessonXp &&
+      other.lessonPerfectBonus == lessonPerfectBonus &&
+      other.reviewXp == reviewXp &&
+      other.reviewPerfectBonus == reviewPerfectBonus &&
+      other.reviewQuestionCount == reviewQuestionCount;
 
   @override
-  int get hashCode =>
-      Object.hash(passThreshold, errorCap, retryCooldown, lockoutsEnabled);
+  int get hashCode => Object.hash(
+    lessonXp,
+    lessonPerfectBonus,
+    reviewXp,
+    reviewPerfectBonus,
+    reviewQuestionCount,
+  );
 }
