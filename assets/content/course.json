@@ -1,0 +1,1069 @@
+{
+  "schemaVersion": 1,
+  "units": [
+    {
+      "id": "u1",
+      "title": "Court, positions and roles",
+      "description": "Where you stand and what each player does.",
+      "lessons": [
+        {
+          "id": "u1.l1",
+          "title": "The court",
+          "cards": [
+            {
+              "title": "A court of two halves",
+              "body": "A volleyball court is 18 m long and 9 m wide. The net splits it into two 9 m by 9 m halves, one for each team. The attack line runs across each half, 3 m from the net."
+            },
+            {
+              "title": "Six zones",
+              "body": "Each half is split into six zones, numbered 1 to 6. With the net at the top, the front row is 4, 3, 2 from left to right and the back row is 5, 6, 1. Zone 1 is the right back, where the server starts."
+            }
+          ],
+          "questions": [
+            {
+              "id": "u1.l1.q01",
+              "type": "mc",
+              "prompt": "How big is a full volleyball court?",
+              "options": [
+                "18 m by 9 m",
+                "9 m by 9 m",
+                "20 m by 10 m",
+                "16 m by 8 m"
+              ],
+              "answer": "18 m by 9 m",
+              "explanation": "The court is 18 m long and 9 m wide, so each team gets a 9 m square.",
+              "concepts": [
+                "court-size"
+              ],
+              "ruleRef": "FIVB 1.1"
+            },
+            {
+              "id": "u1.l1.q02",
+              "type": "tf",
+              "prompt": "The attack line is 3 m from the net.",
+              "answer": "true",
+              "explanation": "The attack line is 3 m from the centre line under the net.",
+              "concepts": [
+                "court-lines"
+              ],
+              "ruleRef": "FIVB 1.3.4"
+            },
+            {
+              "id": "u1.l1.q03",
+              "type": "zone",
+              "prompt": "Tap zone 1.",
+              "answer": "1",
+              "explanation": "Zone 1 is the right back, where the server starts.",
+              "concepts": [
+                "zones"
+              ]
+            },
+            {
+              "id": "u1.l1.q04",
+              "type": "zone",
+              "prompt": "Tap zone 4.",
+              "answer": "4",
+              "explanation": "Zone 4 is the left front, next to the net on the left.",
+              "concepts": [
+                "zones"
+              ]
+            },
+            {
+              "id": "u1.l1.q05",
+              "type": "mc",
+              "prompt": "Which zones make up the front row?",
+              "options": [
+                "4, 3 and 2",
+                "5, 6 and 1",
+                "1, 2 and 3",
+                "4, 5 and 6"
+              ],
+              "answer": "4, 3 and 2",
+              "explanation": "The front row is 4, 3 and 2 from left to right.",
+              "concepts": [
+                "zones"
+              ]
+            },
+            {
+              "id": "u1.l1.q06",
+              "type": "zone",
+              "prompt": "Tap the middle back zone.",
+              "answer": "6",
+              "explanation": "Zone 6 is the middle of the back row.",
+              "concepts": [
+                "zones"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "u1.l2",
+          "title": "Positions and roles",
+          "cards": [
+            {
+              "title": "Five roles",
+              "body": "The setter takes the second contact and sets up the attack. Outside hitters attack from the left and pass the serve. Middle blockers block at the centre of the net. The opposite attacks from the right."
+            },
+            {
+              "title": "The libero",
+              "body": "The libero is a back-row defensive specialist. They wear a different coloured jersey so officials can spot them, and they usually replace a middle blocker in the back row."
+            }
+          ],
+          "questions": [
+            {
+              "id": "u1.l2.q01",
+              "type": "match",
+              "prompt": "Match each role to its main job.",
+              "pairs": [
+                {
+                  "left": "Setter",
+                  "right": "Takes the second contact and sets"
+                },
+                {
+                  "left": "Outside hitter",
+                  "right": "Attacks from the left and passes serve"
+                },
+                {
+                  "left": "Middle blocker",
+                  "right": "Blocks at the centre of the net"
+                },
+                {
+                  "left": "Opposite",
+                  "right": "Attacks from the right side"
+                },
+                {
+                  "left": "Libero",
+                  "right": "Back-row defensive specialist"
+                }
+              ],
+              "explanation": "Each role has one main job, which is why teams need all of them.",
+              "concepts": [
+                "roles"
+              ]
+            },
+            {
+              "id": "u1.l2.q02",
+              "type": "mc",
+              "prompt": "Which player wears a different coloured jersey?",
+              "options": [
+                "The libero",
+                "The setter",
+                "The captain",
+                "The server"
+              ],
+              "answer": "The libero",
+              "explanation": "The libero wears a contrasting jersey so officials can track them.",
+              "concepts": [
+                "libero"
+              ],
+              "ruleRef": "FIVB 19.2"
+            },
+            {
+              "id": "u1.l2.q03",
+              "type": "tf",
+              "prompt": "The setter usually takes the team's second contact.",
+              "answer": "true",
+              "explanation": "The setter takes the second ball and sets it up for a hitter.",
+              "concepts": [
+                "roles"
+              ]
+            },
+            {
+              "id": "u1.l2.q04",
+              "type": "mc",
+              "prompt": "Where does an outside hitter usually attack from?",
+              "options": [
+                "The left side",
+                "The right side",
+                "The middle",
+                "Behind the end line"
+              ],
+              "answer": "The left side",
+              "explanation": "Outside hitters attack from the left, zone 4.",
+              "concepts": [
+                "roles"
+              ]
+            },
+            {
+              "id": "u1.l2.q05",
+              "type": "tf",
+              "prompt": "A middle blocker's main job is to block at the centre of the net.",
+              "answer": "true",
+              "explanation": "Middle blockers stand in the middle so they can reach blocks on both sides.",
+              "concepts": [
+                "roles"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "u1.l3",
+          "title": "Lineups and rotating",
+          "cards": [
+            {
+              "title": "The lineup",
+              "body": "Before each set, the coach records the starting order of the six players. That order stays the same for the whole set, even as players move around."
+            },
+            {
+              "title": "Rotating",
+              "body": "When your team wins the serve back from the other team, everyone moves one zone clockwise. The player who moves from zone 2 to zone 1 serves next."
+            }
+          ],
+          "questions": [
+            {
+              "id": "u1.l3.q01",
+              "type": "tf",
+              "prompt": "A team rotates every time it wins a rally.",
+              "answer": "false",
+              "explanation": "A team only rotates when it wins the serve back from the other team.",
+              "concepts": [
+                "rotating"
+              ],
+              "ruleRef": "FIVB 7.6.2"
+            },
+            {
+              "id": "u1.l3.q02",
+              "type": "mc",
+              "prompt": "When your team rotates, the player in zone 2 moves to which zone?",
+              "options": [
+                "Zone 1",
+                "Zone 3",
+                "Zone 6",
+                "Zone 4"
+              ],
+              "answer": "Zone 1",
+              "explanation": "Rotation is clockwise, so zone 2 moves back to zone 1.",
+              "concepts": [
+                "rotating"
+              ]
+            },
+            {
+              "id": "u1.l3.q03",
+              "type": "zone",
+              "prompt": "A player in zone 4 rotates once. Tap the zone they move to.",
+              "answer": "3",
+              "explanation": "Clockwise, zone 4 moves to zone 3.",
+              "concepts": [
+                "rotating"
+              ]
+            },
+            {
+              "id": "u1.l3.q04",
+              "type": "mc",
+              "prompt": "Who serves after your team rotates?",
+              "options": [
+                "The player who moved into zone 1",
+                "The setter",
+                "The player in zone 6",
+                "Any back-row player"
+              ],
+              "answer": "The player who moved into zone 1",
+              "explanation": "The player who rotates into zone 1 serves.",
+              "concepts": [
+                "rotating"
+              ]
+            },
+            {
+              "id": "u1.l3.q05",
+              "type": "tf",
+              "prompt": "The starting order can change in the middle of a set.",
+              "answer": "false",
+              "explanation": "The rotation order is set at the start of each set and stays the same.",
+              "concepts": [
+                "lineup"
+              ],
+              "ruleRef": "FIVB 7.6.1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "u2",
+      "title": "Rules and terminology",
+      "description": "How points are won and the words players use.",
+      "lessons": [
+        {
+          "id": "u2.l1",
+          "title": "Contacts and scoring",
+          "cards": [
+            {
+              "title": "Three contacts",
+              "body": "A team can touch the ball up to three times before sending it over. A block does not count as one of those three, and the same player cannot touch the ball twice in a row."
+            },
+            {
+              "title": "Rally scoring",
+              "body": "Every rally scores a point, no matter which team served. A set is won at 25 points with a two-point lead. A deciding fifth set goes to 15."
+            }
+          ],
+          "questions": [
+            {
+              "id": "u2.l1.q01",
+              "type": "mc",
+              "prompt": "How many times can a team touch the ball before sending it over?",
+              "options": [
+                "3",
+                "2",
+                "4",
+                "As many as needed"
+              ],
+              "answer": "3",
+              "explanation": "A team gets up to three contacts, not counting the block.",
+              "concepts": [
+                "contacts"
+              ],
+              "ruleRef": "FIVB 9.1"
+            },
+            {
+              "id": "u2.l1.q02",
+              "type": "tf",
+              "prompt": "A block counts as one of the team's three contacts.",
+              "answer": "false",
+              "explanation": "A block does not count, so a team still has three contacts after it.",
+              "concepts": [
+                "contacts"
+              ],
+              "ruleRef": "FIVB 14.4.1"
+            },
+            {
+              "id": "u2.l1.q03",
+              "type": "tf",
+              "prompt": "A team scores a point on every rally, whether or not it served.",
+              "answer": "true",
+              "explanation": "This is called rally scoring.",
+              "concepts": [
+                "scoring"
+              ],
+              "ruleRef": "FIVB 6.1"
+            },
+            {
+              "id": "u2.l1.q04",
+              "type": "mc",
+              "prompt": "How is a regular set won?",
+              "options": [
+                "25 points with a two-point lead",
+                "25 points exactly",
+                "21 points with a two-point lead",
+                "15 points"
+              ],
+              "answer": "25 points with a two-point lead",
+              "explanation": "A set goes to 25, and you must lead by two.",
+              "concepts": [
+                "scoring"
+              ],
+              "ruleRef": "FIVB 6.2"
+            },
+            {
+              "id": "u2.l1.q05",
+              "type": "mc",
+              "prompt": "A deciding fifth set is played to how many points?",
+              "options": [
+                "15",
+                "25",
+                "21",
+                "11"
+              ],
+              "answer": "15",
+              "explanation": "The fifth set is shorter: 15 points with a two-point lead.",
+              "concepts": [
+                "scoring"
+              ],
+              "ruleRef": "FIVB 6.3.2"
+            }
+          ]
+        },
+        {
+          "id": "u2.l2",
+          "title": "Net and line rules",
+          "cards": [
+            {
+              "title": "The net",
+              "body": "Touching the net between the antennae while playing the ball is a fault. The ball must cross the net between the antennae."
+            },
+            {
+              "title": "Lines and the centre line",
+              "body": "A ball that lands on a boundary line is in. A foot may cross the centre line under the net as long as part of it stays on or above the line."
+            }
+          ],
+          "questions": [
+            {
+              "id": "u2.l2.q01",
+              "type": "tf",
+              "prompt": "Touching the net between the antennae while playing the ball is a fault.",
+              "answer": "true",
+              "explanation": "Contact with the net while playing the ball is a fault.",
+              "concepts": [
+                "net"
+              ],
+              "ruleRef": "FIVB 11.3.1"
+            },
+            {
+              "id": "u2.l2.q02",
+              "type": "tf",
+              "prompt": "A foot may touch the other team's court if part of it stays on or above the centre line.",
+              "answer": "true",
+              "explanation": "Part of the foot must stay on or directly above the centre line.",
+              "concepts": [
+                "centre-line"
+              ],
+              "ruleRef": "FIVB 11.2.2.1"
+            },
+            {
+              "id": "u2.l2.q03",
+              "type": "mc",
+              "prompt": "Where must the ball cross the net?",
+              "options": [
+                "Between the antennae",
+                "Anywhere over the net",
+                "Outside the antennae",
+                "Under the net"
+              ],
+              "answer": "Between the antennae",
+              "explanation": "The crossing space is between the antennae.",
+              "concepts": [
+                "net"
+              ],
+              "ruleRef": "FIVB 10.1.1"
+            },
+            {
+              "id": "u2.l2.q04",
+              "type": "mc",
+              "prompt": "A ball lands on the boundary line. Is it in or out?",
+              "options": [
+                "In",
+                "Out",
+                "Replayed",
+                "Depends on the referee"
+              ],
+              "answer": "In",
+              "explanation": "The lines are part of the court, so the ball is in.",
+              "concepts": [
+                "lines"
+              ],
+              "ruleRef": "FIVB 8.3"
+            },
+            {
+              "id": "u2.l2.q05",
+              "type": "tf",
+              "prompt": "A player may hit the ball twice in a row.",
+              "answer": "false",
+              "explanation": "One player cannot make two contacts in a row, except at the block or in one action on the first team contact.",
+              "concepts": [
+                "contacts"
+              ],
+              "ruleRef": "FIVB 9.3.4"
+            }
+          ]
+        },
+        {
+          "id": "u2.l3",
+          "title": "Talking volleyball",
+          "cards": [
+            {
+              "title": "Words for good plays",
+              "body": "An ace is a serve that scores directly. A kill is an attack that ends the rally. A dig is a pass of a hard attack."
+            },
+            {
+              "title": "Words for the flow of play",
+              "body": "A side-out is winning the rally while receiving. A free ball is an easy ball sent over without an attack. An overpass is a pass that goes straight over the net."
+            }
+          ],
+          "questions": [
+            {
+              "id": "u2.l3.q01",
+              "type": "match",
+              "prompt": "Match each word to its meaning.",
+              "pairs": [
+                {
+                  "left": "Ace",
+                  "right": "A serve that scores directly"
+                },
+                {
+                  "left": "Kill",
+                  "right": "An attack that ends the rally"
+                },
+                {
+                  "left": "Dig",
+                  "right": "A pass of a hard-driven attack"
+                },
+                {
+                  "left": "Side-out",
+                  "right": "Winning the rally while receiving"
+                }
+              ],
+              "explanation": "These words come up in every practice and game.",
+              "concepts": [
+                "terms"
+              ]
+            },
+            {
+              "id": "u2.l3.q02",
+              "type": "mc",
+              "prompt": "What is a free ball?",
+              "options": [
+                "An easy ball sent over without an attack",
+                "A ball that hits the antenna",
+                "A serve that lands in",
+                "A ball the libero sets"
+              ],
+              "answer": "An easy ball sent over without an attack",
+              "explanation": "A free ball gives the other team an easy chance to set up an attack.",
+              "concepts": [
+                "terms"
+              ]
+            },
+            {
+              "id": "u2.l3.q03",
+              "type": "mc",
+              "prompt": "What is an overpass?",
+              "options": [
+                "A pass that goes straight over the net",
+                "A set to the back row",
+                "A serve over the antenna",
+                "A block that goes out"
+              ],
+              "answer": "A pass that goes straight over the net",
+              "explanation": "An overpass gives the other team an easy attack.",
+              "concepts": [
+                "terms"
+              ]
+            },
+            {
+              "id": "u2.l3.q04",
+              "type": "tf",
+              "prompt": "A side-out happens when the receiving team wins the rally.",
+              "answer": "true",
+              "explanation": "Winning the rally while receiving earns a point and the serve.",
+              "concepts": [
+                "terms"
+              ]
+            },
+            {
+              "id": "u2.l3.q05",
+              "type": "tf",
+              "prompt": "A back-row player may attack from behind the attack line.",
+              "answer": "true",
+              "explanation": "Back-row players can attack as long as they take off from behind the attack line.",
+              "concepts": [
+                "back-row-attack"
+              ],
+              "ruleRef": "FIVB 13.2.2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "u3",
+      "title": "Rotations, overlap and serving",
+      "description": "The order players stand in and how it changes.",
+      "lessons": [
+        {
+          "id": "u3.l1",
+          "title": "Rotation order and overlap",
+          "cards": [
+            {
+              "title": "Order at the serve",
+              "body": "When the ball is served, the receiving team must stand in its rotation order. Under the current FIVB rules, the serving team does not have to."
+            },
+            {
+              "title": "What overlap means",
+              "body": "Each front-row player must be closer to the net than the back-row player behind them (4 ahead of 5, 3 ahead of 6, 2 ahead of 1). In each row, players must also keep their left-to-right order. Feet on the floor decide position."
+            }
+          ],
+          "questions": [
+            {
+              "id": "u3.l1.q01",
+              "type": "tf",
+              "prompt": "Under FIVB rules, only the receiving team must be in rotation order when the ball is served.",
+              "answer": "true",
+              "explanation": "The current FIVB rules apply rotation order at the serve to the receiving team only.",
+              "concepts": [
+                "overlap"
+              ],
+              "ruleRef": "FIVB 7.4",
+              "leagueNote": "Many recreational leagues still require both teams to be in order.",
+              "phase": "receiving"
+            },
+            {
+              "id": "u3.l1.q02",
+              "type": "mc",
+              "prompt": "At the serve, the player in zone 3 must be closer to the net than the player in which zone?",
+              "options": [
+                "Zone 6",
+                "Zone 5",
+                "Zone 1",
+                "Zone 2"
+              ],
+              "answer": "Zone 6",
+              "explanation": "Each front-row player must be ahead of the back-row player behind them, and 6 is behind 3.",
+              "concepts": [
+                "overlap"
+              ],
+              "ruleRef": "FIVB 7.4.2.1",
+              "phase": "receiving"
+            },
+            {
+              "id": "u3.l1.q03",
+              "type": "mc",
+              "prompt": "At the serve, where must the player in zone 6 stand, left to right?",
+              "options": [
+                "Between the players in zones 5 and 1",
+                "Left of zone 5",
+                "Right of zone 1",
+                "Anywhere in the back row"
+              ],
+              "answer": "Between the players in zones 5 and 1",
+              "explanation": "In the back row, the left-to-right order is 5, 6, 1.",
+              "concepts": [
+                "overlap"
+              ],
+              "ruleRef": "FIVB 7.4.2.2",
+              "phase": "receiving"
+            },
+            {
+              "id": "u3.l1.q04",
+              "type": "tf",
+              "prompt": "Positions are judged by where players' feet touch the floor.",
+              "answer": "true",
+              "explanation": "Overlap is judged by the position of the feet on the floor.",
+              "concepts": [
+                "overlap"
+              ],
+              "ruleRef": "FIVB 7.4.3"
+            },
+            {
+              "id": "u3.l1.q05",
+              "type": "tf",
+              "prompt": "After the ball is served, players may move anywhere on their own side.",
+              "answer": "true",
+              "explanation": "Rotation order only applies at the moment of the serve.",
+              "concepts": [
+                "overlap"
+              ],
+              "ruleRef": "FIVB 7.4.4"
+            }
+          ]
+        },
+        {
+          "id": "u3.l2",
+          "title": "Serving",
+          "cards": [
+            {
+              "title": "The serve",
+              "body": "The server stands behind the end line and has 8 seconds after the whistle to serve. They may not touch the court or the end line when they hit the ball."
+            },
+            {
+              "title": "Serving order",
+              "body": "The serve follows the rotation order. A serve that touches the net and still goes over is in play."
+            }
+          ],
+          "questions": [
+            {
+              "id": "u3.l2.q01",
+              "type": "mc",
+              "prompt": "How long does the server have after the whistle?",
+              "options": [
+                "8 seconds",
+                "5 seconds",
+                "10 seconds",
+                "No limit"
+              ],
+              "answer": "8 seconds",
+              "explanation": "The server must hit the ball within 8 seconds of the whistle.",
+              "concepts": [
+                "serving"
+              ],
+              "ruleRef": "FIVB 12.4.4"
+            },
+            {
+              "id": "u3.l2.q02",
+              "type": "tf",
+              "prompt": "The server may step on the end line while hitting the serve.",
+              "answer": "false",
+              "explanation": "At the moment of the serve, the server may not touch the court or the end line.",
+              "concepts": [
+                "serving"
+              ],
+              "ruleRef": "FIVB 12.4.3"
+            },
+            {
+              "id": "u3.l2.q03",
+              "type": "zone",
+              "prompt": "Tap the zone of the player who serves.",
+              "answer": "1",
+              "explanation": "The player in zone 1 serves.",
+              "concepts": [
+                "serving"
+              ]
+            },
+            {
+              "id": "u3.l2.q04",
+              "type": "tf",
+              "prompt": "A serve that touches the net and still goes over is in play.",
+              "answer": "true",
+              "explanation": "A net serve that crosses into the other court is a legal serve.",
+              "concepts": [
+                "serving"
+              ],
+              "ruleRef": "FIVB 12.6.2"
+            },
+            {
+              "id": "u3.l2.q05",
+              "type": "mc",
+              "prompt": "Which of these is a serving fault?",
+              "options": [
+                "Serving out of order",
+                "Serving underhand",
+                "Serving from the left of the service zone",
+                "Serving with a jump"
+              ],
+              "answer": "Serving out of order",
+              "explanation": "The serve must follow the rotation order. The other options are allowed.",
+              "concepts": [
+                "serving"
+              ],
+              "ruleRef": "FIVB 7.7.1"
+            }
+          ]
+        },
+        {
+          "id": "u3.l3",
+          "title": "The libero",
+          "cards": [
+            {
+              "title": "A back-row specialist",
+              "body": "The libero may only play in the back row, zones 5, 6 and 1. They may not block or attempt to block."
+            },
+            {
+              "title": "Replacements",
+              "body": "The libero usually comes in for a middle blocker who has rotated to the back row. These swaps are called replacements, and they do not count as substitutions."
+            }
+          ],
+          "questions": [
+            {
+              "id": "u3.l3.q01",
+              "type": "mc",
+              "prompt": "Which zones can the libero play in?",
+              "options": [
+                "5, 6 and 1",
+                "4, 3 and 2",
+                "Any zone",
+                "Only zone 6"
+              ],
+              "answer": "5, 6 and 1",
+              "explanation": "The libero is limited to the back row.",
+              "concepts": [
+                "libero"
+              ],
+              "ruleRef": "FIVB 19.3.1.1"
+            },
+            {
+              "id": "u3.l3.q02",
+              "type": "tf",
+              "prompt": "The libero may block or attempt to block.",
+              "answer": "false",
+              "explanation": "The libero may not block or attempt to block.",
+              "concepts": [
+                "libero"
+              ],
+              "ruleRef": "FIVB 19.3.1.3"
+            },
+            {
+              "id": "u3.l3.q03",
+              "type": "mc",
+              "prompt": "Which player does the libero usually replace?",
+              "options": [
+                "A middle blocker in the back row",
+                "The setter",
+                "The opposite",
+                "An outside hitter in the front row"
+              ],
+              "answer": "A middle blocker in the back row",
+              "explanation": "Middles are tall blockers, so the libero takes over their back-row defence.",
+              "concepts": [
+                "libero"
+              ]
+            },
+            {
+              "id": "u3.l3.q04",
+              "type": "tf",
+              "prompt": "Libero replacements count as substitutions.",
+              "answer": "false",
+              "explanation": "Replacements involving the libero are not counted as substitutions.",
+              "concepts": [
+                "libero"
+              ],
+              "ruleRef": "FIVB 19.3.2.1"
+            },
+            {
+              "id": "u3.l3.q05",
+              "type": "zone",
+              "prompt": "The libero replaces a middle in the middle back. Tap that zone.",
+              "answer": "6",
+              "explanation": "The middle back is zone 6.",
+              "concepts": [
+                "libero"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "u4",
+      "title": "The 5-1 system",
+      "description": "The most common team system, one setter and five hitters.",
+      "lessons": [
+        {
+          "id": "u4.l1",
+          "title": "What a 5-1 is",
+          "cards": [
+            {
+              "title": "One setter, five hitters",
+              "body": "A 5-1 uses one setter in all six rotations and five hitters: two outside hitters, two middle blockers and one opposite."
+            },
+            {
+              "title": "Across from each other",
+              "body": "In the lineup, the setter is across from the opposite, the two outside hitters are across from each other, and the two middle blockers are across from each other. Across means three zones apart."
+            }
+          ],
+          "questions": [
+            {
+              "id": "u4.l1.q01",
+              "type": "mc",
+              "prompt": "In a 5-1, how many setters are on the court?",
+              "options": [
+                "One",
+                "Two",
+                "Three",
+                "None"
+              ],
+              "answer": "One",
+              "explanation": "The \"1\" in 5-1 is the single setter.",
+              "concepts": [
+                "five-one"
+              ]
+            },
+            {
+              "id": "u4.l1.q02",
+              "type": "mc",
+              "prompt": "Why is it called a 5-1?",
+              "options": [
+                "Five hitters and one setter",
+                "Five rotations and one serve",
+                "Five front-row players and one back-row player",
+                "Five points and one set"
+              ],
+              "answer": "Five hitters and one setter",
+              "explanation": "A 5-1 has five hitters and one setter.",
+              "concepts": [
+                "five-one"
+              ]
+            },
+            {
+              "id": "u4.l1.q03",
+              "type": "match",
+              "prompt": "Match each player to the player across the rotation from them.",
+              "pairs": [
+                {
+                  "left": "Setter",
+                  "right": "Opposite"
+                },
+                {
+                  "left": "Outside hitter 1",
+                  "right": "Outside hitter 2"
+                },
+                {
+                  "left": "Middle blocker 1",
+                  "right": "Middle blocker 2"
+                }
+              ],
+              "explanation": "Players who are across from each other are always three zones apart.",
+              "concepts": [
+                "five-one",
+                "lineup"
+              ]
+            },
+            {
+              "id": "u4.l1.q04",
+              "type": "tf",
+              "prompt": "In a 5-1, the two outside hitters are across from each other in the lineup.",
+              "answer": "true",
+              "explanation": "This keeps one outside hitter in the front row at all times.",
+              "concepts": [
+                "five-one",
+                "lineup"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "u4.l2",
+          "title": "Setter front row, setter back row",
+          "cards": [
+            {
+              "title": "Setter in the back row",
+              "body": "When the setter is in the back row, all three front-row players can attack. The setter moves forward to set from the right front."
+            },
+            {
+              "title": "Setter in the front row",
+              "body": "When the setter is in the front row, only two front-row players are hitters. The setter can still attack, but usually sets."
+            }
+          ],
+          "questions": [
+            {
+              "id": "u4.l2.q01",
+              "type": "mc",
+              "prompt": "When the setter is in the back row, how many front-row hitters are there?",
+              "options": [
+                "Three",
+                "Two",
+                "One",
+                "Four"
+              ],
+              "answer": "Three",
+              "explanation": "All three front-row players can attack.",
+              "concepts": [
+                "setter-position"
+              ]
+            },
+            {
+              "id": "u4.l2.q02",
+              "type": "mc",
+              "prompt": "When the setter is in the front row, how many front-row hitters are there?",
+              "options": [
+                "Two",
+                "Three",
+                "One",
+                "Four"
+              ],
+              "answer": "Two",
+              "explanation": "The setter takes one front-row spot, leaving two hitters.",
+              "concepts": [
+                "setter-position"
+              ]
+            },
+            {
+              "id": "u4.l2.q03",
+              "type": "tf",
+              "prompt": "A back-row setter may attack a ball that is fully above the net from in front of the attack line.",
+              "answer": "false",
+              "explanation": "A back-row player may not complete an attack above the net from the front zone.",
+              "concepts": [
+                "back-row-attack"
+              ],
+              "ruleRef": "FIVB 13.3.3"
+            },
+            {
+              "id": "u4.l2.q04",
+              "type": "zone",
+              "prompt": "The setter is in zone 1. Tap the opposite's zone.",
+              "answer": "4",
+              "explanation": "The opposite is three zones away from the setter, so zone 4.",
+              "concepts": [
+                "five-one",
+                "lineup"
+              ]
+            },
+            {
+              "id": "u4.l2.q05",
+              "type": "zone",
+              "prompt": "The setter is in zone 6. Tap the opposite's zone.",
+              "answer": "3",
+              "explanation": "Three zones away from zone 6 is zone 3.",
+              "concepts": [
+                "five-one",
+                "lineup"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "u4.l3",
+          "title": "Moving through the rotations",
+          "cards": [
+            {
+              "title": "Naming rotations",
+              "body": "Many teams name each rotation by the setter's zone. In rotation 1 the setter is in zone 1."
+            },
+            {
+              "title": "The cycle",
+              "body": "Each rotation moves the setter one zone clockwise: from zone 1 to 6, then 5, 4, 3 and 2, and back to 1."
+            }
+          ],
+          "questions": [
+            {
+              "id": "u4.l3.q01",
+              "type": "mc",
+              "prompt": "Many teams name a rotation by what?",
+              "options": [
+                "The setter's zone",
+                "The server's name",
+                "The score",
+                "The libero's zone"
+              ],
+              "answer": "The setter's zone",
+              "explanation": "Rotation 1 means the setter is in zone 1.",
+              "concepts": [
+                "rotations"
+              ]
+            },
+            {
+              "id": "u4.l3.q02",
+              "type": "mc",
+              "prompt": "From rotation 1, the team rotates once. Which zone is the setter in now?",
+              "options": [
+                "Zone 6",
+                "Zone 2",
+                "Zone 5",
+                "Zone 1"
+              ],
+              "answer": "Zone 6",
+              "explanation": "Clockwise, zone 1 moves to zone 6.",
+              "concepts": [
+                "rotations"
+              ]
+            },
+            {
+              "id": "u4.l3.q03",
+              "type": "tf",
+              "prompt": "In a 5-1, the setter never plays in the front row.",
+              "answer": "false",
+              "explanation": "The setter rotates through all six zones, front and back.",
+              "concepts": [
+                "rotations"
+              ]
+            },
+            {
+              "id": "u4.l3.q04",
+              "type": "zone",
+              "prompt": "An outside hitter is in zone 2. The team rotates once. Tap their new zone.",
+              "answer": "1",
+              "explanation": "Clockwise, zone 2 moves to zone 1.",
+              "concepts": [
+                "rotations"
+              ]
+            },
+            {
+              "id": "u4.l3.q05",
+              "type": "mc",
+              "prompt": "Starting from rotation 1, which rotation first puts the setter in the front row?",
+              "options": [
+                "Rotation 4",
+                "Rotation 2",
+                "Rotation 6",
+                "Rotation 3"
+              ],
+              "answer": "Rotation 4",
+              "explanation": "The setter moves 1, 6, 5, then 4, the first front-row zone.",
+              "concepts": [
+                "rotations"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

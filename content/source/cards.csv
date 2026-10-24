@@ -1,0 +1,25 @@
+lesson,title,body
+u1.l1,A court of two halves,"A volleyball court is 18 m long and 9 m wide. The net splits it into two 9 m by 9 m halves, one for each team. The attack line runs across each half, 3 m from the net."
+u1.l1,Six zones,"Each half is split into six zones, numbered 1 to 6. With the net at the top, the front row is 4, 3, 2 from left to right and the back row is 5, 6, 1. Zone 1 is the right back, where the server starts."
+u1.l2,Five roles,The setter takes the second contact and sets up the attack. Outside hitters attack from the left and pass the serve. Middle blockers block at the centre of the net. The opposite attacks from the right.
+u1.l2,The libero,"The libero is a back-row defensive specialist. They wear a different coloured jersey so officials can spot them, and they usually replace a middle blocker in the back row."
+u1.l3,The lineup,"Before each set, the coach records the starting order of the six players. That order stays the same for the whole set, even as players move around."
+u1.l3,Rotating,"When your team wins the serve back from the other team, everyone moves one zone clockwise. The player who moves from zone 2 to zone 1 serves next."
+u2.l1,Three contacts,"A team can touch the ball up to three times before sending it over. A block does not count as one of those three, and the same player cannot touch the ball twice in a row."
+u2.l1,Rally scoring,"Every rally scores a point, no matter which team served. A set is won at 25 points with a two-point lead. A deciding fifth set goes to 15."
+u2.l2,The net,Touching the net between the antennae while playing the ball is a fault. The ball must cross the net between the antennae.
+u2.l2,Lines and the centre line,A ball that lands on a boundary line is in. A foot may cross the centre line under the net as long as part of it stays on or above the line.
+u2.l3,Words for good plays,An ace is a serve that scores directly. A kill is an attack that ends the rally. A dig is a pass of a hard attack.
+u2.l3,Words for the flow of play,A side-out is winning the rally while receiving. A free ball is an easy ball sent over without an attack. An overpass is a pass that goes straight over the net.
+u3.l1,Order at the serve,"When the ball is served, the receiving team must stand in its rotation order. Under the current FIVB rules, the serving team does not have to."
+u3.l1,What overlap means,"Each front-row player must be closer to the net than the back-row player behind them (4 ahead of 5, 3 ahead of 6, 2 ahead of 1). In each row, players must also keep their left-to-right order. Feet on the floor decide position."
+u3.l2,The serve,The server stands behind the end line and has 8 seconds after the whistle to serve. They may not touch the court or the end line when they hit the ball.
+u3.l2,Serving order,The serve follows the rotation order. A serve that touches the net and still goes over is in play.
+u3.l3,A back-row specialist,"The libero may only play in the back row, zones 5, 6 and 1. They may not block or attempt to block."
+u3.l3,Replacements,"The libero usually comes in for a middle blocker who has rotated to the back row. These swaps are called replacements, and they do not count as substitutions."
+u4.l1,"One setter, five hitters","A 5-1 uses one setter in all six rotations and five hitters: two outside hitters, two middle blockers and one opposite."
+u4.l1,Across from each other,"In the lineup, the setter is across from the opposite, the two outside hitters are across from each other, and the two middle blockers are across from each other. Across means three zones apart."
+u4.l2,Setter in the back row,"When the setter is in the back row, all three front-row players can attack. The setter moves forward to set from the right front."
+u4.l2,Setter in the front row,"When the setter is in the front row, only two front-row players are hitters. The setter can still attack, but usually sets."
+u4.l3,Naming rotations,Many teams name each rotation by the setter's zone. In rotation 1 the setter is in zone 1.
+u4.l3,The cycle,"Each rotation moves the setter one zone clockwise: from zone 1 to 6, then 5, 4, 3 and 2, and back to 1."

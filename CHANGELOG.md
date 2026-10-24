@@ -17,3 +17,16 @@ All notable changes to this project are recorded here. The format follows
 - Strict lints via `very_good_analysis`.
 - GitHub Actions CI: format, analyze, and test, plus an Android debug APK build.
 - `.gitattributes` enforcing LF line endings, README, and this changelog.
+- Content pipeline: CSV authoring files in `content/source/` and
+  `content/export_content.dart`, which validates them and writes
+  `assets/content/course.json`. CI fails if the JSON is out of date.
+- Draft content for units 1 to 4: 12 lessons, 24 teaching cards, 60 questions
+  with FIVB rule references (pending review).
+- Learning path with unit headers, unlocking and replays.
+- Lesson player: teaching cards, complete-until-correct queue, feedback panel,
+  quit prompt, lesson complete screen. Question types: multiple choice,
+  true/false, matching, tap the zone (court drawn with `CustomPainter`).
+- Unit reviews built from concept tags; XP and daily streak (in memory for now).
+- Rally colour tokens (`AppTokens`) and the accessible button red.
+- Tests for the lesson queue, streaks, unlocking, XP and content parsing (19 total).
+- `tool/screenshots/capture_test.dart` renders app screens to `build/screens/`.
