@@ -50,7 +50,8 @@ void main(List<String> args) {
     if (q['explanation']!.isEmpty) errors.add(where('missing explanation'));
     if (q['concepts']!.isEmpty) errors.add(where('missing concept tag'));
     final options = _split(q['options']!);
-    final answer = q['answer']!;
+    // Spreadsheet apps save true/false as TRUE/FALSE.
+    final answer = type == 'tf' ? q['answer']!.toLowerCase() : q['answer']!;
     switch (type) {
       case 'mc':
         if (options.length < 2 || options.length > 4) {
@@ -158,7 +159,8 @@ Map<String, Object?> _question(Map<String, String> q) {
         for (final p in options)
           {'left': p.split('=')[0], 'right': p.split('=')[1]},
       ],
-    if (type != 'match') 'answer': q['answer'],
+    if (type != 'match')
+      'answer': type == 'tf' ? q['answer']!.toLowerCase() : q['answer'],
     'explanation': q['explanation'],
     'concepts': _split(q['concepts']!, ','),
     if (q['ruleRef']!.isNotEmpty) 'ruleRef': q['ruleRef'],
@@ -173,7 +175,10 @@ List<String> _split(String value, [String separator = '|']) => value.isEmpty
 
 /// Reads a CSV file (with a header row) into a list of maps.
 List<Map<String, String>> _readCsv(String path) {
-  final rows = _parseCsv(File(path).readAsStringSync());
+  var text = File(path).readAsStringSync();
+  // Excel can add a byte-order mark at the start of the file.
+  if (text.startsWith('\uFEFF')) text = text.substring(1);
+  final rows = _parseCsv(text);
   final header = rows.first;
   return [
     for (final row in rows.skip(1))
