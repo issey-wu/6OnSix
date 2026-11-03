@@ -1,4 +1,5 @@
 import 'package:six_on_six/core/domain/course.dart';
+import 'package:six_on_six/core/domain/glossary.dart';
 
 /// Thrown when the bundled content does not match the expected format.
 class ContentFormatException implements Exception {
@@ -14,14 +15,26 @@ const supportedSchemaVersion = 1;
 
 /// Parses the decoded course.json produced by content/export_content.dart.
 Course parseCourse(Map<String, Object?> json) {
-  final version = json['schemaVersion'];
-  if (version != supportedSchemaVersion) {
-    throw ContentFormatException('Unsupported schemaVersion $version');
-  }
+  _checkVersion(json);
   return Course(
     schemaVersion: supportedSchemaVersion,
     units: [for (final u in _list(json, 'units')) _unit(_map(u))],
   );
+}
+
+/// Parses the decoded glossary.json produced by content/export_content.dart.
+Glossary parseGlossary(Map<String, Object?> json) {
+  _checkVersion(json);
+  return Glossary(
+    terms: [for (final t in _list(json, 'terms')) _term(_map(t))],
+  );
+}
+
+void _checkVersion(Map<String, Object?> json) {
+  final version = json['schemaVersion'];
+  if (version != supportedSchemaVersion) {
+    throw ContentFormatException('Unsupported schemaVersion $version');
+  }
 }
 
 Unit _unit(Map<String, Object?> json) => Unit(
@@ -50,8 +63,17 @@ Question _question(Map<String, Object?> json) {
     'tf' => QuestionType.trueFalse,
     'match' => QuestionType.matching,
     'zone' => QuestionType.tapZone,
+    'drag' => QuestionType.dragDrop,
     final other => throw ContentFormatException('Unknown type "$other"'),
   };
+  final placements = <String, int>{
+    if (json['placements'] != null)
+      for (final entry in _map(json['placements']).entries)
+        entry.key: _zone(entry.value),
+  };
+  if (type == QuestionType.dragDrop && placements.isEmpty) {
+    throw const ContentFormatException('Drag-and-drop needs placements');
+  }
   return Question(
     id: _string(json, 'id'),
     type: type,
@@ -61,7 +83,9 @@ Question _question(Map<String, Object?> json) {
       if (json['options'] != null)
         for (final o in _list(json, 'options')) o.toString(),
     ],
-    answer: json['answer']?.toString() ?? '',
+    answer: type == QuestionType.dragDrop
+        ? Question.encodePlacements(placements)
+        : json['answer']?.toString() ?? '',
     pairs: [
       if (json['pairs'] != null)
         for (final p in _list(json, 'pairs'))
@@ -70,11 +94,29 @@ Question _question(Map<String, Object?> json) {
             right: _string(_map(p), 'right'),
           ),
     ],
+    placements: placements,
     concepts: [for (final c in _list(json, 'concepts')) c.toString()],
     ruleRef: json['ruleRef'] as String?,
     leagueNote: json['leagueNote'] as String?,
     phase: json['phase'] as String?,
   );
+}
+
+GlossaryTerm _term(Map<String, Object?> json) => GlossaryTerm(
+  id: _string(json, 'id'),
+  term: _string(json, 'term'),
+  definition: _string(json, 'definition'),
+  example: json['example'] as String?,
+  related: [
+    if (json['related'] != null)
+      for (final r in _list(json, 'related')) r.toString(),
+  ],
+  unitId: json['unit'] as String?,
+);
+
+int _zone(Object? value) {
+  if (value is int && value >= 1 && value <= 6) return value;
+  throw ContentFormatException('Expected a zone from 1 to 6, got $value');
 }
 
 Map<String, Object?> _map(Object? value) {

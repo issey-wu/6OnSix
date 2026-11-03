@@ -10,6 +10,7 @@ import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/domain/course.dart';
 import 'package:six_on_six/core/domain/lesson_session.dart';
 import 'package:six_on_six/features/lesson/presentation/court_view.dart';
+import 'package:six_on_six/features/lesson/presentation/drag_drop_view.dart';
 import 'package:six_on_six/features/lesson/presentation/matching_view.dart';
 
 enum _Stage { teaching, question, complete }
@@ -68,7 +69,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   void _check() {
     final q = _session!.current!;
     final correct = q.isCorrect(_response!);
-    unawaited(HapticFeedback.lightImpact());
+    if (ref.read(preferencesProvider).haptics) {
+      unawaited(
+        correct ? HapticFeedback.lightImpact() : HapticFeedback.mediumImpact(),
+      );
+    }
     setState(() => _lastCorrect = correct);
   }
 
@@ -239,6 +244,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       QuestionType.trueFalse => 'True or false?',
       QuestionType.matching => 'Match the pairs',
       QuestionType.tapZone => 'Tap the correct zone',
+      QuestionType.dragDrop => 'Drag players into position',
     };
     return Column(
       children: [
@@ -320,6 +326,13 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         );
       case QuestionType.matching:
         return MatchingView(question: q, onDone: _matchingDone);
+      case QuestionType.dragDrop:
+        return DragDropView(
+          question: q,
+          locked: locked,
+          haptics: ref.watch(preferencesProvider.select((p) => p.haptics)),
+          onChanged: (value) => setState(() => _response = value),
+        );
     }
   }
 
@@ -428,8 +441,11 @@ class _FeedbackPanel extends StatelessWidget {
     final tokens = AppTokens.of(context);
     final text = Theme.of(context).textTheme;
     final fg = correct ? tokens.onSuccess : tokens.onError;
+    final showArrangement = !correct && question.type == QuestionType.dragDrop;
     final title = correct
         ? (matchingMistake ? 'All matched' : praise)
+        : showArrangement
+        ? 'Correct arrangement:'
         : 'Correct answer: ${question.answerLabel}';
     final note = question.leagueNote;
     return Container(
@@ -455,6 +471,15 @@ class _FeedbackPanel extends StatelessWidget {
               ),
             ],
           ),
+          if (showArrangement) ...[
+            const SizedBox(height: 8),
+            Center(
+              child: SizedBox(
+                width: 168,
+                child: CourtLineup(placements: question.placements),
+              ),
+            ),
+          ],
           const SizedBox(height: 6),
           Text(
             question.explanation,

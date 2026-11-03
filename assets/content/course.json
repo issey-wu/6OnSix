@@ -273,6 +273,24 @@
                 "lineup"
               ],
               "ruleRef": "FIVB 7.6.1"
+            },
+            {
+              "id": "u1.l3.q06",
+              "type": "drag",
+              "prompt": "Rotation 1: S in 1, OH1 in 2, MB1 in 3, OPP in 4, OH2 in 5, MB2 in 6. Your team wins the serve back. Drag every player to their new zone.",
+              "placements": {
+                "S": 6,
+                "OH1": 1,
+                "MB1": 2,
+                "OPP": 3,
+                "OH2": 4,
+                "MB2": 5
+              },
+              "explanation": "Everyone moves one zone clockwise: 2 to 1, 1 to 6, 6 to 5, 5 to 4, 4 to 3 and 3 to 2.",
+              "concepts": [
+                "rotating"
+              ],
+              "ruleRef": "FIVB 7.6.2"
             }
           ]
         }
@@ -805,6 +823,21 @@
               "concepts": [
                 "libero"
               ]
+            },
+            {
+              "id": "u3.l3.q06",
+              "type": "drag",
+              "prompt": "In rotation 1 the back row is S in zone 1, OH2 in zone 5 and a middle blocker in zone 6. The libero comes in for the middle. Place the back row.",
+              "placements": {
+                "S": 1,
+                "OH2": 5,
+                "L": 6
+              },
+              "explanation": "The libero replaces the back-row middle in zone 6, and nobody else moves.",
+              "concepts": [
+                "libero"
+              ],
+              "ruleRef": "FIVB 19.3.1.1"
             }
           ]
         }
@@ -891,6 +924,21 @@
               "prompt": "In a 5-1, the two outside hitters are across from each other in the lineup.",
               "answer": "true",
               "explanation": "This keeps one outside hitter in the front row at all times.",
+              "concepts": [
+                "five-one",
+                "lineup"
+              ]
+            },
+            {
+              "id": "u4.l1.q05",
+              "type": "drag",
+              "prompt": "The setter is in zone 1, OH1 in zone 2 and MB1 in zone 3. Drag each partner across from them.",
+              "placements": {
+                "OPP": 4,
+                "OH2": 5,
+                "MB2": 6
+              },
+              "explanation": "Partners are three zones apart: the opposite in 4, the other outside hitter in 5 and the other middle in 6.",
               "concepts": [
                 "five-one",
                 "lineup"

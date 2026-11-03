@@ -16,29 +16,47 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final course = ref.watch(courseProvider);
     final progress = ref.watch(progressProvider);
+    final prefs = ref.watch(preferencesProvider);
     final streak = progress.streakOn(ref.watch(clockProvider).now().toLocal());
     final tokens = AppTokens.of(context);
+    final text = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('6 On Six'),
-        actions: [
-          Semantics(
-            label: '$streak day streak',
+        automaticallyImplyLeading: false,
+        titleSpacing: 16,
+        // Streak on the left, total XP on the right.
+        title: Semantics(
+          label: '$streak day streak',
+          child: ExcludeSemantics(
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.local_fire_department,
                   color: streak > 0 ? tokens.brandOrange : tokens.surfaceMuted,
                 ),
-                Text('$streak'),
+                const SizedBox(width: 4),
+                Text(
+                  '$streak',
+                  style: text.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: streak > 0 ? null : tokens.textSecondary,
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(width: 16),
+        ),
+        actions: [
           Semantics(
             label: '${progress.xp} XP',
-            child: Text('${progress.xp} XP'),
+            child: ExcludeSemantics(
+              child: Text(
+                '${progress.xp} XP',
+                style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+              ),
+            ),
           ),
           const SizedBox(width: 16),
         ],
@@ -54,22 +72,37 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
         ),
-        data: (course) => _Path(course: course, progress: progress),
+        data: (course) => _Path(
+          course: course,
+          progress: progress,
+          greeting: prefs.hasName ? 'Hey, ${prefs.displayName}' : 'Hey there',
+        ),
       ),
     );
   }
 }
 
 class _Path extends StatelessWidget {
-  const new({required this.course, required this.progress});
+  const new({
+    required this.course,
+    required this.progress,
+    required this.greeting,
+  });
 
   final Course course;
   final Progress progress;
+  final String greeting;
 
   @override
   Widget build(BuildContext context) {
     final path = course.path;
-    final children = <Widget>[];
+    final children = <Widget>[
+      Text(
+        greeting,
+        style: Theme.of(context).textTheme.titleSmall
+            ?.copyWith(color: AppTokens.of(context).textSecondary),
+      ),
+    ];
     Unit? lastUnit;
     for (var i = 0; i < path.length; i++) {
       final node = path[i];

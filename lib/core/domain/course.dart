@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 /// The kinds of question the lesson player supports.
-enum QuestionType { multipleChoice, trueFalse, matching, tapZone }
+enum QuestionType { multipleChoice, trueFalse, matching, tapZone, dragDrop }
 
 @immutable
 class TeachingCard {
@@ -24,7 +24,8 @@ class MatchPair {
 /// One question. Which answer fields are used depends on [type]:
 /// multiple choice uses [options] and [answer]; true/false uses [answer]
 /// ("true" or "false"); tap the zone uses [answer] (a zone from 1 to 6);
-/// matching uses [pairs].
+/// matching uses [pairs]; drag-and-drop uses [placements] (token to zone),
+/// and its [answer] is the same placements in [encodePlacements] form.
 @immutable
 class Question {
   const new({
@@ -35,6 +36,7 @@ class Question {
     this.options = const [],
     this.answer = '',
     this.pairs = const [],
+    this.placements = const {},
     this.concepts = const [],
     this.ruleRef,
     this.leagueNote,
@@ -48,6 +50,10 @@ class Question {
   final List<String> options;
   final String answer;
   final List<MatchPair> pairs;
+
+  /// Drag-and-drop only: the correct zone for each token. The keys are the
+  /// question's token set, which is what appears in the tray.
+  final Map<String, int> placements;
   final List<String> concepts;
   final String? ruleRef;
   final String? leagueNote;
@@ -55,13 +61,23 @@ class Question {
 
   bool isCorrect(String response) => response == answer;
 
-  /// The correct answer as the learner should read it.
+  /// The correct answer as the learner should read it. Drag-and-drop shows
+  /// the arrangement on a court instead, so its label is empty.
   String get answerLabel => switch (type) {
     QuestionType.trueFalse => answer == 'true' ? 'True' : 'False',
     QuestionType.tapZone => 'Zone $answer',
     QuestionType.multipleChoice => answer,
     QuestionType.matching => '',
+    QuestionType.dragDrop => '',
   };
+
+  /// A token-to-zone map as one stable string, such as "OH1=2|S=1".
+  /// Tokens are sorted, so the same placement always gives the same text,
+  /// which lets drag-and-drop be graded on exact placement with [isCorrect].
+  static String encodePlacements(Map<String, int> placements) {
+    final tokens = placements.keys.toList()..sort();
+    return [for (final t in tokens) '$t=${placements[t]}'].join('|');
+  }
 
   @override
   bool operator ==(Object other) => other is Question && other.id == id;

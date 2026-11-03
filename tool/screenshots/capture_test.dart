@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:six_on_six/app/app.dart';
@@ -78,6 +79,13 @@ Future<void> _answer(WidgetTester tester, Question q) async {
       }
       await tester.pumpAndSettle();
       return;
+    case QuestionType.dragDrop:
+      for (final MapEntry(key: token, value: zone) in q.placements.entries) {
+        await tester.tap(find.byKey(ValueKey('token-$token')));
+        await tester.pump();
+        await tester.tap(find.byKey(ValueKey('zone-$zone')));
+        await tester.pump();
+      }
   }
   await tester.pumpAndSettle();
   await tester.tap(find.text('Check'));
@@ -86,6 +94,11 @@ Future<void> _answer(WidgetTester tester, Question q) async {
 
 void main() {
   setUpAll(_loadFonts);
+
+  testWidgets('welcome', (tester) async {
+    await _pumpApp(tester);
+    await _shot(tester, '00_welcome');
+  });
 
   testWidgets('learning path', (tester) async {
     final container = await _pumpApp(tester);
@@ -150,5 +163,39 @@ void main() {
     await tester.pump();
     await tester.tap(find.text(pairs[1].left));
     await _shot(tester, '07_matching');
+  });
+
+  testWidgets('drag and drop', (tester) async {
+    final container = await _pumpApp(tester);
+    final course = _course();
+    final drag = course.path
+        .expand((n) => n.lesson?.questions ?? const <Question>[])
+        .firstWhere((q) => q.type == QuestionType.dragDrop);
+    final lesson = course.path
+        .firstWhere((n) => n.lesson?.questions.contains(drag) ?? false)
+        .lesson!;
+    container.read(routerProvider).go('/lesson/${lesson.id}');
+    await tester.pumpAndSettle();
+    for (var i = 0; i < lesson.cards.length; i++) {
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+    }
+    for (final q in lesson.questions.takeWhile((q) => q != drag)) {
+      await _answer(tester, q);
+      await tester.tap(find.text('Continue').last);
+      await tester.pumpAndSettle();
+    }
+    final first = drag.placements.entries.first;
+    await tester.tap(find.byKey(ValueKey('token-${first.key}')));
+    await tester.pump();
+    await tester.tap(find.byKey(ValueKey('zone-${first.value}')));
+    await _shot(tester, '08_drag_and_drop');
+  });
+
+  testWidgets('glossary', (tester) async {
+    final container = await _pumpApp(tester);
+    container.read(preferencesProvider.notifier).markWelcomeSeen();
+    container.read(routerProvider).go('/glossary');
+    await _shot(tester, '09_glossary');
   });
 }

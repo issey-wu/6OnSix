@@ -1,0 +1,60 @@
+id,term,definition,example,related,unit
+ace,Ace,A serve that scores directly because the other team can't return it.,She closed the set with an ace down the line.,serve|float-serve,u2
+antenna,Antenna,A thin rod on each side of the net that marks the side limit for crossing. A ball that touches it is out.,"The swing was hard but clipped the antenna, so the point went the other way.",net-fault|crossing-space,u1
+attack,Attack,"Any hit, other than a serve or block, that sends the ball toward the other team. Usually the third touch.","After a perfect pass, the attack went to the outside hitter.",kill|tip|spike,u2
+attack-line,Attack line,The line 3 m from the centre line that separates the front zone from the back zone.,Back-row hitters must jump from behind the attack line.,back-row-attack|front-row,u1
+back-row,Back row,"Zones 5, 6 and 1. Back-row players may not block, or attack a ball fully above the net from in front of the attack line.",The setter is in the back row for half of the rotations.,front-row|libero|back-row-attack,u1
+back-row-attack,Back-row attack,An attack by a back-row player who takes off from behind the attack line.,Their outside hitter swung a back-row attack from zone 6.,pipe|attack-line,u2
+block,Block,A front-row player's attempt to stop an attack by reaching above the net. It doesn't count as a team touch.,Two blockers closed the seam and the attack came straight back.,stuff-block|middle-blocker,u2
+bump,Bump,Everyday name for the forearm pass.,Bump it high to the setter.,pass|platform,u2
+centre-line,Centre line,The line under the net that splits the court into two halves.,"Her foot crossed the centre line completely, so it was a fault.",foot-fault|net-fault,u1
+cover,Cover,"Teammates crouching around an attacking hitter, ready to play a ball blocked back.",Good cover kept the rally alive after the block.,transition|attack,u2
+crossing-space,Crossing space,The part of the net's vertical plane between the antennae that the ball must pass through.,"The overpass went outside the crossing space, so it was out.",antenna,u1
+defensive-specialist,Defensive specialist,A back-row substitute (DS) brought in for passing and defence.,The coach subbed in a defensive specialist for the middle's back-row turn.,libero|substitution,u1
+dig,Dig,"Passing a hard-driven attack, usually with the forearms.",The libero dug the spike right to the setter.,pass|libero,u2
+double-contact,Double contact,One player touching the ball twice in a row. Allowed only on a block or in one action on the team's first touch.,"The setter's hands weren't even, so the ref called a double contact.",fault|lift,u2
+down-ball,Down ball,"An attack hit from a standing position or low jump, usually when the set is off.","The set was too far off the net, so he hit a down ball.",free-ball|attack,u2
+end-line,End line,The back boundary of the court. The server stands behind it.,"The serve landed right on the end line, so it was in.",service-zone|foot-fault,u1
+fault,Fault,A rules violation. It ends the rally and gives the other team the point.,Four touches is a fault even if the last one goes over.,net-fault|double-contact|foot-fault,u2
+five-one-5-1,Five-one (5-1),A system with one setter who sets in all six rotations and five hitters.,In our 5-1 the setter starts in zone 1 in rotation 1.,setter|six-two-6-2|rotation,u4
+float-serve,Float serve,"A serve hit with no spin, so it moves unpredictably in the air.",Her float serve dropped just as the passer moved.,serve|topspin-serve|jump-serve,u2
+foot-fault,Foot fault,Touching the court or end line before hitting the serve.,"He stepped on the end line as he served, so it was a foot fault.",serve|end-line,u3
+free-ball,Free ball,An easy ball sent over without an attack. The call tells teammates to get into passing spots.,"""Free ball!"" The middle dropped off the net to pass.",down-ball|transition,u2
+front-row,Front row,"Zones 4, 3 and 2, closest to the net. Only front-row players may block.","The setter is in the front row in rotations 4, 5 and 6.",back-row|block,u1
+jump-serve,Jump serve,A serve hit at the top of a run-up and jump for extra power.,His jump serve was too fast to pass cleanly.,serve|topspin-serve,u2
+kill,Kill,An attack that scores directly.,She had twelve kills in the first set.,attack|spike,u2
+let-serve,Let serve,A serve that touches the net and still crosses into the other court. Legal under FIVB rules.,The let serve trickled over and dropped for an ace.,serve,u3
+libero,Libero,"A back-row specialist in a contrasting jersey. Plays only in zones 5, 6 and 1, and may not block or attempt to block.",The libero came in for the middle blocker in zone 6.,back-row|defensive-specialist|dig,u1
+lift,Lift,"A ball that is held, caught or thrown instead of hit cleanly. Also called a catch.",The ref called a lift on the one-handed save.,double-contact|fault,u2
+line-judge,Line judge,An official who uses a flag to signal whether a ball is in or out.,The line judge flagged the serve out.,referee|antenna,u2
+middle-blocker,Middle blocker,A front-row player (MB) who blocks across the net and hits quick sets from zone 3.,The middle blocker read the setter and closed the block.,block|quick-set,u1
+net-fault,Net fault,Touching the net between the antennae while playing the ball.,"He brushed the tape on the way down, so it was a net fault.",fault|antenna,u2
+opposite,Opposite,The hitter (OPP) who plays across from the setter in the rotation and attacks from right front.,The opposite hit a big swing from zone 2.,setter|outside-hitter,u1
+outside-hitter,Outside hitter,A hitter (OH) who attacks from left front and also passes in serve receive.,The set went high to the outside hitter in zone 4.,opposite|serve-receive,u1
+overlap,Overlap,A positional fault: a receiving player out of rotation order when the ball is served.,"Zone 4 was standing behind zone 5 at the serve, so the ref called an overlap.",rotation|zone,u3
+overpass,Overpass,A first or second touch that goes over the net by accident.,The pass was an overpass and their middle put it away.,pass,u2
+pass,Pass,"The first touch, usually a forearm pass, sending the ball to the setter.",A good pass lets the setter run any play.,bump|platform|serve-receive,u2
+pipe,Pipe,"A back-row attack from the middle of the court, behind the attack line.",The setter dished a pipe to the outside in zone 6.,back-row-attack,u2
+platform,Platform,The flat surface made by joining your hands and locking your forearms to pass.,Keep your platform angled at the setter.,pass|bump,u2
+quick-set,Quick set,"A fast, low set to a middle blocker who is already jumping.",The quick set beat the block before it formed.,middle-blocker|set-skill,u2
+rally-scoring,Rally scoring,"A scoring system where every rally ends in a point, no matter who served.","Under rally scoring, a missed serve gives the other team a point.",side-out|set-match,u2
+referee,Referee,The first referee runs the match from a raised stand; the second referee works on the floor on the other side.,The first referee whistled for the serve.,line-judge|timeout,u2
+roll-shot,Roll shot,"A soft attack with topspin, hit over the block into open space.",She saw the deep defence and used a roll shot.,tip|attack,u2
+rotation,Rotation,Moving one zone clockwise after winning the serve back. Also the name for each of the six lineups.,"We're in rotation 1, so the setter is serving.",zone|side-out|overlap,u3
+serve,Serve,"The hit that starts each rally, made by the player in zone 1 from behind the end line.",You have 8 seconds after the whistle to serve.,ace|service-zone|foot-fault,u3
+serve-receive,Serve receive,The formation and passing a team uses when the other team is serving.,Three passers split the court in serve receive.,pass|side-out,u3
+service-zone,Service zone,The 9 m wide area behind the end line where the server stands.,Serve from anywhere in the service zone.,serve|end-line,u1
+set-match,Set (match),"One game within a match. Regular sets go to 25 and the deciding set to 15, both won by 2.",They won the first set 25–22.,rally-scoring,u2
+set-skill,Set (skill),"An overhead fingertip touch that places the ball for a hitter, usually the second touch.","The set was perfect, right at the antenna.",setter|quick-set,u2
+setter,Setter,The player (S) who takes the second touch and decides who attacks.,The setter faked to the middle and set the outside.,set-skill|five-one-5-1,u1
+shank,Shank,A badly mis-hit pass that goes far from the target.,The serve hit his wrist and he shanked it into the stands.,pass,u2
+side-out,Side-out,"Winning a rally while the other team is serving. You score, win the serve and rotate.",We sided out and rotated our outside hitter back to serve.,rotation|serve-receive,u3
+six-two-6-2,Six-two (6-2),"A system with two setters who each set from the back row, so there are always three front-row hitters.","In a 6-2, the setter in the front row becomes a hitter.",five-one-5-1|setter,u4
+spike,Spike,"A hard, downward attack hit at the top of a jump.",She spiked it cross-court for the kill.,attack|kill,u2
+stuff-block,Stuff block,A block that sends the ball straight down onto the attacker's side for a point.,The middle stuff-blocked the quick set.,block,u2
+substitution,Substitution,Replacing one player with another. FIVB allows six per team per set; libero replacements don't count.,The coach used a substitution to bring in a server.,libero|timeout,u2
+timeout,Timeout,A 30-second break a team can call. FIVB allows two per team per set.,"Down 3 points, the coach called a timeout.",substitution|referee,u2
+tip,Tip,A soft fingertip touch that drops the ball over or around the block.,She tipped it into the open middle of the court.,roll-shot|attack,u2
+topspin-serve,Topspin serve,A serve with forward spin that dives down quickly.,The topspin serve dropped right inside the end line.,float-serve|jump-serve,u2
+transition,Transition,Switching from defence to attack after your team digs or blocks the ball.,"After the dig, the middle transitioned off the net to hit.",free-ball|cover,u2
+zone,Zone,"One of six areas on each half. Front row 4, 3, 2 and back row 5, 6, 1, with the net at the top.",The server stands in zone 1.,rotation|front-row|back-row,u1
