@@ -14,8 +14,29 @@ import 'package:six_on_six/core/domain/user_state.dart';
 
 const _logger = AppLogger('providers');
 
+/// How far the developer menu has moved the app's clock forward. Always
+/// zero unless someone uses the developer menu in a debug build.
+final clockShiftProvider = NotifierProvider<ClockShiftController, Duration>(
+  ClockShiftController.new,
+);
+
+class ClockShiftController extends Notifier<Duration> {
+  @override
+  Duration build() => Duration.zero;
+
+  /// Moves the app's clock forward, for testing streaks.
+  void addDays(int days) => state += Duration(days: days);
+
+  void reset() => state = Duration.zero;
+}
+
 /// The time source for all app logic. Override in tests to control time.
-final clockProvider = Provider<Clock>((ref) => const SystemClock());
+final clockProvider = Provider<Clock>((ref) {
+  final shift = ref.watch(clockShiftProvider);
+  return shift == Duration.zero
+      ? const SystemClock()
+      : ShiftedClock(const SystemClock(), shift);
+});
 
 /// Game-rule parameters. Override to change rules (e.g. for user testing).
 final gameRulesProvider = Provider<GameRules>((ref) => const GameRules());

@@ -65,6 +65,7 @@ class FeedbackPanel extends StatelessWidget {
     required this.explanation,
     required this.onContinue,
     this.note,
+    this.extra,
     super.key,
   });
 
@@ -74,12 +75,16 @@ class FeedbackPanel extends StatelessWidget {
   final String? note;
   final VoidCallback onContinue;
 
+  /// Shown under the title, such as the correct court arrangement.
+  final Widget? extra;
+
   @override
   Widget build(BuildContext context) {
     final tokens = AppTokens.of(context);
     final text = Theme.of(context).textTheme;
     final fg = correct ? tokens.onSuccess : tokens.onError;
     final note = this.note;
+    final extra = this.extra;
     return Container(
       width: double.infinity,
       color: correct ? tokens.successBg : tokens.errorBg,
@@ -108,6 +113,10 @@ class FeedbackPanel extends StatelessWidget {
                 ),
               ],
             ),
+            if (extra != null) ...[
+              const SizedBox(height: 8),
+              Center(child: extra),
+            ],
             const SizedBox(height: 6),
             Text(explanation, style: text.bodyMedium?.copyWith(color: fg)),
             if (note != null) ...[

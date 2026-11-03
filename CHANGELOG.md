@@ -15,8 +15,8 @@ All notable changes to this project are recorded here. The format follows
   full screen with the bar hidden.
 - Learning path: greeting, lesson pop-up card (Start or Practice again),
   scroll to the current lesson, gentle pulse on the current node.
-- Drag-and-drop court questions (drag or tap to place), with 6 new questions.
-- Glossary: 97 draft terms, search by name or definition, A to Z groups,
+- Drag-and-drop court questions (drag or tap to place), with 8 new questions.
+- Glossary: 106 draft terms, search by name or definition, A to Z groups,
   term pages with examples and related terms.
 - Profile (name, streak, XP, lessons and units completed, unit progress) and
   Settings (theme, sound, haptics, reset progress, about).
@@ -24,6 +24,21 @@ All notable changes to this project are recorded here. The format follows
 - Light and dark themes follow the Appearance setting.
 - Shared UI components in `lib/core/ui/`.
 - `tool/check.dart` to run all checks in one command.
+
+### Added from Yash Dubey's `yash/screens` branch
+- Developer menu in Settings (debug builds only): simulate the next day to
+  test streaks, reset the clock, and jump to any lesson.
+- Drag-and-drop improvements: dropping on a taken zone swaps the players,
+  tapping a player on court with another picked swaps them, picking a placed
+  player and tapping the tray takes it off, and the tray order is shuffled.
+- Player token design (orange tokens, contrasting libero, lifted shadow while
+  dragging) and full role names for screen readers.
+- After a wrong drag-and-drop answer, the feedback panel shows a small court
+  with the correct arrangement.
+- 2 drag-and-drop questions (back row with the libero; placing partners) and
+  9 glossary terms (Bump, Platform, Lift, Shank, Stuff block, Foot fault,
+  Fault, Line judge, Topspin serve).
+- Widget tests for drag-and-drop and tests for the developer clock.
 
 ## [0.1.0] - 2026-10-23
 

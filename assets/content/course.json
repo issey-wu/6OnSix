@@ -861,6 +861,22 @@
                 "libero"
               ],
               "ruleRef": "FIVB 19.3.1.1"
+            },
+            {
+              "id": "u3.l3.q07",
+              "type": "drag",
+              "prompt": "In rotation 1 the back row is S in zone 1, OH2 in zone 5 and a middle blocker in zone 6. The libero comes in for the middle. Place the back row.",
+              "tokens": [
+                "S",
+                "OH2",
+                "L"
+              ],
+              "answer": "S=1|OH2=5|L=6",
+              "explanation": "The libero replaces the back-row middle in zone 6, and nobody else moves.",
+              "concepts": [
+                "libero"
+              ],
+              "ruleRef": "FIVB 19.3.1.1"
             }
           ]
         }
@@ -962,6 +978,22 @@
               ],
               "answer": "S=1|OPP=4",
               "explanation": "The opposite is always three zones away from the setter, so zone 4.",
+              "concepts": [
+                "five-one",
+                "lineup"
+              ]
+            },
+            {
+              "id": "u4.l1.q06",
+              "type": "drag",
+              "prompt": "The setter is in zone 1, OH1 in zone 2 and MB1 in zone 3. Place each partner three zones away from them.",
+              "tokens": [
+                "OPP",
+                "OH2",
+                "MB2"
+              ],
+              "answer": "OPP=4|OH2=5|MB2=6",
+              "explanation": "Partners are three zones apart: the opposite in 4, the other outside hitter in 5 and the other middle in 6.",
               "concepts": [
                 "five-one",
                 "lineup"
@@ -1337,6 +1369,17 @@
       "unit": "u2"
     },
     {
+      "id": "bump",
+      "term": "Bump",
+      "definition": "Everyday name for the forearm pass.",
+      "example": "Bump it high to the setter.",
+      "related": [
+        "forearm-pass",
+        "platform"
+      ],
+      "unit": "u2"
+    },
+    {
       "id": "captain",
       "term": "Captain",
       "definition": "The player who speaks for the team with the referees.",
@@ -1504,6 +1547,18 @@
       "unit": "u1"
     },
     {
+      "id": "fault",
+      "term": "Fault",
+      "definition": "A rules violation. It ends the rally and gives the other team the point.",
+      "example": "Four touches is a fault even if the last one goes over.",
+      "related": [
+        "net-fault",
+        "double-contact",
+        "foot-fault"
+      ],
+      "unit": "u2"
+    },
+    {
       "id": "first-referee",
       "term": "First referee",
       "definition": "The official on the stand at one end of the net who starts each rally and has the final say.",
@@ -1521,6 +1576,18 @@
       "related": [
         "serve",
         "jump-serve"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "foot-fault",
+      "term": "Foot fault",
+      "definition": "Touching the court or the end line at the moment of the serve hit, or the take-off for a jump serve.",
+      "example": "He stepped on the end line as he served, so it was a foot fault.",
+      "related": [
+        "serve",
+        "end-line",
+        "fault"
       ],
       "unit": "u3"
     },
@@ -1668,6 +1735,30 @@
         "substitution"
       ],
       "unit": "u3"
+    },
+    {
+      "id": "lift",
+      "term": "Lift",
+      "definition": "A ball that is held, caught or thrown instead of hit cleanly. The rules call it a catch.",
+      "example": "The ref called a lift on the one-handed save.",
+      "related": [
+        "catch",
+        "double-contact",
+        "fault"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "line-judge",
+      "term": "Line judge",
+      "definition": "An official who uses a flag to signal whether a ball is in or out.",
+      "example": "The line judge flagged the serve out.",
+      "related": [
+        "first-referee",
+        "second-referee",
+        "antenna"
+      ],
+      "unit": "u2"
     },
     {
       "id": "lineup",
@@ -1860,6 +1951,17 @@
         "attack-line"
       ],
       "unit": "u4"
+    },
+    {
+      "id": "platform",
+      "term": "Platform",
+      "definition": "The flat surface made by joining your hands and locking your forearms to pass.",
+      "example": "Keep your platform angled at the setter.",
+      "related": [
+        "forearm-pass",
+        "bump"
+      ],
+      "unit": "u2"
     },
     {
       "id": "positional-fault",
@@ -2122,6 +2224,17 @@
       "unit": "u4"
     },
     {
+      "id": "shank",
+      "term": "Shank",
+      "definition": "A badly mis-hit pass that goes far from the target.",
+      "example": "The serve hit his wrist and he shanked it into the stands.",
+      "related": [
+        "pass",
+        "forearm-pass"
+      ],
+      "unit": "u2"
+    },
+    {
       "id": "sideline",
       "term": "Sideline",
       "definition": "The two lines along the long sides of the court.",
@@ -2167,6 +2280,17 @@
         "serve-receive"
       ],
       "unit": "u4"
+    },
+    {
+      "id": "stuff-block",
+      "term": "Stuff block",
+      "definition": "A block that sends the ball straight down onto the attacker's side for a point.",
+      "example": "The middle stuff-blocked the quick set.",
+      "related": [
+        "block",
+        "kill"
+      ],
+      "unit": "u2"
     },
     {
       "id": "substitution",
@@ -2236,6 +2360,18 @@
         "out"
       ],
       "unit": "u2"
+    },
+    {
+      "id": "topspin-serve",
+      "term": "Topspin serve",
+      "definition": "A serve with forward spin that dives down quickly.",
+      "example": "The topspin serve dropped right inside the end line.",
+      "related": [
+        "serve",
+        "float-serve",
+        "jump-serve"
+      ],
+      "unit": "u3"
     },
     {
       "id": "transition",

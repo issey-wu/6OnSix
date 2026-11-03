@@ -46,3 +46,10 @@ A short list of the current stack and architecture choices. Update an entry when
 
 - **GitHub Actions CI** on pushes and PRs to `main`. One job runs format, analyze, and test. A second job builds a debug APK, because the Mac has no Android SDK.
 - **Claude Code attribution is turned off** in `.claude/settings.json`.
+
+## Team workflow
+
+- **Yash leads UI and UX.** He owns the look and behaviour of screens: `lib/core/ui/`, `lib/app/theme.dart` and `lib/features/*/presentation/`. Issey owns logic, data, content, tests and tooling. Either can change the other's area for the demo, and design changes are reconciled in rounds.
+- **Always branch from the latest `main`** and keep branches short, so work merges cleanly.
+- **Co-author credit:** any commit that includes Yash's code, design, or changes made from his review feedback ends with `Co-authored-by: Yash Dubey <dubeyy@mcmaster.ca>`, so GitHub credits both of us. Commits he had no part in don't get the line, so the history stays accurate.
+- **Reconciling `yash/screens` (Nov 2026):** the demo build stayed the base. Yash's developer menu, drag-and-drop interaction, player token design, correct-arrangement court, tests, 2 new questions and 9 new glossary terms were ported into it, credited to him. His duplicate rotation question and the glossary terms that matched existing ones were left out.
