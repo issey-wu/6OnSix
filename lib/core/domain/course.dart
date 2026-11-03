@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 /// The kinds of question the lesson player supports.
-enum QuestionType { multipleChoice, trueFalse, matching, tapZone }
+enum QuestionType { multipleChoice, trueFalse, matching, tapZone, dragDrop }
 
 @immutable
 class TeachingCard {
@@ -24,7 +24,8 @@ class MatchPair {
 /// One question. Which answer fields are used depends on [type]:
 /// multiple choice uses [options] and [answer]; true/false uses [answer]
 /// ("true" or "false"); tap the zone uses [answer] (a zone from 1 to 6);
-/// matching uses [pairs].
+/// matching uses [pairs]; drag-and-drop uses [tokens] and [answer]
+/// (placements in token order, such as "S=1|OPP=4").
 @immutable
 class Question {
   const new({
@@ -35,6 +36,7 @@ class Question {
     this.options = const [],
     this.answer = '',
     this.pairs = const [],
+    this.tokens = const [],
     this.concepts = const [],
     this.ruleRef,
     this.leagueNote,
@@ -48,6 +50,7 @@ class Question {
   final List<String> options;
   final String answer;
   final List<MatchPair> pairs;
+  final List<String> tokens;
   final List<String> concepts;
   final String? ruleRef;
   final String? leagueNote;
@@ -61,6 +64,16 @@ class Question {
     QuestionType.tapZone => 'Zone $answer',
     QuestionType.multipleChoice => answer,
     QuestionType.matching => '',
+    QuestionType.dragDrop => [
+      for (final entry in placements.entries)
+        '${entry.key} in zone ${entry.value}',
+    ].join(', '),
+  };
+
+  /// For drag-and-drop: where each token belongs.
+  Map<String, int> get placements => {
+    for (final part in answer.split('|'))
+      if (part.contains('=')) part.split('=')[0]: int.parse(part.split('=')[1]),
   };
 
   @override
@@ -124,11 +137,46 @@ class PathNode {
 }
 
 @immutable
+class GlossaryTerm {
+  const new({
+    required this.id,
+    required this.term,
+    required this.definition,
+    this.example,
+    this.related = const [],
+    this.unitId,
+  });
+
+  final String id;
+  final String term;
+  final String definition;
+  final String? example;
+
+  /// Ids of related glossary terms.
+  final List<String> related;
+  final String? unitId;
+}
+
+@immutable
 class Course {
-  const new({required this.schemaVersion, required this.units});
+  const new({
+    required this.schemaVersion,
+    required this.units,
+    this.glossary = const [],
+  });
 
   final int schemaVersion;
   final List<Unit> units;
+
+  /// Sorted A to Z by term.
+  final List<GlossaryTerm> glossary;
+
+  GlossaryTerm? termById(String id) {
+    for (final term in glossary) {
+      if (term.id == id) return term;
+    }
+    return null;
+  }
 
   /// Every node in path order: each unit's lessons, then its review.
   List<PathNode> get path => [

@@ -7,10 +7,18 @@ import 'package:six_on_six/core/domain/course.dart';
 /// A matching question: tap a left item, then its match on the right.
 /// Calls [onDone] once every pair is matched.
 class MatchingView extends StatefulWidget {
-  const new({required this.question, required this.onDone, super.key});
+  const new({
+    required this.question,
+    required this.onDone,
+    this.onPairMatched,
+    this.onWrongPair,
+    super.key,
+  });
 
   final Question question;
   final ValueChanged<bool> onDone;
+  final VoidCallback? onPairMatched;
+  final VoidCallback? onWrongPair;
 
   @override
   State<MatchingView> createState() => _MatchingViewState();
@@ -35,8 +43,10 @@ class _MatchingViewState extends State<MatchingView> {
   void _tapRight(MatchPair pair) {
     final left = _selectedLeft;
     if (left == null) return;
+    final correct = identical(left, pair);
+    (correct ? widget.onPairMatched : widget.onWrongPair)?.call();
     setState(() {
-      if (identical(left, pair)) {
+      if (correct) {
         _matched.add(pair);
         _selectedLeft = null;
         _wrongRight = null;

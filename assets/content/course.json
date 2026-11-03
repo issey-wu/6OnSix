@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "units": [
     {
       "id": "u1",
@@ -273,6 +273,43 @@
                 "lineup"
               ],
               "ruleRef": "FIVB 7.6.1"
+            },
+            {
+              "id": "u1.l3.q06",
+              "type": "drag",
+              "prompt": "The lineup in zones 1 to 6 is S, OH1, MB1, OPP, OH2, MB2. Place each player.",
+              "tokens": [
+                "S",
+                "OH1",
+                "MB1",
+                "OPP",
+                "OH2",
+                "MB2"
+              ],
+              "answer": "S=1|OH1=2|MB1=3|OPP=4|OH2=5|MB2=6",
+              "explanation": "The lineup fills zones 1 to 6 in order, starting with the setter in zone 1.",
+              "concepts": [
+                "lineup"
+              ]
+            },
+            {
+              "id": "u1.l3.q07",
+              "type": "drag",
+              "prompt": "The same lineup rotates once. Place each player.",
+              "tokens": [
+                "S",
+                "OH1",
+                "MB1",
+                "OPP",
+                "OH2",
+                "MB2"
+              ],
+              "answer": "S=6|OH1=1|MB1=2|OPP=3|OH2=4|MB2=5",
+              "explanation": "Everyone moves one zone clockwise, so OH1 moves from zone 2 to zone 1 to serve.",
+              "concepts": [
+                "rotating"
+              ],
+              "ruleRef": "FIVB 7.6.2"
             }
           ]
         }
@@ -805,6 +842,25 @@
               "concepts": [
                 "libero"
               ]
+            },
+            {
+              "id": "u3.l3.q06",
+              "type": "drag",
+              "prompt": "The lineup in zones 1 to 6 is S, OH1, MB1, OPP, OH2, MB2. The libero replaces the back-row middle. Place each player.",
+              "tokens": [
+                "S",
+                "OH1",
+                "MB1",
+                "OPP",
+                "OH2",
+                "L"
+              ],
+              "answer": "S=1|OH1=2|MB1=3|OPP=4|OH2=5|L=6",
+              "explanation": "MB2 starts in zone 6, a back-row zone, so the libero takes that spot.",
+              "concepts": [
+                "libero"
+              ],
+              "ruleRef": "FIVB 19.3.1.1"
             }
           ]
         }
@@ -895,6 +951,21 @@
                 "five-one",
                 "lineup"
               ]
+            },
+            {
+              "id": "u4.l1.q05",
+              "type": "drag",
+              "prompt": "In a 5-1, the setter starts in zone 1. Place the setter and the opposite.",
+              "tokens": [
+                "S",
+                "OPP"
+              ],
+              "answer": "S=1|OPP=4",
+              "explanation": "The opposite is always three zones away from the setter, so zone 4.",
+              "concepts": [
+                "five-one",
+                "lineup"
+              ]
             }
           ]
         },
@@ -975,6 +1046,21 @@
               "concepts": [
                 "five-one",
                 "lineup"
+              ]
+            },
+            {
+              "id": "u4.l2.q06",
+              "type": "drag",
+              "prompt": "The setter is in zone 4, in the front row. Place the setter and the opposite.",
+              "tokens": [
+                "S",
+                "OPP"
+              ],
+              "answer": "S=4|OPP=1",
+              "explanation": "Three zones away from zone 4 is zone 1, so the opposite is in the back row.",
+              "concepts": [
+                "setter-position",
+                "five-one"
               ]
             }
           ]
@@ -1060,10 +1146,1130 @@
               "concepts": [
                 "rotations"
               ]
+            },
+            {
+              "id": "u4.l3.q06",
+              "type": "drag",
+              "prompt": "The setter is in zone 5. The order around the lineup is S, OH1, MB1, OPP, OH2, MB2. Place each player.",
+              "tokens": [
+                "S",
+                "OH1",
+                "MB1",
+                "OPP",
+                "OH2",
+                "MB2"
+              ],
+              "answer": "S=5|OH1=6|MB1=1|OPP=2|OH2=3|MB2=4",
+              "explanation": "Each player follows the one before in zone order: 5, 6, 1, 2, 3, 4.",
+              "concepts": [
+                "rotations"
+              ]
             }
           ]
         }
       ]
+    }
+  ],
+  "glossary": [
+    {
+      "id": "four-two",
+      "term": "4-2",
+      "definition": "A system with two setters, each setting from the front row, and four hitters. Common with newer teams.",
+      "example": "A 4-2 keeps things simple, but only two players attack in each rotation.",
+      "related": [
+        "five-one",
+        "six-two"
+      ],
+      "unit": "u4"
+    },
+    {
+      "id": "five-one",
+      "term": "5-1",
+      "definition": "A system with one setter in all six rotations and five hitters: two outside hitters, two middle blockers and one opposite.",
+      "example": "In a 5-1, the setter is across the lineup from the opposite.",
+      "related": [
+        "setter",
+        "opposite",
+        "six-two",
+        "four-two"
+      ],
+      "unit": "u4"
+    },
+    {
+      "id": "six-two",
+      "term": "6-2",
+      "definition": "A system with two setters, each setting only from the back row, so there are always three front-row hitters.",
+      "example": "In a 6-2, the setter who rotates to the front row becomes a hitter.",
+      "related": [
+        "five-one",
+        "four-two",
+        "setter"
+      ],
+      "unit": "u4"
+    },
+    {
+      "id": "ace",
+      "term": "Ace",
+      "definition": "A serve that scores directly, with no successful pass by the receiving team.",
+      "example": "The server earned an ace when the ball dropped between two passers.",
+      "related": [
+        "serve",
+        "service-error"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "antenna",
+      "term": "Antenna",
+      "definition": "A flexible rod fixed to each side of the net. It marks the side edge of the space the ball must cross.",
+      "example": "A ball that touches the antenna is out.",
+      "related": [
+        "net",
+        "crossing-space",
+        "out"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "assisted-hit",
+      "term": "Assisted hit",
+      "definition": "A player using a teammate or any object to reach the ball. It is a fault.",
+      "example": "Pushing off a teammate to jump higher for a dig is an assisted hit.",
+      "related": [
+        "contact"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "attack-hit",
+      "term": "Attack hit",
+      "definition": "Any action that sends the ball toward the opponent, except a serve or a block.",
+      "example": "A spike, a tip and a roll shot are all attack hits.",
+      "related": [
+        "spike",
+        "tip",
+        "back-row-attack"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "attack-line",
+      "term": "Attack line",
+      "definition": "The line 3 m from the centre line on each side. It separates the front zone from the back zone.",
+      "example": "A back-row player must take off from behind the attack line to attack above the net.",
+      "related": [
+        "front-zone",
+        "back-zone",
+        "back-row-attack"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "back-row",
+      "term": "Back row",
+      "definition": "The three players in zones 5, 6 and 1 at the serve. They may not block, and must attack from behind the attack line.",
+      "example": "A back-row player who jumps from behind the attack line may attack above the net.",
+      "related": [
+        "zones",
+        "front-row",
+        "back-row-attack",
+        "back-row-block"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "back-row-attack",
+      "term": "Back-row attack",
+      "definition": "An attack by a back-row player. It is legal only if the player takes off from behind the attack line when the ball is fully above the net.",
+      "example": "The opposite hit a back-row attack from behind the attack line.",
+      "related": [
+        "attack-line",
+        "back-row",
+        "pipe"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "back-row-block",
+      "term": "Back-row block fault",
+      "definition": "A back-row player or the libero completing or attempting a block. It is a fault.",
+      "example": "The setter in zone 1 may not join the block.",
+      "related": [
+        "block",
+        "back-row",
+        "libero"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "back-zone",
+      "term": "Back zone",
+      "definition": "The area behind the attack line, up to the end line.",
+      "example": "The libero usually plays in the back zone.",
+      "related": [
+        "attack-line",
+        "front-zone",
+        "back-row"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "base-position",
+      "term": "Base position",
+      "definition": "Where a player goes after the serve to play their role.",
+      "example": "A setter's base position is the right front, between zones 2 and 3.",
+      "related": [
+        "switching",
+        "setter"
+      ],
+      "unit": "u4"
+    },
+    {
+      "id": "block",
+      "term": "Block",
+      "definition": "Players close to the net reaching above it to stop the opponent's attack. Only front-row players may complete a block, and a block touch does not count as a team contact.",
+      "example": "After a block touch, the team still has three contacts.",
+      "related": [
+        "three-contacts",
+        "back-row-block",
+        "reaching-over"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "captain",
+      "term": "Captain",
+      "definition": "The player who speaks for the team with the referees.",
+      "example": "Only the game captain may ask the referee to explain a call during play.",
+      "related": [
+        "first-referee"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "catch",
+      "term": "Catch",
+      "definition": "When the ball is caught or thrown instead of being hit. It is a fault.",
+      "example": "A tip that is held in the hand before being pushed over is a catch.",
+      "related": [
+        "double-contact",
+        "tip"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "centre-line",
+      "term": "Centre line",
+      "definition": "The line under the net that splits the court into two halves.",
+      "example": "A foot may cross the centre line only if part of it stays on or above the line.",
+      "related": [
+        "court",
+        "net",
+        "centre-line-fault"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "centre-line-fault",
+      "term": "Centre line fault",
+      "definition": "Crossing into the opponent's court in a way that is not allowed, such as with the whole foot or by interfering with their play.",
+      "example": "Landing with your whole foot past the centre line is a fault.",
+      "related": [
+        "centre-line"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "contact",
+      "term": "Contact",
+      "definition": "Any touch of the ball by a player.",
+      "example": "A team may make up to three contacts before sending the ball over.",
+      "related": [
+        "three-contacts",
+        "double-contact"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "court",
+      "term": "Court",
+      "definition": "The 18 m by 9 m playing area. The net splits it into two 9 m by 9 m halves, one per team.",
+      "example": "Each team defends its own half of the court.",
+      "related": [
+        "centre-line",
+        "attack-line",
+        "free-zone",
+        "zones"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "cover",
+      "term": "Cover",
+      "definition": "Teammates moving close to their own attacker to dig a ball that is blocked back.",
+      "example": "Good cover turned the blocked spike into a second attack.",
+      "related": [
+        "block",
+        "dig",
+        "transition"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "crossing-space",
+      "term": "Crossing space",
+      "definition": "The part of the vertical plane of the net, between the antennae and below the ceiling, that the ball must pass through to go to the other side.",
+      "example": "A ball that goes outside the antenna has not crossed in the crossing space.",
+      "related": [
+        "antenna",
+        "net"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "deciding-set",
+      "term": "Deciding set",
+      "definition": "The fifth set, played to 15 points with a two-point lead.",
+      "example": "In the deciding set, teams switch sides at 8 points.",
+      "related": [
+        "match",
+        "set-game"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "defensive-specialist",
+      "term": "Defensive specialist",
+      "definition": "A substitute who comes in to pass and defend. Unlike the libero, they follow normal substitution rules.",
+      "example": "A coach may sub in a defensive specialist for a front-row hitter who rotates to the back.",
+      "related": [
+        "substitution",
+        "libero"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "dig",
+      "term": "Dig",
+      "definition": "A pass of a hard-driven attack, usually close to the floor.",
+      "example": "The libero dug the spike and kept the rally alive.",
+      "related": [
+        "forearm-pass",
+        "libero"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "double-contact",
+      "term": "Double contact",
+      "definition": "One player touching the ball twice in a row, or the ball touching several parts of their body one after another. It is a fault, except at the block and on the first team contact in one action.",
+      "example": "A setter who touches the ball twice in a row has made a double contact.",
+      "related": [
+        "contact",
+        "catch"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "double-fault",
+      "term": "Double fault",
+      "definition": "When both teams commit a fault at the same time. The rally is replayed.",
+      "example": "Both players touching the net at once is a double fault.",
+      "related": [
+        "replay"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "down-ball",
+      "term": "Down ball",
+      "definition": "An attack hit from a standing position or a small jump, used when a full spike is not possible.",
+      "example": "After a poor pass, the hitter sent a down ball deep to zone 1.",
+      "related": [
+        "attack-hit",
+        "free-ball"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "end-line",
+      "term": "End line",
+      "definition": "The line at the back of each half of the court.",
+      "example": "The server must not touch the end line when hitting the serve.",
+      "related": [
+        "service-zone",
+        "sideline",
+        "court"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "first-referee",
+      "term": "First referee",
+      "definition": "The official on the stand at one end of the net who starts each rally and has the final say.",
+      "example": "The first referee whistles for the serve.",
+      "related": [
+        "second-referee"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "float-serve",
+      "term": "Float serve",
+      "definition": "A serve hit with little or no spin, so it moves unpredictably in the air.",
+      "example": "A good float serve can be hard to pass because it wobbles.",
+      "related": [
+        "serve",
+        "jump-serve"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "forearm-pass",
+      "term": "Forearm pass",
+      "definition": "Playing the ball off the forearms held together. Often called a bump.",
+      "example": "Most serves are received with a forearm pass.",
+      "related": [
+        "pass",
+        "dig"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "four-hits",
+      "term": "Four hits",
+      "definition": "A team touching the ball four times before sending it over. It is a fault.",
+      "example": "Pass, set, hit, then one more touch before the ball crosses is four hits.",
+      "related": [
+        "three-contacts"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "free-call",
+      "term": "\"Free!\"",
+      "definition": "A call that the opponent is about to send an easy ball over.",
+      "example": "When the other team only bumps it over, call \"Free!\" and drop off the net.",
+      "related": [
+        "free-ball",
+        "mine"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "free-ball",
+      "term": "Free ball",
+      "definition": "An easy ball sent over without an attack, often with a forearm pass.",
+      "example": "On a free ball, blockers drop back from the net to get ready to attack.",
+      "related": [
+        "pass",
+        "transition",
+        "down-ball"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "free-zone",
+      "term": "Free zone",
+      "definition": "The space around the court where players may still play the ball.",
+      "example": "A player can chase a ball into the free zone and send it back.",
+      "related": [
+        "court"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "front-row",
+      "term": "Front row",
+      "definition": "The three players in zones 4, 3 and 2 at the serve. They may block and attack from anywhere.",
+      "example": "When the setter is in the front row, there are only two front-row hitters.",
+      "related": [
+        "zones",
+        "back-row",
+        "front-zone"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "front-zone",
+      "term": "Front zone",
+      "definition": "The area between the centre line and the attack line.",
+      "example": "Back-row players may not complete an attack above the net from the front zone.",
+      "related": [
+        "attack-line",
+        "back-zone",
+        "front-row"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "in",
+      "term": "In",
+      "definition": "A ball that lands on or inside the boundary lines. The lines are part of the court.",
+      "example": "The ball clipped the end line, so it was in.",
+      "related": [
+        "out",
+        "sideline"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "joust",
+      "term": "Joust",
+      "definition": "When players from both teams contact the ball above the net at the same time. Play continues.",
+      "example": "After the joust, the ball fell on the blue team's side, so they kept playing it.",
+      "related": [
+        "block",
+        "net"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "jump-serve",
+      "term": "Jump serve",
+      "definition": "A serve hit while jumping, usually with topspin and power.",
+      "example": "The server may land inside the court after hitting a jump serve.",
+      "related": [
+        "serve",
+        "float-serve"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "kill",
+      "term": "Kill",
+      "definition": "An attack that ends the rally in the attacking team's favour.",
+      "example": "The middle blocker scored a kill on a quick set.",
+      "related": [
+        "spike",
+        "attack-hit"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "libero",
+      "term": "Libero",
+      "definition": "A back-row defensive specialist in a different coloured jersey. The libero may only play in the back row and may not block, attempt to block or serve.",
+      "example": "The libero comes in for the middle blocker when the middle rotates to the back row.",
+      "related": [
+        "libero-replacement",
+        "back-row",
+        "middle-blocker"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "libero-replacement",
+      "term": "Libero replacement",
+      "definition": "When the libero swaps in or out for a back-row player. Replacements are unlimited and are not counted as substitutions.",
+      "example": "The libero replaces the middle blocker after the middle serves or rotates out.",
+      "related": [
+        "libero",
+        "substitution"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "lineup",
+      "term": "Lineup",
+      "definition": "The starting order of the six players, recorded on the line-up sheet before each set. It stays the same for the whole set.",
+      "example": "A lineup of S, OH1, MB1, OPP, OH2, MB2 puts the setter in zone 1.",
+      "related": [
+        "rotation",
+        "rotational-order",
+        "substitution"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "match",
+      "term": "Match",
+      "definition": "A contest of up to five sets. The first team to win three sets wins the match.",
+      "example": "The match went to five sets.",
+      "related": [
+        "set-game",
+        "deciding-set"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "middle-blocker",
+      "term": "Middle blocker",
+      "definition": "A player who blocks at the centre of the net and attacks quick sets.",
+      "example": "The libero often replaces the middle blocker in the back row.",
+      "related": [
+        "block",
+        "quick-set",
+        "libero"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "mine",
+      "term": "\"Mine!\"",
+      "definition": "A call that means \"I will take this ball,\" so teammates do not collide.",
+      "example": "Call \"Mine!\" early on every pass you take.",
+      "related": [
+        "free-call"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "net",
+      "term": "Net",
+      "definition": "The barrier across the middle of the court. The ball must go over it, between the antennae.",
+      "example": "Touching the net between the antennae while playing the ball is a fault.",
+      "related": [
+        "net-height",
+        "antenna",
+        "net-fault"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "net-fault",
+      "term": "Net fault",
+      "definition": "Touching the net between the antennae while playing the ball. Touching it when not playing the ball is not a fault, as long as it does not interfere with play.",
+      "example": "Brushing the top of the net while blocking is a net fault.",
+      "related": [
+        "net",
+        "reaching-over"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "net-height",
+      "term": "Net height",
+      "definition": "2.43 m for men and 2.24 m for women in senior play.",
+      "example": "Youth and recreational leagues often use a lower net.",
+      "related": [
+        "net"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "net-serve",
+      "term": "Net serve",
+      "definition": "A serve that touches the net and still goes over. It is in play.",
+      "example": "The net serve trickled over and the receivers had to scramble.",
+      "related": [
+        "serve",
+        "net"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "opposite",
+      "term": "Opposite",
+      "definition": "The player across the lineup from the setter. They attack mainly from the right side.",
+      "example": "In a 5-1, the opposite is always three zones away from the setter.",
+      "related": [
+        "setter",
+        "outside-hitter",
+        "five-one"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "out",
+      "term": "Out",
+      "definition": "A ball that lands outside the lines, touches an antenna, or hits something outside the court such as the ceiling or a wall.",
+      "example": "The serve hit the ceiling, so it was out.",
+      "related": [
+        "in",
+        "antenna"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "outside-hitter",
+      "term": "Outside hitter",
+      "definition": "A player who attacks mainly from the left side (zone 4) and helps pass the serve.",
+      "example": "Teams usually have two outside hitters across from each other in the lineup.",
+      "related": [
+        "attack-hit",
+        "serve-receive",
+        "opposite"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "overhead-pass",
+      "term": "Overhead pass",
+      "definition": "Playing the ball above the head with the fingers of both hands.",
+      "example": "Setters use an overhead pass to set the ball.",
+      "related": [
+        "set",
+        "pass"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "overlap",
+      "term": "Overlap",
+      "definition": "Being out of place relative to a neighbour at the serve, such as a back-row player standing ahead of the front-row player in front of them.",
+      "example": "The player in zone 6 must be behind the player in zone 3 when the ball is served.",
+      "related": [
+        "positional-fault",
+        "rotational-order"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "overpass",
+      "term": "Overpass",
+      "definition": "A pass that goes straight over the net, giving the opponent an easy attack.",
+      "example": "A hard serve forced an overpass, and the front row hit it straight down.",
+      "related": [
+        "pass",
+        "free-ball"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "pass",
+      "term": "Pass",
+      "definition": "Usually the first contact, sending the ball to the setter.",
+      "example": "A good pass lets the setter choose any hitter.",
+      "related": [
+        "forearm-pass",
+        "overhead-pass",
+        "serve-receive"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "setter-penetration",
+      "term": "Penetration (setter)",
+      "definition": "A back-row setter running forward to the net right after the serve to set.",
+      "example": "When the setter is in zone 1, they penetrate to the right front to set.",
+      "related": [
+        "setter",
+        "switching",
+        "base-position"
+      ],
+      "unit": "u4"
+    },
+    {
+      "id": "pipe",
+      "term": "Pipe",
+      "definition": "A back-row attack from the middle of the court, around zone 6.",
+      "example": "The outside hitter ran a pipe while the front row distracted the block.",
+      "related": [
+        "back-row-attack",
+        "attack-line"
+      ],
+      "unit": "u4"
+    },
+    {
+      "id": "positional-fault",
+      "term": "Positional fault",
+      "definition": "A player is not in their correct position when the ball is served. The other team gets the point and the serve.",
+      "example": "Standing ahead of your front-row teammate at the serve is a positional fault.",
+      "related": [
+        "overlap",
+        "rotational-order"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "quick-set",
+      "term": "Quick set",
+      "definition": "A fast, low set to the middle blocker, who is already in the air.",
+      "example": "The middle hit a quick set before the block could form.",
+      "related": [
+        "middle-blocker",
+        "set"
+      ],
+      "unit": "u4"
+    },
+    {
+      "id": "rally",
+      "term": "Rally",
+      "definition": "The play from the serve until the ball is out of play.",
+      "example": "The rally ended when the ball landed in.",
+      "related": [
+        "rally-scoring",
+        "side-out"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "rally-scoring",
+      "term": "Rally scoring",
+      "definition": "Every rally scores a point, whichever team served.",
+      "example": "With rally scoring, a mistake on your own serve still gives the other team a point.",
+      "related": [
+        "rally",
+        "set-game"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "reaching-over",
+      "term": "Reaching over the net",
+      "definition": "A blocker may reach beyond the net, but must not touch the ball on the opponent's side before or during the opponent's attack hit.",
+      "example": "Blocking a ball the hitter has already attacked is legal even if your hands are over the net.",
+      "related": [
+        "block",
+        "net-fault"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "replay",
+      "term": "Replay",
+      "definition": "A rally played again, for example when both teams commit faults at the same time.",
+      "example": "After a double fault, the referee called for a replay.",
+      "related": [
+        "double-fault",
+        "rally"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "roll-shot",
+      "term": "Roll shot",
+      "definition": "An attack hit with a slow, looping arm swing so the ball drops behind the block.",
+      "example": "The hitter used a roll shot over the block into zone 6.",
+      "related": [
+        "attack-hit",
+        "tip"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "rotation",
+      "term": "Rotation",
+      "definition": "Moving one zone clockwise when your team wins the serve back. The player who moves from zone 2 to zone 1 serves next.",
+      "example": "After a side-out, everyone rotates before the next serve.",
+      "related": [
+        "rotational-order",
+        "side-out",
+        "zones"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "rotational-fault",
+      "term": "Rotational fault",
+      "definition": "Serving out of the rotation order. The other team gets the point and the serve.",
+      "example": "If the wrong player serves, it is a rotational fault.",
+      "related": [
+        "service-order",
+        "rotation"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "rotational-order",
+      "term": "Rotational order",
+      "definition": "The order set by the lineup, which players must keep at the moment of the serve (receiving team).",
+      "example": "Under FIVB rules, only the receiving team must be in rotational order at the serve.",
+      "related": [
+        "lineup",
+        "overlap",
+        "positional-fault"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "screen",
+      "term": "Screen",
+      "definition": "When players of the serving team block the receivers' view of the server or the ball's path. It is a fault.",
+      "example": "Teammates bunching up in front of the server to hide the serve can be called for a screen.",
+      "related": [
+        "serve",
+        "serve-receive"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "second-referee",
+      "term": "Second referee",
+      "definition": "The official on the floor across from the first referee who watches the net, the centre line and substitutions.",
+      "example": "The second referee called the net fault.",
+      "related": [
+        "first-referee"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "serve",
+      "term": "Serve",
+      "definition": "The hit that puts the ball into play, made by the right-back player from the service zone.",
+      "example": "The server has 8 seconds after the whistle to serve.",
+      "related": [
+        "server",
+        "service-zone",
+        "service-order"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "server",
+      "term": "Server",
+      "definition": "The player who serves: whoever is in zone 1 when the rally starts.",
+      "example": "After a side-out, the player who rotates into zone 1 becomes the server.",
+      "related": [
+        "serve",
+        "rotation"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "serve-receive",
+      "term": "Serve receive",
+      "definition": "The formation the receiving team uses to pass the serve.",
+      "example": "In serve receive, the setter is often stacked near the right side.",
+      "related": [
+        "pass",
+        "stack",
+        "side-out"
+      ],
+      "unit": "u4"
+    },
+    {
+      "id": "service-error",
+      "term": "Service error",
+      "definition": "A serve that lands out, fails to cross the net, or touches an antenna. The other team scores.",
+      "example": "Hitting the serve into the net is a service error.",
+      "related": [
+        "serve",
+        "ace"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "service-order",
+      "term": "Service order",
+      "definition": "The order in which players serve, which follows the lineup.",
+      "example": "Serving out of order is a rotational fault.",
+      "related": [
+        "rotational-fault",
+        "lineup"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "service-time",
+      "term": "Service time limit",
+      "definition": "The server must hit the ball within 8 seconds of the first referee's whistle.",
+      "example": "Taking too long to serve gives the point to the other team.",
+      "related": [
+        "serve",
+        "first-referee"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "service-zone",
+      "term": "Service zone",
+      "definition": "The 9 m wide area behind the end line where the server stands.",
+      "example": "The server can serve from anywhere inside the service zone.",
+      "related": [
+        "end-line",
+        "serve",
+        "server"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "set",
+      "term": "Set (contact)",
+      "definition": "The contact that places the ball for a teammate to attack, usually the second contact.",
+      "example": "A high set to the outside gives the hitter time to approach.",
+      "related": [
+        "setter",
+        "overhead-pass",
+        "attack-hit"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "set-game",
+      "term": "Set (game)",
+      "definition": "A game within a match, won by the first team to 25 points with a two-point lead.",
+      "example": "The team won the first set 25 to 22.",
+      "related": [
+        "match",
+        "deciding-set",
+        "rally-scoring"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "setter",
+      "term": "Setter",
+      "definition": "The player who usually takes the second contact and sets the ball up for a hitter.",
+      "example": "In a 5-1, one setter sets in all six rotations.",
+      "related": [
+        "set",
+        "five-one",
+        "six-two"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "setter-dump",
+      "term": "Setter dump",
+      "definition": "The setter attacks the second ball instead of setting it. A back-row setter may not complete this attack from in front of the attack line with the ball fully above the net.",
+      "example": "A front-row setter can dump the ball over when the block is not ready.",
+      "related": [
+        "setter",
+        "back-row-attack"
+      ],
+      "unit": "u4"
+    },
+    {
+      "id": "sideline",
+      "term": "Sideline",
+      "definition": "The two lines along the long sides of the court.",
+      "example": "A ball that lands on the sideline is in.",
+      "related": [
+        "end-line",
+        "in",
+        "out"
+      ],
+      "unit": "u1"
+    },
+    {
+      "id": "side-out",
+      "term": "Side-out",
+      "definition": "Winning the rally while receiving. The receiving team scores and earns the serve.",
+      "example": "A side-out means your team rotates before serving.",
+      "related": [
+        "rotation",
+        "serve-receive",
+        "rally"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "spike",
+      "term": "Spike",
+      "definition": "A powerful attack hit from above the net.",
+      "example": "The outside hitter spiked the ball cross-court for a kill.",
+      "related": [
+        "attack-hit",
+        "kill",
+        "block"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "stack",
+      "term": "Stack",
+      "definition": "Arranging players at the serve so they can switch quickly while still staying in legal order.",
+      "example": "Teams often stack the setter close to the right side in serve receive.",
+      "related": [
+        "switching",
+        "serve-receive"
+      ],
+      "unit": "u4"
+    },
+    {
+      "id": "substitution",
+      "term": "Substitution",
+      "definition": "Replacing one player with another during a set. Libero replacements do not count as substitutions.",
+      "example": "A team gets a limited number of regular substitutions each set.",
+      "related": [
+        "libero-replacement",
+        "defensive-specialist"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "switching",
+      "term": "Switching",
+      "definition": "Moving to your playing spot right after the serve. It is legal because players may move anywhere once the ball is served.",
+      "example": "The setter switches to the right front after the serve to set.",
+      "related": [
+        "base-position",
+        "stack",
+        "overlap"
+      ],
+      "unit": "u4"
+    },
+    {
+      "id": "three-contacts",
+      "term": "Three contacts",
+      "definition": "A team may touch the ball up to three times before it must cross the net. A block does not count as one of the three.",
+      "example": "Pass, set, hit is the classic three-contact play.",
+      "related": [
+        "contact",
+        "four-hits",
+        "block"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "timeout",
+      "term": "Timeout",
+      "definition": "A 30-second break requested by a team. Each team may take up to two per set.",
+      "example": "The coach called a timeout to reset after three straight points.",
+      "related": [
+        "substitution"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "tip",
+      "term": "Tip",
+      "definition": "A soft attack pushed over or around the block with the fingertips. It must not be caught or thrown.",
+      "example": "A tip into the middle of the court can catch the defence off guard.",
+      "related": [
+        "attack-hit",
+        "roll-shot",
+        "catch"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "tool",
+      "term": "Tool",
+      "definition": "An attack hit off the block so it lands out of bounds. The point goes to the attacking team.",
+      "example": "The hitter tooled the block and the ball landed out past the sideline.",
+      "related": [
+        "block",
+        "attack-hit",
+        "out"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "transition",
+      "term": "Transition",
+      "definition": "Switching from defence to attack, or back, during a rally.",
+      "example": "After the dig, the team transitioned and the setter ran in to set.",
+      "related": [
+        "dig",
+        "free-ball",
+        "cover"
+      ],
+      "unit": "u2"
+    },
+    {
+      "id": "underhand-serve",
+      "term": "Underhand serve",
+      "definition": "A serve hit from below the waist with an open hand or fist. It is legal in all levels of play.",
+      "example": "Many new players start with an underhand serve.",
+      "related": [
+        "serve"
+      ],
+      "unit": "u3"
+    },
+    {
+      "id": "zones",
+      "term": "Zones",
+      "definition": "The six areas of each half, numbered 1 to 6. With the net at the top, the front row is 4, 3, 2 and the back row is 5, 6, 1.",
+      "example": "Zone 1 is the right back, where the server starts.",
+      "related": [
+        "front-row",
+        "back-row",
+        "rotation"
+      ],
+      "unit": "u1"
     }
   ]
 }

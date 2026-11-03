@@ -49,7 +49,7 @@ void main() {
 
   test('an unknown question type is rejected', () {
     final json = {
-      'schemaVersion': 1,
+      'schemaVersion': 2,
       'units': [
         {
           'id': 'u1',
