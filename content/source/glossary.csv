@@ -1,0 +1,98 @@
+id,term,definition,example,related,unit
+court,Court,"The 18 m by 9 m playing area. The net splits it into two 9 m by 9 m halves, one per team.",Each team defends its own half of the court.,"centre-line,attack-line,free-zone,zones",u1
+centre-line,Centre line,The line under the net that splits the court into two halves.,A foot may cross the centre line only if part of it stays on or above the line.,"court,net,centre-line-fault",u1
+attack-line,Attack line,The line 3 m from the centre line on each side. It separates the front zone from the back zone.,A back-row player must take off from behind the attack line to attack above the net.,"front-zone,back-zone,back-row-attack",u1
+front-zone,Front zone,The area between the centre line and the attack line.,Back-row players may not complete an attack above the net from the front zone.,"attack-line,back-zone,front-row",u1
+back-zone,Back zone,"The area behind the attack line, up to the end line.",The libero usually plays in the back zone.,"attack-line,front-zone,back-row",u1
+end-line,End line,The line at the back of each half of the court.,The server must not touch the end line when hitting the serve.,"service-zone,sideline,court",u1
+sideline,Sideline,The two lines along the long sides of the court.,A ball that lands on the sideline is in.,"end-line,in,out",u1
+service-zone,Service zone,The 9 m wide area behind the end line where the server stands.,The server can serve from anywhere inside the service zone.,"end-line,serve,server",u3
+free-zone,Free zone,The space around the court where players may still play the ball.,A player can chase a ball into the free zone and send it back.,court,u1
+net,Net,"The barrier across the middle of the court. The ball must go over it, between the antennae.",Touching the net between the antennae while playing the ball is a fault.,"net-height,antenna,net-fault",u1
+net-height,Net height,2.43 m for men and 2.24 m for women in senior play.,Youth and recreational leagues often use a lower net.,net,u1
+antenna,Antenna,A flexible rod fixed to each side of the net. It marks the side edge of the space the ball must cross.,A ball that touches the antenna is out.,"net,crossing-space,out",u2
+crossing-space,Crossing space,"The part of the vertical plane of the net, between the antennae and below the ceiling, that the ball must pass through to go to the other side.",A ball that goes outside the antenna has not crossed in the crossing space.,"antenna,net",u2
+zones,Zones,"The six areas of each half, numbered 1 to 6. With the net at the top, the front row is 4, 3, 2 and the back row is 5, 6, 1.","Zone 1 is the right back, where the server starts.","front-row,back-row,rotation",u1
+front-row,Front row,"The three players in zones 4, 3 and 2 at the serve. They may block and attack from anywhere.","When the setter is in the front row, there are only two front-row hitters.","zones,back-row,front-zone",u1
+back-row,Back row,"The three players in zones 5, 6 and 1 at the serve. They may not block, and must attack from behind the attack line.",A back-row player who jumps from behind the attack line may attack above the net.,"zones,front-row,back-row-attack,back-row-block",u1
+setter,Setter,The player who usually takes the second contact and sets the ball up for a hitter.,"In a 5-1, one setter sets in all six rotations.","set,five-one,six-two",u1
+outside-hitter,Outside hitter,A player who attacks mainly from the left side (zone 4) and helps pass the serve.,Teams usually have two outside hitters across from each other in the lineup.,"attack-hit,serve-receive,opposite",u1
+middle-blocker,Middle blocker,A player who blocks at the centre of the net and attacks quick sets.,The libero often replaces the middle blocker in the back row.,"block,quick-set,libero",u1
+opposite,Opposite,The player across the lineup from the setter. They attack mainly from the right side.,"In a 5-1, the opposite is always three zones away from the setter.","setter,outside-hitter,five-one",u1
+libero,Libero,"A back-row defensive specialist in a different coloured jersey. The libero may only play in the back row and may not block, attempt to block or serve.",The libero comes in for the middle blocker when the middle rotates to the back row.,"libero-replacement,back-row,middle-blocker",u3
+defensive-specialist,Defensive specialist,"A substitute who comes in to pass and defend. Unlike the libero, they follow normal substitution rules.",A coach may sub in a defensive specialist for a front-row hitter who rotates to the back.,"substitution,libero",u1
+captain,Captain,The player who speaks for the team with the referees.,Only the game captain may ask the referee to explain a call during play.,first-referee,u2
+lineup,Lineup,"The starting order of the six players, recorded on the line-up sheet before each set. It stays the same for the whole set.","A lineup of S, OH1, MB1, OPP, OH2, MB2 puts the setter in zone 1.","rotation,rotational-order,substitution",u1
+rotation,Rotation,Moving one zone clockwise when your team wins the serve back. The player who moves from zone 2 to zone 1 serves next.,"After a side-out, everyone rotates before the next serve.","rotational-order,side-out,zones",u1
+rotational-order,Rotational order,"The order set by the lineup, which players must keep at the moment of the serve (receiving team).","Under FIVB rules, only the receiving team must be in rotational order at the serve.","lineup,overlap,positional-fault",u3
+overlap,Overlap,"Being out of place relative to a neighbour at the serve, such as a back-row player standing ahead of the front-row player in front of them.",The player in zone 6 must be behind the player in zone 3 when the ball is served.,"positional-fault,rotational-order",u3
+positional-fault,Positional fault,A player is not in their correct position when the ball is served. The other team gets the point and the serve.,Standing ahead of your front-row teammate at the serve is a positional fault.,"overlap,rotational-order",u3
+rotational-fault,Rotational fault,Serving out of the rotation order. The other team gets the point and the serve.,"If the wrong player serves, it is a rotational fault.","service-order,rotation",u3
+substitution,Substitution,Replacing one player with another during a set. Libero replacements do not count as substitutions.,A team gets a limited number of regular substitutions each set.,"libero-replacement,defensive-specialist",u3
+libero-replacement,Libero replacement,When the libero swaps in or out for a back-row player. Replacements are unlimited and are not counted as substitutions.,The libero replaces the middle blocker after the middle serves or rotates out.,"libero,substitution",u3
+switching,Switching,Moving to your playing spot right after the serve. It is legal because players may move anywhere once the ball is served.,The setter switches to the right front after the serve to set.,"base-position,stack,overlap",u4
+stack,Stack,Arranging players at the serve so they can switch quickly while still staying in legal order.,Teams often stack the setter close to the right side in serve receive.,"switching,serve-receive",u4
+base-position,Base position,Where a player goes after the serve to play their role.,"A setter's base position is the right front, between zones 2 and 3.","switching,setter",u4
+serve,Serve,"The hit that puts the ball into play, made by the right-back player from the service zone.",The server has 8 seconds after the whistle to serve.,"server,service-zone,service-order",u3
+server,Server,The player who serves: whoever is in zone 1 when the rally starts.,"After a side-out, the player who rotates into zone 1 becomes the server.","serve,rotation",u3
+service-order,Service order,"The order in which players serve, which follows the lineup.",Serving out of order is a rotational fault.,"rotational-fault,lineup",u3
+service-time,Service time limit,The server must hit the ball within 8 seconds of the first referee's whistle.,Taking too long to serve gives the point to the other team.,"serve,first-referee",u3
+jump-serve,Jump serve,"A serve hit while jumping, usually with topspin and power.",The server may land inside the court after hitting a jump serve.,"serve,float-serve",u3
+float-serve,Float serve,"A serve hit with little or no spin, so it moves unpredictably in the air.",A good float serve can be hard to pass because it wobbles.,"serve,jump-serve",u3
+underhand-serve,Underhand serve,A serve hit from below the waist with an open hand or fist. It is legal in all levels of play.,Many new players start with an underhand serve.,serve,u3
+ace,Ace,"A serve that scores directly, with no successful pass by the receiving team.",The server earned an ace when the ball dropped between two passers.,"serve,service-error",u2
+service-error,Service error,"A serve that lands out, fails to cross the net, or touches an antenna. The other team scores.",Hitting the serve into the net is a service error.,"serve,ace",u3
+screen,Screen,When players of the serving team block the receivers' view of the server or the ball's path. It is a fault.,Teammates bunching up in front of the server to hide the serve can be called for a screen.,"serve,serve-receive",u3
+net-serve,Net serve,A serve that touches the net and still goes over. It is in play.,The net serve trickled over and the receivers had to scramble.,"serve,net",u3
+contact,Contact,Any touch of the ball by a player.,A team may make up to three contacts before sending the ball over.,"three-contacts,double-contact",u2
+three-contacts,Three contacts,A team may touch the ball up to three times before it must cross the net. A block does not count as one of the three.,"Pass, set, hit is the classic three-contact play.","contact,four-hits,block",u2
+four-hits,Four hits,A team touching the ball four times before sending it over. It is a fault.,"Pass, set, hit, then one more touch before the ball crosses is four hits.",three-contacts,u2
+double-contact,Double contact,"One player touching the ball twice in a row, or the ball touching several parts of their body one after another. It is a fault, except at the block and on the first team contact in one action.",A setter who touches the ball twice in a row has made a double contact.,"contact,catch",u2
+catch,Catch,When the ball is caught or thrown instead of being hit. It is a fault.,A tip that is held in the hand before being pushed over is a catch.,"double-contact,tip",u2
+assisted-hit,Assisted hit,A player using a teammate or any object to reach the ball. It is a fault.,Pushing off a teammate to jump higher for a dig is an assisted hit.,contact,u2
+pass,Pass,"Usually the first contact, sending the ball to the setter.",A good pass lets the setter choose any hitter.,"forearm-pass,overhead-pass,serve-receive",u2
+forearm-pass,Forearm pass,Playing the ball off the forearms held together. Often called a bump.,Most serves are received with a forearm pass.,"pass,dig",u2
+overhead-pass,Overhead pass,Playing the ball above the head with the fingers of both hands.,Setters use an overhead pass to set the ball.,"set,pass",u2
+set,Set (contact),"The contact that places the ball for a teammate to attack, usually the second contact.",A high set to the outside gives the hitter time to approach.,"setter,overhead-pass,attack-hit",u2
+attack-hit,Attack hit,"Any action that sends the ball toward the opponent, except a serve or a block.","A spike, a tip and a roll shot are all attack hits.","spike,tip,back-row-attack",u2
+spike,Spike,A powerful attack hit from above the net.,The outside hitter spiked the ball cross-court for a kill.,"attack-hit,kill,block",u2
+tip,Tip,A soft attack pushed over or around the block with the fingertips. It must not be caught or thrown.,A tip into the middle of the court can catch the defence off guard.,"attack-hit,roll-shot,catch",u2
+roll-shot,Roll shot,"An attack hit with a slow, looping arm swing so the ball drops behind the block.",The hitter used a roll shot over the block into zone 6.,"attack-hit,tip",u2
+down-ball,Down ball,"An attack hit from a standing position or a small jump, used when a full spike is not possible.","After a poor pass, the hitter sent a down ball deep to zone 1.","attack-hit,free-ball",u2
+kill,Kill,An attack that ends the rally in the attacking team's favour.,The middle blocker scored a kill on a quick set.,"spike,attack-hit",u2
+dig,Dig,"A pass of a hard-driven attack, usually close to the floor.",The libero dug the spike and kept the rally alive.,"forearm-pass,libero",u2
+block,Block,"Players close to the net reaching above it to stop the opponent's attack. Only front-row players may complete a block, and a block touch does not count as a team contact.","After a block touch, the team still has three contacts.","three-contacts,back-row-block,reaching-over",u2
+back-row-block,Back-row block fault,A back-row player or the libero completing or attempting a block. It is a fault.,The setter in zone 1 may not join the block.,"block,back-row,libero",u2
+reaching-over,Reaching over the net,"A blocker may reach beyond the net, but must not touch the ball on the opponent's side before or during the opponent's attack hit.",Blocking a ball the hitter has already attacked is legal even if your hands are over the net.,"block,net-fault",u2
+joust,Joust,When players from both teams contact the ball above the net at the same time. Play continues.,"After the joust, the ball fell on the blue team's side, so they kept playing it.","block,net",u2
+tool,Tool,An attack hit off the block so it lands out of bounds. The point goes to the attacking team.,The hitter tooled the block and the ball landed out past the sideline.,"block,attack-hit,out",u2
+cover,Cover,Teammates moving close to their own attacker to dig a ball that is blocked back.,Good cover turned the blocked spike into a second attack.,"block,dig,transition",u2
+free-ball,Free ball,"An easy ball sent over without an attack, often with a forearm pass.","On a free ball, blockers drop back from the net to get ready to attack.","pass,transition,down-ball",u2
+overpass,Overpass,"A pass that goes straight over the net, giving the opponent an easy attack.","A hard serve forced an overpass, and the front row hit it straight down.","pass,free-ball",u2
+transition,Transition,"Switching from defence to attack, or back, during a rally.","After the dig, the team transitioned and the setter ran in to set.","dig,free-ball,cover",u2
+back-row-attack,Back-row attack,An attack by a back-row player. It is legal only if the player takes off from behind the attack line when the ball is fully above the net.,The opposite hit a back-row attack from behind the attack line.,"attack-line,back-row,pipe",u2
+pipe,Pipe,"A back-row attack from the middle of the court, around zone 6.",The outside hitter ran a pipe while the front row distracted the block.,"back-row-attack,attack-line",u4
+quick-set,Quick set,"A fast, low set to the middle blocker, who is already in the air.",The middle hit a quick set before the block could form.,"middle-blocker,set",u4
+setter-dump,Setter dump,The setter attacks the second ball instead of setting it. A back-row setter may not complete this attack from in front of the attack line with the ball fully above the net.,A front-row setter can dump the ball over when the block is not ready.,"setter,back-row-attack",u4
+rally,Rally,The play from the serve until the ball is out of play.,The rally ended when the ball landed in.,"rally-scoring,side-out",u2
+rally-scoring,Rally scoring,"Every rally scores a point, whichever team served.","With rally scoring, a mistake on your own serve still gives the other team a point.","rally,set-game",u2
+side-out,Side-out,Winning the rally while receiving. The receiving team scores and earns the serve.,A side-out means your team rotates before serving.,"rotation,serve-receive,rally",u2
+set-game,Set (game),"A game within a match, won by the first team to 25 points with a two-point lead.",The team won the first set 25 to 22.,"match,deciding-set,rally-scoring",u2
+match,Match,A contest of up to five sets. The first team to win three sets wins the match.,The match went to five sets.,"set-game,deciding-set",u2
+deciding-set,Deciding set,"The fifth set, played to 15 points with a two-point lead.","In the deciding set, teams switch sides at 8 points.","match,set-game",u2
+timeout,Timeout,A 30-second break requested by a team. Each team may take up to two per set.,The coach called a timeout to reset after three straight points.,substitution,u2
+replay,Replay,"A rally played again, for example when both teams commit faults at the same time.","After a double fault, the referee called for a replay.","double-fault,rally",u2
+double-fault,Double fault,When both teams commit a fault at the same time. The rally is replayed.,Both players touching the net at once is a double fault.,replay,u2
+net-fault,Net fault,"Touching the net between the antennae while playing the ball. Touching it when not playing the ball is not a fault, as long as it does not interfere with play.",Brushing the top of the net while blocking is a net fault.,"net,reaching-over",u2
+centre-line-fault,Centre line fault,"Crossing into the opponent's court in a way that is not allowed, such as with the whole foot or by interfering with their play.",Landing with your whole foot past the centre line is a fault.,centre-line,u2
+in,In,A ball that lands on or inside the boundary lines. The lines are part of the court.,"The ball clipped the end line, so it was in.","out,sideline",u2
+out,Out,"A ball that lands outside the lines, touches an antenna, or hits something outside the court such as the ceiling or a wall.","The serve hit the ceiling, so it was out.","in,antenna",u2
+mine,"""Mine!""","A call that means ""I will take this ball,"" so teammates do not collide.","Call ""Mine!"" early on every pass you take.",free-call,u2
+free-call,"""Free!""",A call that the opponent is about to send an easy ball over.,"When the other team only bumps it over, call ""Free!"" and drop off the net.","free-ball,mine",u2
+serve-receive,Serve receive,The formation the receiving team uses to pass the serve.,"In serve receive, the setter is often stacked near the right side.","pass,stack,side-out",u4
+five-one,5-1,"A system with one setter in all six rotations and five hitters: two outside hitters, two middle blockers and one opposite.","In a 5-1, the setter is across the lineup from the opposite.","setter,opposite,six-two,four-two",u4
+six-two,6-2,"A system with two setters, each setting only from the back row, so there are always three front-row hitters.","In a 6-2, the setter who rotates to the front row becomes a hitter.","five-one,four-two,setter",u4
+four-two,4-2,"A system with two setters, each setting from the front row, and four hitters. Common with newer teams.","A 4-2 keeps things simple, but only two players attack in each rotation.","five-one,six-two",u4
+setter-penetration,Penetration (setter),A back-row setter running forward to the net right after the serve to set.,"When the setter is in zone 1, they penetrate to the right front to set.","setter,switching,base-position",u4
+first-referee,First referee,The official on the stand at one end of the net who starts each rally and has the final say.,The first referee whistles for the serve.,second-referee,u2
+second-referee,Second referee,"The official on the floor across from the first referee who watches the net, the centre line and substitutions.",The second referee called the net fault.,first-referee,u2

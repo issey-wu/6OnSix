@@ -17,6 +17,10 @@ A short list of the current stack and architecture choices. Update an entry when
 - The app has no backend. Content is bundled at install time, and user data stays on the device.
 - **Data rules:** client-generated UUIDs, `updated_at` timestamps, an append-only answer log, and a repository layer. These keep a future online sync from requiring a rewrite.
 
+- **Saved progress:** drift tables for the local user, an append-only answer log, append-only completions, a progress summary (XP, streak, last active day) and settings. Completed lessons are derived from the completions. The summary is updated in the same transaction as each completion. If the database cannot open, the app falls back to in-memory storage instead of failing to start.
+- **uuid** for record IDs created on the device.
+- **audioplayers** for sound effects, set to ambient audio so it respects the silent switch. Sounds are skipped in widget tests.
+
 ## Content
 
 - Content is authored in a spreadsheet, then exported to JSON and validated by a Dart script. The app never hard-codes content or content counts.
@@ -29,7 +33,16 @@ A short list of the current stack and architecture choices. Update an entry when
 - **Lessons are complete-until-correct:** wrong answers are re-queued, nobody fails, and there are no lockouts.
 - **XP and streak values** live in one config object in `domain`. Streaks use the injected `Clock` and the device-local date.
 
+- **Glossary:** authored in `content/source/glossary.csv` and exported into `course.json` (schema version 2), sorted A to Z.
+- **Drag-and-drop:** tokens in the options column, placements such as `S=1|OPP=4` in the answer column. The exporter checks every token is placed once, zones are unique, and the libero is in the back row.
+
+## Sound
+
+- Correct, incorrect and lesson-complete sounds are made in-house in Duolingo's style: a short rising chime, a soft falling tone and a quick rising jingle. The matching pop and token snap come from Kenney's Interface Sounds (CC0, public domain).
+
 ## Tooling
+
+- **`dart run tool/check.dart`** runs every check (packages, database code generation, content export, format, analyze, test) and writes `build/check.log`. Add `--screens` to render screenshots to `build/screens/`.
 
 - **GitHub Actions CI** on pushes and PRs to `main`. One job runs format, analyze, and test. A second job builds a debug APK, because the Mac has no Android SDK.
 - **Claude Code attribution is turned off** in `.claude/settings.json`.

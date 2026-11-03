@@ -10,7 +10,7 @@ class ContentFormatException implements Exception {
   String toString() => 'ContentFormatException: $message';
 }
 
-const supportedSchemaVersion = 1;
+const supportedSchemaVersion = 2;
 
 /// Parses the decoded course.json produced by content/export_content.dart.
 Course parseCourse(Map<String, Object?> json) {
@@ -21,6 +21,10 @@ Course parseCourse(Map<String, Object?> json) {
   return Course(
     schemaVersion: supportedSchemaVersion,
     units: [for (final u in _list(json, 'units')) _unit(_map(u))],
+    glossary: [
+      if (json['glossary'] != null)
+        for (final g in _list(json, 'glossary')) _term(_map(g)),
+    ],
   );
 }
 
@@ -50,6 +54,7 @@ Question _question(Map<String, Object?> json) {
     'tf' => QuestionType.trueFalse,
     'match' => QuestionType.matching,
     'zone' => QuestionType.tapZone,
+    'drag' => QuestionType.dragDrop,
     final other => throw ContentFormatException('Unknown type "$other"'),
   };
   return Question(
@@ -70,12 +75,28 @@ Question _question(Map<String, Object?> json) {
             right: _string(_map(p), 'right'),
           ),
     ],
+    tokens: [
+      if (json['tokens'] != null)
+        for (final t in _list(json, 'tokens')) t.toString(),
+    ],
     concepts: [for (final c in _list(json, 'concepts')) c.toString()],
     ruleRef: json['ruleRef'] as String?,
     leagueNote: json['leagueNote'] as String?,
     phase: json['phase'] as String?,
   );
 }
+
+GlossaryTerm _term(Map<String, Object?> json) => GlossaryTerm(
+  id: _string(json, 'id'),
+  term: _string(json, 'term'),
+  definition: _string(json, 'definition'),
+  example: json['example'] as String?,
+  related: [
+    if (json['related'] != null)
+      for (final r in _list(json, 'related')) r.toString(),
+  ],
+  unitId: json['unit'] as String?,
+);
 
 Map<String, Object?> _map(Object? value) {
   if (value is Map<String, Object?>) return value;

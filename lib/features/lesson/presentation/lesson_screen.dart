@@ -2,14 +2,17 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:six_on_six/app/feedback.dart';
 import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/domain/course.dart';
 import 'package:six_on_six/core/domain/lesson_session.dart';
-import 'package:six_on_six/features/lesson/presentation/court_view.dart';
+import 'package:six_on_six/core/domain/user_state.dart';
+import 'package:six_on_six/core/ui/components.dart';
+import 'package:six_on_six/core/ui/court_view.dart';
+import 'package:six_on_six/features/lesson/presentation/drag_drop_view.dart';
 import 'package:six_on_six/features/lesson/presentation/matching_view.dart';
 
 enum _Stage { teaching, question, complete }
@@ -38,7 +41,10 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   String? _response;
   bool? _lastCorrect;
   bool _matchingMistake = false;
+  String _praiseLine = _praise.first;
   int _xpEarned = 0;
+  int _streakBefore = 0;
+  final List<AnswerAttempt> _answers = [];
   final _random = Random();
 
   void _start(Course course) {
@@ -65,17 +71,34 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     _options = q == null ? const [] : ([...q.options]..shuffle(_random));
   }
 
+  void _log(Question q, {required bool correct}) => _answers.add(
+    AnswerAttempt(
+      questionId: q.id,
+      correct: correct,
+      answeredAt: ref.read(clockProvider).now(),
+    ),
+  );
+
   void _check() {
     final q = _session!.current!;
     final correct = q.isCorrect(_response!);
-    unawaited(HapticFeedback.lightImpact());
-    setState(() => _lastCorrect = correct);
+    _log(q, correct: correct);
+    ref
+        .read(feedbackProvider)
+        .play(correct ? FeedbackEvent.correct : FeedbackEvent.incorrect);
+    setState(() {
+      _lastCorrect = correct;
+      _praiseLine = _praise[_random.nextInt(_praise.length)];
+    });
   }
 
   void _matchingDone(bool hadMistake) {
+    _log(_session!.current!, correct: !hadMistake);
+    ref.read(feedbackProvider).play(FeedbackEvent.correct);
     setState(() {
       _matchingMistake = hadMistake;
       _lastCorrect = true;
+      _praiseLine = _praise[_random.nextInt(_praise.length)];
     });
   }
 
@@ -97,15 +120,26 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   }
 
   void _finish() {
-    final node = _node;
+    final localNow = ref.read(clockProvider).now().toLocal();
+    _streakBefore = ref.read(progressProvider).streakOn(localNow);
     _xpEarned = ref
         .read(progressProvider.notifier)
         .complete(
-          nodeId: node.id,
-          isReview: node.isReview,
+          nodeId: _node.id,
+          isReview: _node.isReview,
           perfect: _session!.isPerfect,
+          answers: List.of(_answers),
         );
+    ref.read(feedbackProvider).play(FeedbackEvent.complete);
     _stage = _Stage.complete;
+  }
+
+  void _leave() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/learn');
+    }
   }
 
   Future<void> _confirmQuit() async {
@@ -126,7 +160,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         ],
       ),
     );
-    if ((quit ?? false) && mounted) context.pop();
+    if ((quit ?? false) && mounted) _leave();
   }
 
   @override
@@ -140,13 +174,20 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     if (session == null) {
       return const Scaffold(body: Center(child: Text('Lesson not found.')));
     }
-    return Scaffold(
-      body: SafeArea(
-        child: switch (_stage) {
-          _Stage.teaching => _teaching(context, session),
-          _Stage.question => _question(context, session),
-          _Stage.complete => _complete(context, session),
-        },
+    return PopScope(
+      canPop: _stage == _Stage.complete,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) unawaited(_confirmQuit());
+      },
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: switch (_stage) {
+            _Stage.teaching => _teaching(context, session),
+            _Stage.question => _question(context, session),
+            _Stage.complete => _complete(context, session),
+          },
+        ),
       ),
     );
   }
@@ -163,16 +204,29 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         Expanded(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: session.progress,
-              minHeight: 14,
-              semanticsLabel: 'Lesson progress',
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(end: session.progress),
+              duration: const Duration(milliseconds: 250),
+              builder: (context, value, _) => LinearProgressIndicator(
+                value: value,
+                minHeight: 14,
+                semanticsLabel: 'Lesson progress',
+              ),
             ),
           ),
         ),
       ],
     ),
   );
+
+  Widget _bottomButton({required String label, VoidCallback? onPressed}) =>
+      SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: FilledButton(onPressed: onPressed, child: Text(label)),
+        ),
+      );
 
   Widget _teaching(BuildContext context, LessonSession session) {
     final card = _cards[_cardIndex];
@@ -192,10 +246,13 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                card.title,
-                style: text.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
+              Semantics(
+                header: true,
+                child: Text(
+                  card.title,
+                  style: text.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -203,27 +260,20 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              if (isReplay)
-                TextButton(
-                  onPressed: () => setState(() => _stage = _Stage.question),
-                  child: const Text('Skip'),
-                ),
-              FilledButton(
-                onPressed: () => setState(() {
-                  if (_cardIndex < _cards.length - 1) {
-                    _cardIndex++;
-                  } else {
-                    _stage = _Stage.question;
-                  }
-                }),
-                child: const Text('Continue'),
-              ),
-            ],
+        if (isReplay)
+          TextButton(
+            onPressed: () => setState(() => _stage = _Stage.question),
+            child: const Text('Skip'),
           ),
+        _bottomButton(
+          label: 'Continue',
+          onPressed: () => setState(() {
+            if (_cardIndex < _cards.length - 1) {
+              _cardIndex++;
+            } else {
+              _stage = _Stage.question;
+            }
+          }),
         ),
       ],
     );
@@ -239,7 +289,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       QuestionType.trueFalse => 'True or false?',
       QuestionType.matching => 'Match the pairs',
       QuestionType.tapZone => 'Tap the correct zone',
+      QuestionType.dragDrop => 'Drag players into position',
     };
+    final title = (_lastCorrect ?? false)
+        ? (_matchingMistake ? 'All matched' : _praiseLine)
+        : 'Correct answer: ${q.answerLabel}';
     return Column(
       children: [
         _topBar(session),
@@ -262,22 +316,34 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             ],
           ),
         ),
-        if (answered)
-          _FeedbackPanel(
-            correct: _lastCorrect!,
-            praise: _praise[_random.nextInt(_praise.length)],
-            question: q,
-            matchingMistake: _matchingMistake,
-            onContinue: _continue,
-          )
-        else if (q.type != QuestionType.matching)
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: FilledButton(
-              onPressed: _response == null ? null : _check,
-              child: const Text('Check'),
-            ),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (child, animation) => SlideTransition(
+            position: Tween(
+              begin: const Offset(0, 1),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
           ),
+          child: answered
+              ? FeedbackPanel(
+                  key: const ValueKey('feedback'),
+                  correct: _lastCorrect!,
+                  title: title,
+                  explanation: q.explanation,
+                  note: q.leagueNote,
+                  onContinue: _continue,
+                )
+              : q.type == QuestionType.matching
+              ? const SizedBox.shrink()
+              : KeyedSubtree(
+                  key: const ValueKey('check'),
+                  child: _bottomButton(
+                    label: 'Check',
+                    onPressed: _response == null ? null : _check,
+                  ),
+                ),
+        ),
       ],
     );
   }
@@ -289,7 +355,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         return Column(
           children: [
             for (final option in _options)
-              _OptionTile(
+              OptionTile(
                 label: option,
                 selected: _response == option,
                 onTap: locked ? null : () => choose(option),
@@ -303,7 +369,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: _OptionTile(
+                  child: OptionTile(
                     label: label,
                     selected: _response == value,
                     onTap: locked ? null : () => choose(value),
@@ -319,192 +385,114 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           onZoneTap: locked ? null : (zone) => choose('$zone'),
         );
       case QuestionType.matching:
-        return MatchingView(question: q, onDone: _matchingDone);
+        final feedback = ref.read(feedbackProvider);
+        return MatchingView(
+          question: q,
+          onDone: _matchingDone,
+          onPairMatched: () => feedback.play(FeedbackEvent.pairMatched),
+          onWrongPair: () => feedback.play(FeedbackEvent.incorrect),
+        );
+      case QuestionType.dragDrop:
+        return DragDropView(
+          question: q,
+          locked: locked,
+          showAnswer: _lastCorrect == false,
+          onChanged: (value) => setState(() => _response = value),
+          onSnap: () =>
+              ref.read(feedbackProvider).play(FeedbackEvent.tokenSnapped),
+        );
     }
   }
 
   Widget _complete(BuildContext context, LessonSession session) {
     final text = Theme.of(context).textTheme;
+    final tokens = AppTokens.of(context);
     final progress = ref.watch(progressProvider);
     final streak = progress.streakOn(ref.read(clockProvider).now().toLocal());
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          const Spacer(),
-          Icon(
-            Icons.emoji_events,
-            size: 72,
-            color: AppTokens.of(context).brandOrange,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            session.isPerfect ? 'Perfect lesson!' : 'Lesson complete!',
-            style: text.headlineMedium?.copyWith(fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              _StatCard(label: 'XP earned', value: '+$_xpEarned'),
-              _StatCard(
-                label: 'Accuracy',
-                value: '${(session.accuracy * 100).round()}%',
-              ),
-              _StatCard(label: 'Streak', value: '$streak'),
-            ],
-          ),
-          const Spacer(),
-          FilledButton(
-            onPressed: () => context.pop(),
-            child: const Text('Continue'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OptionTile extends StatelessWidget {
-  const new({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    this.centered = false,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback? onTap;
-  final bool centered;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = AppTokens.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Material(
-        color: selected
-            ? tokens.selectedBg
-            : Theme.of(context).colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          side: BorderSide(
-            color: selected ? tokens.brandOrange : tokens.surfaceMuted,
-            width: 2,
-          ),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: onTap,
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 56),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            alignment: centered ? Alignment.center : Alignment.centerLeft,
-            child: Text(label, style: Theme.of(context).textTheme.titleMedium),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FeedbackPanel extends StatelessWidget {
-  const new({
-    required this.correct,
-    required this.praise,
-    required this.question,
-    required this.matchingMistake,
-    required this.onContinue,
-  });
-
-  final bool correct;
-  final String praise;
-  final Question question;
-  final bool matchingMistake;
-  final VoidCallback onContinue;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = AppTokens.of(context);
-    final text = Theme.of(context).textTheme;
-    final fg = correct ? tokens.onSuccess : tokens.onError;
-    final title = correct
-        ? (matchingMistake ? 'All matched' : praise)
-        : 'Correct answer: ${question.answerLabel}';
-    final note = question.leagueNote;
-    return Container(
-      width: double.infinity,
-      color: correct ? tokens.successBg : tokens.errorBg,
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              Icon(correct ? Icons.check_circle : Icons.cancel, color: fg),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  title,
-                  style: text.titleMedium?.copyWith(
-                    color: fg,
-                    fontWeight: FontWeight.w800,
+    final streakGrew = streak > _streakBefore;
+    return Column(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.emoji_events, size: 72, color: tokens.brandOrange),
+                const SizedBox(height: 12),
+                Semantics(
+                  header: true,
+                  child: Text(
+                    session.isPerfect ? 'Perfect lesson!' : 'Lesson complete!',
+                    style: text.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            question.explanation,
-            style: text.bodyMedium?.copyWith(color: fg),
-          ),
-          if (note != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              'League note: $note',
-              style: text.bodySmall?.copyWith(color: fg),
+                if (streakGrew) ...[
+                  const SizedBox(height: 12),
+                  _StreakCelebration(streak: streak),
+                ],
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    StatCard(label: 'XP earned', value: '+$_xpEarned'),
+                    StatCard(
+                      label: 'Accuracy',
+                      value: '${(session.accuracy * 100).round()}%',
+                    ),
+                    StatCard(
+                      label: 'Streak',
+                      value: '$streak',
+                      icon: Icons.local_fire_department,
+                      iconColor: tokens.brandOrange,
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-          const SizedBox(height: 12),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: correct ? tokens.success : tokens.error,
-            ),
-            onPressed: onContinue,
-            child: const Text('Continue'),
           ),
-        ],
-      ),
+        ),
+        _bottomButton(label: 'Continue', onPressed: _leave),
+      ],
     );
   }
 }
 
-class _StatCard extends StatelessWidget {
-  const new({required this.label, required this.value});
+/// The flame grows in and shows the new streak when a lesson extends it.
+class _StreakCelebration extends StatelessWidget {
+  const new({required this.streak});
 
-  final String label;
-  final String value;
+  final int streak;
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
-    return Expanded(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Column(
-            children: [
-              Text(
-                value,
-                style: text.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              Text(label, style: text.labelMedium),
-            ],
-          ),
+    final tokens = AppTokens.of(context);
+    final reduceMotion = MediaQuery.of(context).disableAnimations;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: reduceMotion ? 1 : 0.4, end: 1),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutBack,
+      builder: (context, scale, child) =>
+          Transform.scale(scale: scale, child: child),
+      child: Semantics(
+        liveRegion: true,
+        label: '$streak day streak',
+        excludeSemantics: true,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.local_fire_department,
+              color: tokens.brandOrange,
+              size: 36,
+            ),
+            Text(
+              '$streak day streak!',
+              style: Theme.of(context).textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w800),
+            ),
+          ],
         ),
       ),
     );

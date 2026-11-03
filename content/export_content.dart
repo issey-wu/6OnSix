@@ -7,10 +7,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-const _schemaVersion = 1;
+const _schemaVersion = 2;
 const _sourceDir = 'content/source';
 const _outputPath = 'assets/content/course.json';
-const _types = {'mc', 'tf', 'match', 'zone'};
+const _types = {'mc', 'tf', 'match', 'zone', 'drag'};
+const _tokens = {'S', 'OH1', 'OH2', 'MB1', 'MB2', 'OPP', 'L'};
+const _backRow = {5, 6, 1};
 
 void main(List<String> args) {
   final errors = <String>[];
@@ -18,6 +20,10 @@ void main(List<String> args) {
   final lessons = _readCsv('$_sourceDir/lessons.csv');
   final cards = _readCsv('$_sourceDir/cards.csv');
   final questions = _readCsv('$_sourceDir/questions.csv');
+  final glossaryFile = File('$_sourceDir/glossary.csv');
+  final glossary = glossaryFile.existsSync()
+      ? _readCsv(glossaryFile.path)
+      : <Map<String, String>>[];
 
   final unitIds = <String>{};
   for (final u in units) {
@@ -76,6 +82,28 @@ void main(List<String> args) {
         if (options.any((p) => p.split('=').length != 2)) {
           errors.add(where('each pair must look like Left=Right'));
         }
+      case 'drag':
+        errors.addAll(_dragProblems(options, answer).map(where));
+    }
+  }
+
+  final termIds = <String>{for (final g in glossary) g['id']!};
+  final seenTerms = <String>{};
+  for (final g in glossary) {
+    final id = g['id']!;
+    String where(String msg) => 'Glossary term $id: $msg';
+    if (!seenTerms.add(id)) errors.add(where('duplicate id'));
+    if (g['term']!.isEmpty) errors.add(where('missing term'));
+    if (g['definition']!.isEmpty) errors.add(where('missing definition'));
+    for (final related in _split(g['related']!, ',')) {
+      if (related == id) errors.add(where('lists itself as related'));
+      if (!termIds.contains(related)) {
+        errors.add(where('related term "$related" does not exist'));
+      }
+    }
+    final unit = g['unit']!;
+    if (unit.isNotEmpty && !unitIds.contains(unit)) {
+      errors.add(where('missing unit $unit'));
     }
   }
   for (final id in lessonIds) {
@@ -122,6 +150,19 @@ void main(List<String> args) {
           ],
         },
     ],
+    'glossary': [
+      for (final g in [
+        ...glossary,
+      ]..sort((a, b) => _sortKey(a['term']!).compareTo(_sortKey(b['term']!))))
+        {
+          'id': g['id'],
+          'term': g['term'],
+          'definition': g['definition'],
+          if (g['example']!.isNotEmpty) 'example': g['example'],
+          'related': _split(g['related']!, ','),
+          if (g['unit']!.isNotEmpty) 'unit': g['unit'],
+        },
+    ],
   };
   final json = '${const JsonEncoder.withIndent('  ').convert(course)}\n';
 
@@ -142,7 +183,7 @@ void main(List<String> args) {
     ..writeAsStringSync(json);
   stdout.writeln(
     'Wrote $_outputPath: ${units.length} units, ${lessons.length} lessons, '
-    '${questions.length} questions.',
+    '${questions.length} questions, ${glossary.length} glossary terms.',
   );
 }
 
@@ -154,12 +195,16 @@ Map<String, Object?> _question(Map<String, String> q) {
     'type': type,
     'prompt': q['prompt'],
     if (type == 'mc') 'options': options,
+    if (type == 'drag') ...{
+      'tokens': options,
+      'answer': _canonicalPlacements(options, q['answer']!),
+    },
     if (type == 'match')
       'pairs': [
         for (final p in options)
           {'left': p.split('=')[0], 'right': p.split('=')[1]},
       ],
-    if (type != 'match')
+    if (type != 'match' && type != 'drag')
       'answer': type == 'tf' ? q['answer']!.toLowerCase() : q['answer'],
     'explanation': q['explanation'],
     'concepts': _split(q['concepts']!, ','),
@@ -168,6 +213,58 @@ Map<String, Object?> _question(Map<String, String> q) {
     if (q['phase']!.isNotEmpty) 'phase': q['phase'],
   };
 }
+
+/// Checks a drag-and-drop question: tokens in the options column, and
+/// placements like "S=1|OPP=4" in the answer column.
+List<String> _dragProblems(List<String> tokens, String answer) {
+  final problems = <String>[];
+  if (tokens.isEmpty) problems.add('lists no tokens');
+  if (tokens.toSet().length != tokens.length) problems.add('repeats a token');
+  for (final t in tokens) {
+    if (!_tokens.contains(t)) problems.add('unknown token "$t"');
+  }
+  final placements = _placements(answer);
+  if (placements == null) {
+    return [...problems, 'answer must look like S=1|OPP=4'];
+  }
+  if (placements.keys.toSet().difference(tokens.toSet()).isNotEmpty ||
+      tokens.toSet().difference(placements.keys.toSet()).isNotEmpty) {
+    problems.add('answer must place every token exactly once');
+  }
+  if (placements.values.any((z) => z < 1 || z > 6)) {
+    problems.add('zones must be 1 to 6');
+  }
+  if (placements.values.toSet().length != placements.length) {
+    problems.add('two tokens share a zone');
+  }
+  final libero = placements['L'];
+  if (libero != null && !_backRow.contains(libero)) {
+    problems.add('the libero must be in zone 5, 6 or 1');
+  }
+  return problems;
+}
+
+Map<String, int>? _placements(String answer) {
+  final result = <String, int>{};
+  for (final part in _split(answer)) {
+    final pieces = part.split('=');
+    final zone = pieces.length == 2 ? int.tryParse(pieces[1].trim()) : null;
+    if (zone == null) return null;
+    result[pieces[0].trim()] = zone;
+  }
+  return result;
+}
+
+/// The answer in token order, so the app can compare it to the learner's
+/// placements as text.
+String _canonicalPlacements(List<String> tokens, String answer) {
+  final placements = _placements(answer)!;
+  return tokens.map((t) => '$t=${placements[t]}').join('|');
+}
+
+/// Sorts "Mine!" under M and "5-1" before the letters.
+String _sortKey(String term) =>
+    term.toLowerCase().replaceAll(RegExp('[^a-z0-9]'), '');
 
 List<String> _split(String value, [String separator = '|']) => value.isEmpty
     ? const []

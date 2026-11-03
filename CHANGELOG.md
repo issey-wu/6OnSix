@@ -8,6 +8,26 @@ All notable changes to this project are recorded here. The format follows
 ## [Unreleased]
 
 ### Added
+- Saved progress on the device with drift: completions, answer log, XP,
+  streak, name and settings survive a restart.
+- First-launch welcome screen that opens Lesson 1.1 directly.
+- Bottom navigation with Learn, Glossary and Profile tabs; lessons open
+  full screen with the bar hidden.
+- Learning path: greeting, lesson pop-up card (Start or Practice again),
+  scroll to the current lesson, gentle pulse on the current node.
+- Drag-and-drop court questions (drag or tap to place), with 6 new questions.
+- Glossary: 97 draft terms, search by name or definition, A to Z groups,
+  term pages with examples and related terms.
+- Profile (name, streak, XP, lessons and units completed, unit progress) and
+  Settings (theme, sound, haptics, reset progress, about).
+- Sound effects and haptics for key moments, with separate toggles.
+- Light and dark themes follow the Appearance setting.
+- Shared UI components in `lib/core/ui/`.
+- `tool/check.dart` to run all checks in one command.
+
+## [0.1.0] - 2026-10-23
+
+### Added
 - Flutter project scaffold for iOS and Android (`ca.sixonsix`, `six_on_six`),
   pinned to Flutter 3.47.6.
 - App shell: bootstrap with `ProviderScope` and error logging, a go_router
