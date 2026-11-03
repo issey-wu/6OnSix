@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:six_on_six/app/theme.dart';
-import 'package:six_on_six/core/ui/token_chip.dart';
+import 'package:six_on_six/core/ui/player_token.dart';
 
 /// Zones in screen order: front row left to right, then back row.
 const courtZoneOrder = [4, 3, 2, 5, 6, 1];
@@ -91,7 +91,7 @@ class CourtView extends StatelessWidget {
       label: token == null ? label : '$label, $token',
       child: InkWell(
         onTap: onZoneTap == null ? null : () => onZoneTap!(zone),
-        child: Center(child: token == null ? null : TokenChip(label: token)),
+        child: Center(child: token == null ? null : PlayerToken(label: token)),
       ),
     );
   }

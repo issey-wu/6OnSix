@@ -129,8 +129,8 @@ Future<void> _answer(WidgetTester tester, Question q) async {
       return;
     case QuestionType.dragDrop:
       for (final MapEntry(key: token, value: zone) in q.placements.entries) {
-        await _tap(tester, find.bySemanticsLabel('Player $token'));
-        await _tap(tester, find.bySemanticsLabel(RegExp('^Zone $zone,')));
+        await _tap(tester, find.byKey(ValueKey('token-$token')));
+        await _tap(tester, find.byKey(ValueKey('zone-$zone')));
       }
   }
   await _tap(tester, find.text('Check'));
@@ -196,8 +196,19 @@ void main() {
       await _answer(tester, q);
       await _continue(tester);
     }
-    await _tap(tester, find.bySemanticsLabel('Player S'));
+    await _tap(tester, find.byKey(const ValueKey('token-S')));
     await _shot(tester, '09_drag_and_drop');
+
+    // Answer it wrong to show the correct arrangement in the panel.
+    final q = lesson.questions[drag];
+    final zones = [for (final t in q.tokens) q.placements[t]!].reversed
+        .toList();
+    for (final (i, token) in q.tokens.indexed) {
+      if (i > 0) await _tap(tester, find.byKey(ValueKey('token-$token')));
+      await _tap(tester, find.byKey(ValueKey('zone-${zones[i]}')));
+    }
+    await _tap(tester, find.text('Check'));
+    await _shot(tester, '15_drag_wrong_answer');
   });
 
   testWidgets('matching', (tester) async {

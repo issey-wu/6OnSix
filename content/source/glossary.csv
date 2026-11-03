@@ -96,3 +96,12 @@ four-two,4-2,"A system with two setters, each setting from the front row, and fo
 setter-penetration,Penetration (setter),A back-row setter running forward to the net right after the serve to set.,"When the setter is in zone 1, they penetrate to the right front to set.","setter,switching,base-position",u4
 first-referee,First referee,The official on the stand at one end of the net who starts each rally and has the final say.,The first referee whistles for the serve.,second-referee,u2
 second-referee,Second referee,"The official on the floor across from the first referee who watches the net, the centre line and substitutions.",The second referee called the net fault.,first-referee,u2
+bump,Bump,Everyday name for the forearm pass.,Bump it high to the setter.,"forearm-pass,platform",u2
+platform,Platform,The flat surface made by joining your hands and locking your forearms to pass.,Keep your platform angled at the setter.,"forearm-pass,bump",u2
+lift,Lift,"A ball that is held, caught or thrown instead of hit cleanly. The rules call it a catch.",The ref called a lift on the one-handed save.,"catch,double-contact,fault",u2
+shank,Shank,A badly mis-hit pass that goes far from the target.,The serve hit his wrist and he shanked it into the stands.,"pass,forearm-pass",u2
+stuff-block,Stuff block,A block that sends the ball straight down onto the attacker's side for a point.,The middle stuff-blocked the quick set.,"block,kill",u2
+foot-fault,Foot fault,"Touching the court or the end line at the moment of the serve hit, or the take-off for a jump serve.","He stepped on the end line as he served, so it was a foot fault.","serve,end-line,fault",u3
+fault,Fault,A rules violation. It ends the rally and gives the other team the point.,Four touches is a fault even if the last one goes over.,"net-fault,double-contact,foot-fault",u2
+line-judge,Line judge,An official who uses a flag to signal whether a ball is in or out.,The line judge flagged the serve out.,"first-referee,second-referee,antenna",u2
+topspin-serve,Topspin serve,A serve with forward spin that dives down quickly.,The topspin serve dropped right inside the end line.,"serve,float-serve,jump-serve",u3

@@ -11,6 +11,7 @@ import 'package:six_on_six/core/domain/course.dart';
 import 'package:six_on_six/core/domain/lesson_session.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 import 'package:six_on_six/core/ui/components.dart';
+import 'package:six_on_six/core/ui/court_lineup.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
 import 'package:six_on_six/features/lesson/presentation/drag_drop_view.dart';
 import 'package:six_on_six/features/lesson/presentation/matching_view.dart';
@@ -291,8 +292,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       QuestionType.tapZone => 'Tap the correct zone',
       QuestionType.dragDrop => 'Drag players into position',
     };
+    final showLineup = _lastCorrect == false && q.type == QuestionType.dragDrop;
     final title = (_lastCorrect ?? false)
         ? (_matchingMistake ? 'All matched' : _praiseLine)
+        : showLineup
+        ? 'Correct arrangement:'
         : 'Correct answer: ${q.answerLabel}';
     return Column(
       children: [
@@ -332,6 +336,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                   title: title,
                   explanation: q.explanation,
                   note: q.leagueNote,
+                  extra: showLineup
+                      ? SizedBox(
+                          width: 168,
+                          child: CourtLineup(placements: q.placements),
+                        )
+                      : null,
                   onContinue: _continue,
                 )
               : q.type == QuestionType.matching
@@ -396,7 +406,6 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         return DragDropView(
           question: q,
           locked: locked,
-          showAnswer: _lastCorrect == false,
           onChanged: (value) => setState(() => _response = value),
           onSnap: () =>
               ref.read(feedbackProvider).play(FeedbackEvent.tokenSnapped),
