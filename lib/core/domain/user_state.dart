@@ -60,6 +60,52 @@ class AnswerAttempt {
   final DateTime answeredAt;
 }
 
+/// How often each question has been answered right and wrong, worked out
+/// from the answer log. Used to find weak spots to practise.
+@immutable
+class AnswerStats {
+  const new([this._tallies = const {}]);
+
+  final Map<String, (int right, int wrong)> _tallies;
+
+  bool get isEmpty => _tallies.isEmpty;
+
+  /// Times [questionId] was answered right and wrong.
+  (int right, int wrong) tally(String questionId) =>
+      _tallies[questionId] ?? (0, 0);
+
+  /// Adds (question id, correct) results.
+  AnswerStats withResults(Iterable<(String, bool)> results) {
+    final next = {..._tallies};
+    for (final (id, correct) in results) {
+      final (right, wrong) = next[id] ?? (0, 0);
+      next[id] = correct ? (right + 1, wrong) : (right, wrong + 1);
+    }
+    return AnswerStats(next);
+  }
+
+  AnswerStats withAttempts(Iterable<AnswerAttempt> attempts) =>
+      withResults([for (final a in attempts) (a.questionId, a.correct)]);
+
+  /// Questions that still count as weak, weakest first, at most [limit].
+  ///
+  /// A miss counts double. Each miss in a lesson is followed by a right
+  /// answer before the lesson ends, so a question stops being weak once it
+  /// has been answered right one more time per miss.
+  List<String> weakest({int limit = 8}) {
+    int score((int, int) t) => 2 * t.$2 - t.$1;
+    final weak =
+        [
+          for (final MapEntry(key: id, value: t) in _tallies.entries)
+            if (score(t) > 0) (id, score(t)),
+        ]..sort((a, b) {
+          final byScore = b.$2.compareTo(a.$2);
+          return byScore != 0 ? byScore : a.$1.compareTo(b.$1);
+        });
+    return [for (final (id, _) in weak.take(limit)) id];
+  }
+}
+
 /// Everything saved on the device, loaded once at start-up.
 @immutable
 class StoredState {
@@ -67,10 +113,14 @@ class StoredState {
     this.progress = const Progress(),
     this.settings = const AppSettings(),
     this.name,
+    this.answerStats = const AnswerStats(),
   });
 
   final Progress progress;
   final AppSettings settings;
+
+  /// Right and wrong counts per question, from the answer log.
+  final AnswerStats answerStats;
 
   /// Optional display name. Null means "Player".
   final String? name;

@@ -7,7 +7,21 @@ All notable changes to this project are recorded here. The format follows
 
 ## [Unreleased]
 
-### Added
+### Added (Round 1: learning upgrades)
+- Hint button (lightbulb) on every question. The hint fits the question
+  type: removes a wrong option, explains a key term, highlights the right
+  row, places one player, or matches one pair. A hint only removes the
+  perfect-lesson bonus.
+- "Show me how" after every answer: the explanation as numbered steps, an
+  animated court for drag-and-drop, the zone for tap the zone, the rule
+  reference and words to know from the glossary.
+- Final review after the last unit, drawing 12 questions from every unit.
+  It can be replayed any time.
+- "Practice weak spots" on the Learn tab once 3 or more questions count as
+  weak, based on the answer log.
+- The lesson progress bar now fills to the end before the complete screen.
+
+### Added (earlier)
 - Saved progress on the device with drift: completions, answer log, XP,
   streak, name and settings survive a restart.
 - First-launch welcome screen that opens Lesson 1.1 directly.

@@ -100,6 +100,7 @@ Course _course() => parseCourse(
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
   await tester.tap(finder);
   await tester.pumpAndSettle();
 }
@@ -209,6 +210,77 @@ void main() {
     }
     await _tap(tester, find.text('Check'));
     await _shot(tester, '15_drag_wrong_answer');
+  });
+
+  testWidgets('hint and show me how', (tester) async {
+    final container = await _pumpApp(tester);
+    final lesson = _course().units.first.lessons.first;
+    container.read(routerProvider).go('/lesson/${lesson.id}');
+    await tester.pumpAndSettle();
+    await _continue(tester);
+    await _continue(tester);
+    await _tap(tester, find.byKey(const ValueKey('hint')));
+    await _shot(tester, '16_hint');
+
+    final first = lesson.questions.first;
+    final wrong = first.options.firstWhere(
+      (o) => o != first.answer && find.text(o).evaluate().isNotEmpty,
+    );
+    await _tap(tester, find.text(wrong));
+    await _tap(tester, find.text('Check'));
+    await _tap(tester, find.byKey(const ValueKey('show-me-how')));
+    await _shot(tester, '17_show_me_how');
+  });
+
+  testWidgets('show me how on a court question', (tester) async {
+    final container = await _pumpApp(tester);
+    final lesson = _course().units.last.lessons.first;
+    container.read(routerProvider).go('/lesson/${lesson.id}');
+    await tester.pumpAndSettle();
+    await _continue(tester);
+    await _continue(tester);
+    final drag = lesson.questions.indexWhere(
+      (q) => q.type == QuestionType.dragDrop,
+    );
+    for (final q in lesson.questions.take(drag)) {
+      await _answer(tester, q);
+      await _continue(tester);
+    }
+    await _answer(tester, lesson.questions[drag]);
+    await _tap(tester, find.byKey(const ValueKey('show-me-how')));
+    await _shot(tester, '18_show_me_how_court');
+  });
+
+  testWidgets('final review and weak spots', (tester) async {
+    final course = _course();
+    final allButFinal = {
+      for (final node in course.path)
+        if (!node.isFinal) node.id,
+    };
+    final missed = [
+      for (final q in course.allQuestions.take(4)) ...[
+        (q.id, false),
+        (q.id, true),
+      ],
+    ];
+    await _pumpApp(
+      tester,
+      state: StoredState(
+        name: 'Issey',
+        settings: const AppSettings(welcomeSeen: true),
+        progress: Progress(
+          completed: allButFinal,
+          xp: 400,
+          streak: 3,
+          lastActiveDay: DateTime.utc(2026, 11, 8),
+        ),
+        answerStats: const AnswerStats().withResults(missed),
+      ),
+    );
+    await tester.scrollUntilVisible(find.byIcon(Icons.workspace_premium), 300);
+    await _shot(tester, '19_final_review');
+    await tester.scrollUntilVisible(find.text('Practice weak spots'), -300);
+    await _shot(tester, '20_weak_spots');
   });
 
   testWidgets('matching', (tester) async {

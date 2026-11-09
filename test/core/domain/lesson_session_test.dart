@@ -46,5 +46,16 @@ void main() {
         expect(session.isPerfect, isFalse);
       },
     );
+
+    test('a hint is not a wrong answer but removes the perfect bonus', () {
+      final session = LessonSession([_q('a'), _q('b')])
+        ..useHint()
+        ..submit(correct: true)
+        ..submit(correct: true);
+      expect(session.isComplete, isTrue);
+      expect(session.accuracy, 1);
+      expect(session.hintUsed, isTrue);
+      expect(session.isPerfect, isFalse);
+    });
   });
 }

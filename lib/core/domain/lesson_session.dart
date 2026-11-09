@@ -16,6 +16,7 @@ class LessonSession {
   final Queue<Question> _queue;
   final Set<String> _missed = {};
   int _correct = 0;
+  bool _hintUsed = false;
 
   Question? get current => _queue.isEmpty ? null : _queue.first;
 
@@ -24,8 +25,15 @@ class LessonSession {
   /// Share of questions answered correctly so far, from 0 to 1.
   double get progress => total == 0 ? 1 : _correct / total;
 
-  /// True if no question was missed.
-  bool get isPerfect => _missed.isEmpty;
+  /// True if no question was missed and no hint was used.
+  bool get isPerfect => _missed.isEmpty && !_hintUsed;
+
+  /// Whether a hint was used anywhere in this lesson.
+  bool get hintUsed => _hintUsed;
+
+  /// Records that a hint was used. A hint never counts as a wrong answer;
+  /// it only removes the perfect-lesson bonus.
+  void useHint() => _hintUsed = true;
 
   /// Questions answered correctly on the first try, divided by the total.
   double get accuracy => total == 0 ? 1 : (total - _missed.length) / total;

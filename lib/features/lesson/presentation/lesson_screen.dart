@@ -15,11 +15,13 @@ import 'package:six_on_six/core/ui/court_lineup.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
 import 'package:six_on_six/features/lesson/presentation/drag_drop_view.dart';
 import 'package:six_on_six/features/lesson/presentation/matching_view.dart';
+import 'package:six_on_six/features/lesson/presentation/show_me_how.dart';
 
 enum _Stage { teaching, question, complete }
 
-/// Plays one lesson or unit review: teaching cards, then questions under the
-/// complete-until-correct rule, then the lesson complete screen.
+/// Plays one lesson, unit review, final review or weak spots practice:
+/// teaching cards, then questions under the complete-until-correct rule,
+/// then the lesson complete screen.
 class LessonScreen extends ConsumerStatefulWidget {
   const new({required this.nodeId, super.key});
 
@@ -45,17 +47,52 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   String _praiseLine = _praise.first;
   int _xpEarned = 0;
   int _streakBefore = 0;
+
+  /// True between the last answer and the complete screen, while the
+  /// progress bar fills to the end.
+  bool _finishing = false;
+
+  /// The question on screen. It stays set while the bar fills after the
+  /// last answer, when the session itself has no current question left.
+  Question? _shown;
+
+  // Hint state for the current question.
+  bool _hintUsed = false;
+  String? _hintText;
+  final Set<String> _removedOptions = {};
+  Set<int> _hintZones = const {};
   final List<AnswerAttempt> _answers = [];
   final _random = Random();
 
   void _start(Course course) {
-    final node = course.nodeById(widget.nodeId);
-    if (node == null) return;
     final rules = ref.read(gameRulesProvider);
+    final PathNode? node;
+    final List<Question> questions;
+    if (widget.nodeId == Course.weakSpotsId) {
+      final ids = ref
+          .read(answerStatsProvider)
+          .weakest(limit: rules.weakSpotQuestionCount);
+      questions = ids.map(course.questionById).nonNulls.toList();
+      node = questions.isEmpty || course.units.isEmpty
+          ? null
+          : PathNode(
+              id: Course.weakSpotsId,
+              unit: course.units.first,
+              title: 'Weak spots',
+            );
+    } else {
+      node = course.nodeById(widget.nodeId);
+      final nodeLesson = node?.lesson;
+      questions = node == null
+          ? const []
+          : node.isFinal
+          ? course.finalReviewQuestions(count: rules.finalReviewQuestionCount)
+          : nodeLesson == null
+          ? course.reviewQuestions(node.unit, count: rules.reviewQuestionCount)
+          : nodeLesson.questions;
+    }
+    if (node == null) return;
     final lesson = node.lesson;
-    final questions = lesson == null
-        ? course.reviewQuestions(node.unit, count: rules.reviewQuestionCount)
-        : lesson.questions;
     _node = node;
     _session = LessonSession(questions);
     _cards = lesson?.cards ?? const [];
@@ -65,9 +102,14 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 
   void _prepareQuestion() {
     final q = _session?.current;
+    _shown = q;
     _response = null;
     _lastCorrect = null;
     _matchingMistake = false;
+    _hintUsed = false;
+    _hintText = null;
+    _removedOptions.clear();
+    _hintZones = const {};
     _attempt++;
     _options = q == null ? const [] : ([...q.options]..shuffle(_random));
   }
@@ -104,6 +146,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   }
 
   void _continue() {
+    if (_finishing) return;
     final session = _session!;
     final q = session.current!;
     if (q.type == QuestionType.matching) {
@@ -113,11 +156,66 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     }
     setState(() {
       if (session.isComplete) {
-        _finish();
+        // Let the progress bar fill to the end first (see _topBar).
+        _finishing = true;
       } else {
         _prepareQuestion();
       }
     });
+  }
+
+  void _barFilled() {
+    if (!_finishing || !mounted) return;
+    setState(() {
+      _finishing = false;
+      _finish();
+    });
+  }
+
+  void _useHint(Course course) {
+    final session = _session!;
+    final q = session.current!;
+    session.useHint();
+    setState(() {
+      _hintUsed = true;
+      switch (q.type) {
+        case QuestionType.multipleChoice:
+          final wrong = [
+            for (final option in _options)
+              if (option != q.answer && !_removedOptions.contains(option))
+                option,
+          ];
+          if (wrong.isNotEmpty) {
+            final removed = wrong[_random.nextInt(wrong.length)];
+            _removedOptions.add(removed);
+            if (_response == removed) _response = null;
+          }
+          _hintText = 'One wrong answer is gone.';
+        case QuestionType.trueFalse:
+          _hintText = _trueFalseHint(course, q);
+        case QuestionType.tapZone:
+          final front = const {4, 3, 2}.contains(int.tryParse(q.answer));
+          _hintZones = front ? const {4, 3, 2} : const {5, 6, 1};
+          _hintText = front
+              ? "It's in the front row, by the net."
+              : "It's in the back row.";
+        case QuestionType.dragDrop:
+          _hintText = 'One player is placed for you.';
+        case QuestionType.matching:
+          _hintText = 'One pair is matched for you.';
+      }
+    });
+  }
+
+  /// A nudge for a true or false question: the meaning of a key term in it,
+  /// or else the lesson's first teaching card.
+  String _trueFalseHint(Course course, Question q) {
+    final term = course.termsFor(q, q.prompt, limit: 1).firstOrNull;
+    if (term != null) return 'Think about ${term.term}: ${term.definition}';
+    final card = course.lessonOf(q)?.cards.firstOrNull;
+    if (card != null) return '${card.title}: ${card.body}';
+    return 'Read it slowly. One word, like "always" or "never", can change '
+        'the answer.';
   }
 
   void _finish() {
@@ -185,7 +283,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           bottom: false,
           child: switch (_stage) {
             _Stage.teaching => _teaching(context, session),
-            _Stage.question => _question(context, session),
+            _Stage.question => _question(context, session, course),
             _Stage.complete => _complete(context, session),
           },
         ),
@@ -193,8 +291,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     );
   }
 
-  Widget _topBar(LessonSession session) => Padding(
-    padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
+  /// The quit button, the progress bar and, on questions, the hint button.
+  /// When the last question is done the bar fills to the end and holds for a
+  /// moment before the complete screen shows.
+  Widget _topBar(LessonSession session, {Widget? trailing}) => Padding(
+    padding: EdgeInsets.fromLTRB(4, 8, trailing == null ? 16 : 4, 8),
     child: Row(
       children: [
         IconButton(
@@ -207,7 +308,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             borderRadius: BorderRadius.circular(8),
             child: TweenAnimationBuilder<double>(
               tween: Tween(end: session.progress),
-              duration: const Duration(milliseconds: 250),
+              duration: Duration(milliseconds: _finishing ? 900 : 250),
+              curve: _finishing
+                  ? const Interval(0, 0.5, curve: Curves.easeOut)
+                  : Curves.linear,
+              onEnd: _barFilled,
               builder: (context, value, _) => LinearProgressIndicator(
                 value: value,
                 minHeight: 14,
@@ -216,8 +321,17 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             ),
           ),
         ),
+        ?trailing,
       ],
     ),
+  );
+
+  Widget _hintButton(Course course, {required bool available}) => IconButton(
+    key: const ValueKey('hint'),
+    tooltip: _hintUsed ? 'Hint used' : 'Hint',
+    icon: Icon(_hintUsed ? Icons.lightbulb : Icons.lightbulb_outline),
+    color: AppTokens.of(context).brandOrange,
+    onPressed: available ? () => _useHint(course) : null,
   );
 
   Widget _bottomButton({required String label, VoidCallback? onPressed}) =>
@@ -280,8 +394,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     );
   }
 
-  Widget _question(BuildContext context, LessonSession session) {
-    final q = session.current!;
+  Widget _question(BuildContext context, LessonSession session, Course course) {
+    final q = _shown!;
     final text = Theme.of(context).textTheme;
     final tokens = AppTokens.of(context);
     final answered = _lastCorrect != null;
@@ -298,9 +412,16 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         : showLineup
         ? 'Correct arrangement:'
         : 'Correct answer: ${q.answerLabel}';
+    final hintText = _hintText;
     return Column(
       children: [
-        _topBar(session),
+        _topBar(
+          session,
+          trailing: _hintButton(
+            course,
+            available: !answered && !_hintUsed && !_finishing,
+          ),
+        ),
         Expanded(
           child: ListView(
             key: ValueKey('${q.id}-$_attempt'),
@@ -316,6 +437,16 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                 style: text.titleLarge?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 20),
+              // Always present, so the answer area below keeps its place in
+              // the list and its state (placed players, matched pairs) when
+              // a hint appears.
+              if (hintText == null)
+                const SizedBox.shrink()
+              else
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _HintBox(text: hintText),
+                ),
               _answerArea(q, locked: answered),
             ],
           ),
@@ -342,6 +473,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                           child: CourtLineup(placements: q.placements),
                         )
                       : null,
+                  onShowMeHow: () => unawaited(
+                    showMeHow(context, question: q, course: course),
+                  ),
                   onContinue: _continue,
                 )
               : q.type == QuestionType.matching
@@ -365,11 +499,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         return Column(
           children: [
             for (final option in _options)
-              OptionTile(
-                label: option,
-                selected: _response == option,
-                onTap: locked ? null : () => choose(option),
-              ),
+              if (!_removedOptions.contains(option))
+                OptionTile(
+                  label: option,
+                  selected: _response == option,
+                  onTap: locked ? null : () => choose(option),
+                ),
           ],
         );
       case QuestionType.trueFalse:
@@ -393,6 +528,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         return CourtView(
           selectedZone: int.tryParse(_response ?? ''),
           onZoneTap: locked ? null : (zone) => choose('$zone'),
+          hintZones: _hintZones,
         );
       case QuestionType.matching:
         final feedback = ref.read(feedbackProvider);
@@ -401,11 +537,13 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           onDone: _matchingDone,
           onPairMatched: () => feedback.play(FeedbackEvent.pairMatched),
           onWrongPair: () => feedback.play(FeedbackEvent.incorrect),
+          revealPair: _hintUsed,
         );
       case QuestionType.dragDrop:
         return DragDropView(
           question: q,
           locked: locked,
+          hint: _hintUsed,
           onChanged: (value) => setState(() => _response = value),
           onSnap: () =>
               ref.read(feedbackProvider).play(FeedbackEvent.tokenSnapped),
@@ -432,7 +570,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                 Semantics(
                   header: true,
                   child: Text(
-                    session.isPerfect ? 'Perfect lesson!' : 'Lesson complete!',
+                    switch ((session.isPerfect, _node.isReview)) {
+                      (true, false) => 'Perfect lesson!',
+                      (true, true) => 'Perfect review!',
+                      (false, false) => 'Lesson complete!',
+                      (false, true) => 'Review complete!',
+                    },
                     style: text.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
@@ -500,6 +643,41 @@ class _StreakCelebration extends StatelessWidget {
               '$streak day streak!',
               style: Theme.of(context).textTheme.titleLarge
                   ?.copyWith(fontWeight: FontWeight.w800),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The hint shown above the answers after the learner taps the lightbulb.
+class _HintBox extends StatelessWidget {
+  const new({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = AppTokens.of(context);
+    return Semantics(
+      liveRegion: true,
+      label: 'Hint: $text',
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: tokens.selectedBg,
+          border: Border.all(color: tokens.brandOrange),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.lightbulb, color: tokens.brandOrange),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
             ),
           ],
         ),

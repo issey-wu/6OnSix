@@ -23,6 +23,7 @@ class DragDropView extends StatefulWidget {
     required this.onChanged,
     required this.onSnap,
     this.locked = false,
+    this.hint = false,
     this.random,
     super.key,
   });
@@ -40,6 +41,10 @@ class DragDropView extends StatefulWidget {
   /// True after Check: tokens stay where they are but can't be moved.
   final bool locked;
 
+  /// Set to true by the hint button: one player not yet in the right zone
+  /// is placed there and fixed.
+  final bool hint;
+
   /// Shuffles the tray. Pass a seeded one for repeatable tests.
   final Random? random;
 
@@ -50,12 +55,35 @@ class DragDropView extends StatefulWidget {
 class _DragDropViewState extends State<DragDropView> {
   late final List<String> _trayOrder;
   final Map<String, int> _placed = {};
+  final Set<String> _fixed = {};
   String? _picked;
 
   @override
   void initState() {
     super.initState();
     _trayOrder = [...widget.question.tokens]..shuffle(widget.random);
+  }
+
+  @override
+  void didUpdateWidget(DragDropView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.hint && !oldWidget.hint) {
+      // After this frame, so the parent can safely rebuild when it hears
+      // about the new placement.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _applyHint();
+      });
+    }
+  }
+
+  void _applyHint() {
+    final placements = widget.question.placements;
+    final token = widget.question.tokens
+        .where((t) => _placed[t] != placements[t])
+        .firstOrNull;
+    if (token == null) return;
+    _fixed.add(token);
+    _place(token, placements[token]!, force: true);
   }
 
   String? _occupant(int zone) {
@@ -65,10 +93,14 @@ class _DragDropViewState extends State<DragDropView> {
     return null;
   }
 
-  void _place(String token, int zone) {
+  void _place(String token, int zone, {bool force = false}) {
     if (widget.locked) return;
+    if (_fixed.contains(token) && !force) return;
     final from = _placed[token];
     final occupant = _occupant(zone);
+    if (occupant != null && occupant != token && _fixed.contains(occupant)) {
+      return;
+    }
     setState(() {
       if (occupant != null && occupant != token) {
         // The player already there swaps to where the new one came from,
@@ -87,7 +119,8 @@ class _DragDropViewState extends State<DragDropView> {
   }
 
   void _unplace(String token) {
-    if (widget.locked || !_placed.containsKey(token)) return;
+    if (widget.locked || _fixed.contains(token)) return;
+    if (!_placed.containsKey(token)) return;
     setState(() {
       _placed.remove(token);
       _picked = null;
@@ -96,7 +129,7 @@ class _DragDropViewState extends State<DragDropView> {
   }
 
   void _pick(String token) {
-    if (widget.locked) return;
+    if (widget.locked || _fixed.contains(token)) return;
     final picked = _picked;
     final zone = _placed[token];
     if (picked != null && picked != token && zone != null) {
@@ -232,7 +265,7 @@ class _DragDropViewState extends State<DragDropView> {
 
   Widget _token(String token) {
     final chip = PlayerToken(label: token, selected: _picked == token);
-    if (widget.locked) return chip;
+    if (widget.locked || _fixed.contains(token)) return chip;
     return Semantics(
       container: true,
       button: true,
