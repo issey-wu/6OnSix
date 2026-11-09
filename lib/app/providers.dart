@@ -95,6 +95,7 @@ class ProgressController extends Notifier<Progress> {
       xpEarned: xp,
       localNow: ref.read(clockProvider).now().toLocal(),
     );
+    ref.read(answerStatsProvider.notifier).record(answers);
     _save(
       ref
           .read(progressRepositoryProvider)
@@ -113,8 +114,25 @@ class ProgressController extends Notifier<Progress> {
   /// Clears XP, streak and completed lessons.
   void reset() {
     state = const Progress();
+    ref.read(answerStatsProvider.notifier).clear();
     _save(ref.read(progressRepositoryProvider).resetProgress(), 'reset');
   }
+}
+
+/// Right and wrong counts per question, kept in step with the answer log.
+final answerStatsProvider =
+    NotifierProvider<AnswerStatsController, AnswerStats>(
+      AnswerStatsController.new,
+    );
+
+class AnswerStatsController extends Notifier<AnswerStats> {
+  @override
+  AnswerStats build() => ref.read(initialStateProvider).answerStats;
+
+  void record(List<AnswerAttempt> answers) =>
+      state = state.withAttempts(answers);
+
+  void clear() => state = const AnswerStats();
 }
 
 final settingsProvider = NotifierProvider<SettingsController, AppSettings>(

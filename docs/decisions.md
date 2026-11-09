@@ -32,6 +32,9 @@ A short list of the current stack and architecture choices. Update an entry when
 
 - **Lessons are complete-until-correct:** wrong answers are re-queued, nobody fails, and there are no lockouts.
 - **XP and streak values** live in one config object in `domain`. Streaks use the injected `Clock` and the device-local date.
+- **Hints:** one per question, worked out from the question itself so no extra content is needed. Using a hint is never a wrong answer; it only removes the perfect-lesson bonus.
+- **Final review:** one node after the last unit, 12 questions drawn across every unit so each concept is covered where possible. Earns review XP and can be replayed.
+- **Weak spots:** a question is weak while `2 x misses - right answers > 0` in the answer log. Because every miss in a lesson is followed by a right answer, one more right answer per miss clears it. Practice appears once 3 questions are weak and asks up to 8.
 
 - **Glossary:** authored in `content/source/glossary.csv` and exported into `course.json` (schema version 2), sorted A to Z.
 - **Drag-and-drop:** tokens in the options column, placements such as `S=1|OPP=4` in the answer column. The exporter checks every token is placed once, zones are unique, and the libero is in the back row.
@@ -51,5 +54,5 @@ A short list of the current stack and architecture choices. Update an entry when
 
 - **Yash leads UI and UX.** He owns the look and behaviour of screens: `lib/core/ui/`, `lib/app/theme.dart` and `lib/features/*/presentation/`. Issey owns logic, data, content, tests and tooling. Either can change the other's area for the demo, and design changes are reconciled in rounds.
 - **Always branch from the latest `main`** and keep branches short, so work merges cleanly.
-- **Co-author credit:** any commit that includes Yash's code, design, or changes made from his review feedback ends with `Co-authored-by: Yash Dubey <dubeyy@mcmaster.ca>`, so GitHub credits both of us. Commits he had no part in don't get the line, so the history stays accurate.
+- **Co-author credit:** from Nov 8, 2026, Yash collaborates on every feature, so every commit ends with `Co-authored-by: Yash Dubey <dubeyy@mcmaster.ca>` and Yash is added as reviewer on each pull request.
 - **Reconciling `yash/screens` (Nov 2026):** the demo build stayed the base. Yash's developer menu, drag-and-drop interaction, player token design, correct-arrangement court, tests, 2 new questions and 9 new glossary terms were ported into it, credited to him. His duplicate rotation question and the glossary terms that matched existing ones were left out.

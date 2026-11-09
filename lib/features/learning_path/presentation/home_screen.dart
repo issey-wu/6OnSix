@@ -90,6 +90,12 @@ class _PathState extends ConsumerState<_Path> {
     final progress = widget.progress;
     final path = course.path;
     final name = ref.watch(nameProvider);
+    final rules = ref.watch(gameRulesProvider);
+    final weak = ref
+        .watch(answerStatsProvider)
+        .weakest(limit: rules.weakSpotQuestionCount)
+        .where((id) => course.questionById(id) != null)
+        .length;
     final children = <Widget>[
       Padding(
         padding: const EdgeInsets.only(top: 4),
@@ -99,6 +105,12 @@ class _PathState extends ConsumerState<_Path> {
               ?.copyWith(color: AppTokens.of(context).textSecondary),
         ),
       ),
+      if (weak >= rules.weakSpotMinimum)
+        _WeakSpotsCard(
+          count: weak,
+          onStart: () =>
+              unawaited(context.push('/lesson/${Course.weakSpotsId}')),
+        ),
     ];
     Unit? lastUnit;
     var lessonNumber = 0;
@@ -116,6 +128,16 @@ class _PathState extends ConsumerState<_Path> {
         );
       }
       if (!node.isReview) lessonNumber++;
+      if (node.isFinal) {
+        children.add(
+          const UnitHeader(
+            title: 'Final review',
+            description:
+                'Questions from every unit. Come back any time to stay '
+                'sharp.',
+          ),
+        );
+      }
       final state = progress.stateOf(path, i);
       const offsets = [-0.45, 0.0, 0.45, 0.0];
       children.add(
@@ -125,7 +147,11 @@ class _PathState extends ConsumerState<_Path> {
             key: state == NodeState.current ? _currentKey : null,
             node: node,
             state: state,
-            label: node.isReview ? 'Unit review' : 'Lesson $lessonNumber',
+            label: node.isFinal
+                ? 'Final review'
+                : node.isReview
+                ? 'Unit review'
+                : 'Lesson $lessonNumber',
             onOpen: () => _openNode(node, state),
           ),
         ),
@@ -150,14 +176,14 @@ class _PathState extends ConsumerState<_Path> {
     }
     final rules = ref.read(gameRulesProvider);
     final lesson = node.lesson;
-    final poolSize = node.unit.lessons.fold<int>(
-      0,
-      (sum, l) => sum + l.questions.length,
-    );
+    final poolSize = node.isFinal
+        ? widget.course.allQuestions.length
+        : node.unit.lessons.fold<int>(0, (sum, l) => sum + l.questions.length);
+    final draw = node.isFinal
+        ? rules.finalReviewQuestionCount
+        : rules.reviewQuestionCount;
     final count = lesson == null
-        ? (poolSize < rules.reviewQuestionCount
-              ? poolSize
-              : rules.reviewQuestionCount)
+        ? (poolSize < draw ? poolSize : draw)
         : lesson.questions.length;
     unawaited(
       showModalBottomSheet<void>(
@@ -171,6 +197,64 @@ class _PathState extends ConsumerState<_Path> {
             Navigator.pop(sheetContext);
             unawaited(context.push('/lesson/${node.id}'));
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// Offers a short practice of the questions the learner has missed most.
+class _WeakSpotsCard extends StatelessWidget {
+  const new({required this.count, required this.onStart});
+
+  final int count;
+  final VoidCallback onStart;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = AppTokens.of(context);
+    final text = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Material(
+        color: tokens.selectedBg,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: tokens.brandOrange, width: 2),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: InkWell(
+          key: const ValueKey('weak-spots'),
+          borderRadius: BorderRadius.circular(16),
+          onTap: onStart,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Icon(Icons.fitness_center, color: tokens.brandOrange),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Practice weak spots',
+                        style: text.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      Text(
+                        '$count questions you have missed before',
+                        style: text.bodyMedium?.copyWith(
+                          color: tokens.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: tokens.textSecondary),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -222,6 +306,14 @@ class _NodeCard extends StatelessWidget {
     );
   }
 }
+
+/// The final review gets a medal, unit reviews a trophy, and lessons
+/// [lessonIcon].
+IconData _icon(PathNode node, IconData lessonIcon) => node.isFinal
+    ? Icons.workspace_premium
+    : node.isReview
+    ? Icons.emoji_events
+    : lessonIcon;
 
 class _NodeButton extends StatefulWidget {
   const new({
@@ -292,19 +384,19 @@ class _NodeButtonState extends State<_NodeButton>
       NodeState.locked => (
         tokens.surfaceMuted,
         tokens.textSecondary,
-        node.isReview ? Icons.emoji_events : Icons.lock,
+        _icon(node, Icons.lock),
         'locked',
       ),
       NodeState.current => (
         tokens.brandOrange,
         tokens.onYellowOrange,
-        node.isReview ? Icons.emoji_events : Icons.play_arrow_rounded,
+        _icon(node, Icons.play_arrow_rounded),
         'current',
       ),
       NodeState.completed => (
         tokens.brandYellow,
         tokens.onYellowOrange,
-        node.isReview ? Icons.emoji_events : Icons.check_rounded,
+        _icon(node, Icons.check_rounded),
         'completed',
       ),
     };

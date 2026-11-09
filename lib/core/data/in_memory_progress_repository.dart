@@ -26,6 +26,7 @@ class InMemoryProgressRepository implements ProgressRepository {
       progress: updated,
       settings: _state.settings,
       name: _state.name,
+      answerStats: _state.answerStats.withAttempts(answers),
     );
   }
 
@@ -35,6 +36,7 @@ class InMemoryProgressRepository implements ProgressRepository {
       progress: _state.progress,
       settings: settings,
       name: _state.name,
+      answerStats: _state.answerStats,
     );
   }
 
@@ -44,6 +46,7 @@ class InMemoryProgressRepository implements ProgressRepository {
       progress: _state.progress,
       settings: _state.settings,
       name: name,
+      answerStats: _state.answerStats,
     );
   }
 

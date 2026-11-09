@@ -12,6 +12,7 @@ class MatchingView extends StatefulWidget {
     required this.onDone,
     this.onPairMatched,
     this.onWrongPair,
+    this.revealPair = false,
     super.key,
   });
 
@@ -19,6 +20,10 @@ class MatchingView extends StatefulWidget {
   final ValueChanged<bool> onDone;
   final VoidCallback? onPairMatched;
   final VoidCallback? onWrongPair;
+
+  /// Set to true by the hint button: one unmatched pair is matched for the
+  /// learner. It does not count as a mistake.
+  final bool revealPair;
 
   @override
   State<MatchingView> createState() => _MatchingViewState();
@@ -38,6 +43,31 @@ class _MatchingViewState extends State<MatchingView> {
     final random = Random();
     _left = [...widget.question.pairs]..shuffle(random);
     _right = [...widget.question.pairs]..shuffle(random);
+  }
+
+  @override
+  void didUpdateWidget(MatchingView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.revealPair && !oldWidget.revealPair) {
+      // After this frame, so the parent can safely rebuild when it hears
+      // about the match.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _revealOne();
+      });
+    }
+  }
+
+  void _revealOne() {
+    final pair = _left.where((p) => !_matched.contains(p)).firstOrNull;
+    if (pair == null) return;
+    widget.onPairMatched?.call();
+    setState(() {
+      _matched.add(pair);
+      if (identical(_selectedLeft, pair)) _selectedLeft = null;
+    });
+    if (_matched.length == widget.question.pairs.length) {
+      widget.onDone(_hadMistake);
+    }
   }
 
   void _tapRight(MatchPair pair) {

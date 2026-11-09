@@ -28,6 +28,7 @@ class CourtView extends StatelessWidget {
     this.tokens = const {},
     this.cellBuilder,
     this.revealZoneNumbers = false,
+    this.hintZones = const {},
     super.key,
   });
 
@@ -41,6 +42,9 @@ class CourtView extends StatelessWidget {
   /// Whether screen-reader labels include the zone number. Off for tap the
   /// zone questions, where the number is the answer.
   final bool revealZoneNumbers;
+
+  /// Zones lightly highlighted by a hint, such as the whole front row.
+  final Set<int> hintZones;
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +61,8 @@ class CourtView extends StatelessWidget {
                 line: line,
                 selectedFill: tokensTheme.brandOrange,
                 selectedZone: selectedZone,
+                hintFill: tokensTheme.brandYellow,
+                hintZones: hintZones,
               ),
             ),
           ),
@@ -105,12 +111,29 @@ class _CourtPainter extends CustomPainter {
     required this.line,
     required this.selectedFill,
     required this.selectedZone,
+    required this.hintFill,
+    required this.hintZones,
   });
 
   final Color floor;
   final Color line;
   final Color selectedFill;
   final int? selectedZone;
+  final Color hintFill;
+  final Set<int> hintZones;
+
+  Rect _zoneRect(int zone, Size size) {
+    final index = courtZoneOrder.indexOf(zone);
+    final col = index % 3;
+    final front = index < 3;
+    final attackY = size.height / 3;
+    return Rect.fromLTRB(
+      col * size.width / 3,
+      front ? 0 : attackY,
+      (col + 1) * size.width / 3,
+      front ? attackY : size.height,
+    );
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -120,18 +143,16 @@ class _CourtPainter extends CustomPainter {
     final court = Offset.zero & size;
     canvas.drawRect(court, Paint()..color = floor);
 
+    for (final hinted in hintZones) {
+      canvas.drawRect(
+        _zoneRect(hinted, size),
+        Paint()..color = hintFill.withValues(alpha: 0.45),
+      );
+    }
     final zone = selectedZone;
     if (zone != null) {
-      final index = courtZoneOrder.indexOf(zone);
-      final col = index % 3;
-      final front = index < 3;
       canvas.drawRect(
-        Rect.fromLTRB(
-          col * w / 3,
-          front ? 0 : attackY,
-          (col + 1) * w / 3,
-          front ? attackY : h,
-        ),
+        _zoneRect(zone, size),
         Paint()..color = selectedFill.withValues(alpha: 0.75),
       );
     }
@@ -155,6 +176,8 @@ class _CourtPainter extends CustomPainter {
   @override
   bool shouldRepaint(_CourtPainter oldDelegate) =>
       oldDelegate.selectedZone != selectedZone ||
+      oldDelegate.hintZones.length != hintZones.length ||
+      !oldDelegate.hintZones.containsAll(hintZones) ||
       oldDelegate.floor != floor ||
       oldDelegate.line != line;
 }

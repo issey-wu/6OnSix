@@ -66,6 +66,7 @@ class FeedbackPanel extends StatelessWidget {
     required this.onContinue,
     this.note,
     this.extra,
+    this.onShowMeHow,
     super.key,
   });
 
@@ -78,6 +79,9 @@ class FeedbackPanel extends StatelessWidget {
   /// Shown under the title, such as the correct court arrangement.
   final Widget? extra;
 
+  /// Opens the step-by-step explanation. The button is hidden when null.
+  final VoidCallback? onShowMeHow;
+
   @override
   Widget build(BuildContext context) {
     final tokens = AppTokens.of(context);
@@ -85,6 +89,7 @@ class FeedbackPanel extends StatelessWidget {
     final fg = correct ? tokens.onSuccess : tokens.onError;
     final note = this.note;
     final extra = this.extra;
+    final onShowMeHow = this.onShowMeHow;
     return Container(
       width: double.infinity,
       color: correct ? tokens.successBg : tokens.errorBg,
@@ -127,6 +132,20 @@ class FeedbackPanel extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 12),
+            if (onShowMeHow != null) ...[
+              OutlinedButton.icon(
+                key: const ValueKey('show-me-how'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: fg,
+                  side: BorderSide(color: fg, width: 1.5),
+                  minimumSize: const Size.fromHeight(48),
+                ),
+                onPressed: onShowMeHow,
+                icon: const Icon(Icons.school_outlined),
+                label: const Text('Show me how'),
+              ),
+              const SizedBox(height: 8),
+            ],
             FilledButton(
               style: FilledButton.styleFrom(
                 backgroundColor: correct ? tokens.success : tokens.error,
@@ -193,13 +212,14 @@ class StatCard extends StatelessWidget {
 /// The brand-red card that opens each unit on the learning path.
 class UnitHeader extends StatelessWidget {
   const new({
-    required this.number,
     required this.title,
     required this.description,
+    this.number,
     super.key,
   });
 
-  final int number;
+  /// The unit number. Null for the final review section.
+  final int? number;
   final String title;
   final String description;
 
@@ -220,7 +240,7 @@ class UnitHeader extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'UNIT $number',
+              number == null ? 'ALL UNITS' : 'UNIT $number',
               style: text.labelLarge?.copyWith(color: tokens.onBrandRed),
             ),
             Text(

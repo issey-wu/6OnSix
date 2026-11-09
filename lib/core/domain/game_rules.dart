@@ -10,6 +10,9 @@ class GameRules {
     this.reviewXp = 20,
     this.reviewPerfectBonus = 5,
     this.reviewQuestionCount = 8,
+    this.finalReviewQuestionCount = 12,
+    this.weakSpotQuestionCount = 8,
+    this.weakSpotMinimum = 3,
   });
 
   final int lessonXp;
@@ -19,6 +22,15 @@ class GameRules {
 
   /// How many questions a unit review draws from the unit's lessons.
   final int reviewQuestionCount;
+
+  /// How many questions the final review draws from the whole course.
+  final int finalReviewQuestionCount;
+
+  /// The most questions a "practice weak spots" session asks.
+  final int weakSpotQuestionCount;
+
+  /// Weak spots practice appears once this many questions count as weak.
+  final int weakSpotMinimum;
 
   /// XP earned for finishing a lesson or review.
   int xpFor({required bool isReview, required bool perfect}) => isReview
@@ -32,7 +44,10 @@ class GameRules {
       other.lessonPerfectBonus == lessonPerfectBonus &&
       other.reviewXp == reviewXp &&
       other.reviewPerfectBonus == reviewPerfectBonus &&
-      other.reviewQuestionCount == reviewQuestionCount;
+      other.reviewQuestionCount == reviewQuestionCount &&
+      other.finalReviewQuestionCount == finalReviewQuestionCount &&
+      other.weakSpotQuestionCount == weakSpotQuestionCount &&
+      other.weakSpotMinimum == weakSpotMinimum;
 
   @override
   int get hashCode => Object.hash(
@@ -41,5 +56,8 @@ class GameRules {
     reviewXp,
     reviewPerfectBonus,
     reviewQuestionCount,
+    finalReviewQuestionCount,
+    weakSpotQuestionCount,
+    weakSpotMinimum,
   );
 }

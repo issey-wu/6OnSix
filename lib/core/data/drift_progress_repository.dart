@@ -60,6 +60,9 @@ class DriftProgressRepository implements ProgressRepository {
               ..where(_db.completions.userId.equals(userId)))
             .map((row) => row.read(_db.completions.nodeId)!)
             .get();
+    final answers = await (_db.select(
+      _db.answerLog,
+    )..where((t) => t.userId.equals(userId))).get();
 
     return StoredState(
       name: user.displayName,
@@ -78,6 +81,9 @@ class DriftProgressRepository implements ProgressRepository {
         hapticsOn: settings.hapticsOn,
         welcomeSeen: settings.welcomeSeen,
       ),
+      answerStats: const AnswerStats().withResults([
+        for (final a in answers) (a.questionId, a.correct),
+      ]),
     );
   }
 
