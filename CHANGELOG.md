@@ -7,6 +7,10 @@ All notable changes to this project are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed
+- New app icon: a volleyball in flames on dark red, designed by Yash Dubey.
+  The original logo and the 1024 px master are in `docs/branding/`.
+
 ### Added (Round 1: learning upgrades)
 - Hint button (lightbulb) on every question. The hint fits the question
   type: removes a wrong option, explains a key term, highlights the right
