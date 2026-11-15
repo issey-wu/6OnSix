@@ -1,3 +1,4 @@
+import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 
@@ -18,6 +19,13 @@ abstract interface class ProgressRepository {
   });
 
   Future<void> saveSettings(AppSettings settings);
+
+  /// Saves the running totals on their own, such as after chest bonus XP or
+  /// a streak freeze.
+  Future<void> saveProgress(Progress progress);
+
+  /// Saves the motivation layer: goal, quests, freezes and stats.
+  Future<void> saveMotivation(MotivationState motivation);
 
   Future<void> saveName(String? name);
 

@@ -214,7 +214,11 @@ void main() {
     final complete = find.text('Lesson complete!');
     for (var i = 0; i < 400 && complete.evaluate().isEmpty; i++) {
       await tester.pump(const Duration(milliseconds: 5));
-      final bar = find.byType(LinearProgressIndicator);
+      final bar = find.byWidgetPredicate(
+        (w) =>
+            w is LinearProgressIndicator &&
+            w.semanticsLabel == 'Lesson progress',
+      );
       if (bar.evaluate().isNotEmpty) {
         lastBar = tester.widget<LinearProgressIndicator>(bar).value;
       }

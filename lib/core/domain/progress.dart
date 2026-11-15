@@ -44,6 +44,23 @@ class Progress {
     );
   }
 
+  /// The same progress with [day] as the last active day. Used when a
+  /// streak freeze covers missed days.
+  Progress withLastActiveDay(DateTime day) => Progress(
+    completed: completed,
+    xp: xp,
+    streak: streak,
+    lastActiveDay: day,
+  );
+
+  /// The same progress plus [bonus] XP, such as from a chest.
+  Progress withBonusXp(int bonus) => Progress(
+    completed: completed,
+    xp: xp + bonus,
+    streak: streak,
+    lastActiveDay: lastActiveDay,
+  );
+
   /// The streak to show at [localNow]: it drops to zero once a full day
   /// passes without a finished lesson.
   int streakOn(DateTime localNow) {

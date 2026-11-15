@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:six_on_six/core/data/database.dart';
 import 'package:six_on_six/core/domain/clock.dart';
+import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/progress_repository.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
@@ -63,6 +66,9 @@ class DriftProgressRepository implements ProgressRepository {
     final answers = await (_db.select(
       _db.answerLog,
     )..where((t) => t.userId.equals(userId))).get();
+    final extras = await (_db.select(
+      _db.userExtras,
+    )..where((t) => t.userId.equals(userId))).getSingleOrNull();
 
     return StoredState(
       name: user.displayName,
@@ -84,6 +90,46 @@ class DriftProgressRepository implements ProgressRepository {
       answerStats: const AnswerStats().withResults([
         for (final a in answers) (a.questionId, a.correct),
       ]),
+      motivation: _decodeMotivation(extras?.motivationJson),
+    );
+  }
+
+  static MotivationState _decodeMotivation(String? json) {
+    if (json == null || json.isEmpty) return const MotivationState();
+    try {
+      return motivationFromJson(jsonDecode(json) as Map<String, Object?>);
+    } on Object {
+      // A damaged document should never stop the app from starting.
+      return const MotivationState();
+    }
+  }
+
+  @override
+  Future<void> saveMotivation(MotivationState motivation) async {
+    final userId = await _ensureUser();
+    await _db
+        .into(_db.userExtras)
+        .insertOnConflictUpdate(
+          UserExtrasCompanion.insert(
+            userId: userId,
+            motivationJson: Value(jsonEncode(motivation.toJson())),
+            updatedAt: _clock.now(),
+          ),
+        );
+  }
+
+  @override
+  Future<void> saveProgress(Progress progress) async {
+    final userId = await _ensureUser();
+    await (_db.update(
+      _db.progressSummary,
+    )..where((t) => t.userId.equals(userId))).write(
+      ProgressSummaryCompanion(
+        xp: Value(progress.xp),
+        streak: Value(progress.streak),
+        lastActiveDay: Value(progress.lastActiveDay),
+        updatedAt: Value(_clock.now()),
+      ),
     );
   }
 

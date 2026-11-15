@@ -17,7 +17,9 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final course = ref.watch(courseProvider);
     final progress = ref.watch(progressProvider);
-    final streak = progress.streakOn(ref.watch(clockProvider).now().toLocal());
+    final local = ref.watch(clockProvider).now().toLocal();
+    final streak = progress.streakOn(local);
+    final motivation = ref.watch(motivationProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -26,6 +28,12 @@ class HomeScreen extends ConsumerWidget {
         centerTitle: true,
         title: const Text('6 On Six'),
         actions: [
+          GoalRing(
+            xp: motivation.statsOn(local).xp,
+            goal: motivation.goal,
+            onTap: () => context.go('/quests'),
+          ),
+          const SizedBox(width: 10),
           Semantics(
             label: '${progress.xp} XP',
             excludeSemantics: true,

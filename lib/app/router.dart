@@ -4,10 +4,12 @@ import 'package:six_on_six/app/app_shell.dart';
 import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/features/glossary/presentation/glossary_screen.dart';
 import 'package:six_on_six/features/glossary/presentation/term_screen.dart';
+import 'package:six_on_six/features/goal/presentation/goal_screen.dart';
 import 'package:six_on_six/features/learning_path/presentation/home_screen.dart';
 import 'package:six_on_six/features/lesson/presentation/lesson_screen.dart';
 import 'package:six_on_six/features/profile/presentation/profile_screen.dart';
 import 'package:six_on_six/features/profile/presentation/settings_screen.dart';
+import 'package:six_on_six/features/quests/presentation/quests_screen.dart';
 import 'package:six_on_six/features/welcome/presentation/welcome_screen.dart';
 
 /// The app's map of screens. The welcome screen shows on first launch only;
@@ -29,6 +31,14 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/learn',
                 builder: (context, state) => const HomeScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/quests',
+                builder: (context, state) => const QuestsScreen(),
               ),
             ],
           ),
@@ -63,6 +73,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      GoRoute(path: '/goal', builder: (context, state) => const GoalScreen()),
       GoRoute(
         path: '/lesson/:nodeId',
         builder: (context, state) =>

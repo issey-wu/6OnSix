@@ -7,6 +7,23 @@ All notable changes to this project are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added (Round 2a: motivation, following Duolingo's mechanics)
+- Daily goal: Casual, Regular, Serious or Intense (5, 10, 15 or 20 minutes,
+  backed by 10, 20, 30 or 50 XP). Asked once after the first lesson, with a
+  7, 14 or 30-day streak commitment; changeable in Settings and Quests.
+- Goal ring on the Learn tab and a daily goal bar on the lesson complete
+  screen.
+- Quests tab: 3 daily quests from easy to hard, each with a chest. Chests
+  give bonus XP, a streak freeze, or (the third chest) 15 minutes of double
+  XP. Monthly challenge: 20 quests in a month.
+- Streak freezes: hold up to 2; they cover missed days automatically when
+  the app opens or a lesson finishes.
+- Streak milestones at 7, 30, 100 and 365 days, each with a celebration and
+  a free streak freeze.
+- Developer menu: give a streak freeze; start over as a new learner.
+- Saved on the device in a new table (database schema version 2), with a
+  migration that keeps existing progress.
+
 ### Changed
 - New app icon: a volleyball in flames on dark red, designed by Yash Dubey.
   The original logo and the 1024 px master are in `docs/branding/`.

@@ -5,11 +5,25 @@ import 'package:six_on_six/app/router.dart';
 import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 
-class SixOnSixApp extends ConsumerWidget {
+class SixOnSixApp extends ConsumerStatefulWidget {
   const new({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SixOnSixApp> createState() => _SixOnSixAppState();
+}
+
+class _SixOnSixAppState extends ConsumerState<SixOnSixApp> {
+  @override
+  void initState() {
+    super.initState();
+    // A streak freeze covers any days missed since the app was last used.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(progressProvider.notifier).checkStreakFreezes();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = ref.watch(settingsProvider.select((s) => s.theme));
     return MaterialApp.router(
       title: '6 On Six',

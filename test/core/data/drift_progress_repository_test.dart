@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:six_on_six/core/data/database.dart';
 import 'package:six_on_six/core/data/drift_progress_repository.dart';
+import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 
@@ -135,5 +136,24 @@ void main() {
     expect(state.progress.xp, 0);
     expect(state.progress.streak, 0);
     expect(state.name, 'Issey');
+  });
+
+  test('motivation and bonus XP are saved', () async {
+    final r = repo();
+    await r.load();
+    expect((await repo().load()).motivation.goalChosen, isFalse);
+    await r.saveMotivation(
+      const MotivationState(
+        goal: DailyGoal.intense,
+        goalChosen: true,
+        freezes: 2,
+      ),
+    );
+    await r.saveProgress(const Progress(xp: 40));
+    final state = await repo().load();
+    expect(state.motivation.goal, DailyGoal.intense);
+    expect(state.motivation.goalChosen, isTrue);
+    expect(state.motivation.freezes, 2);
+    expect(state.progress.xp, 40);
   });
 }

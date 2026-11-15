@@ -1,3 +1,4 @@
+import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/progress_repository.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
@@ -9,6 +10,21 @@ class InMemoryProgressRepository implements ProgressRepository {
 
   StoredState _state;
   final List<AnswerAttempt> answers = [];
+
+  StoredState _copy({
+    Progress? progress,
+    AppSettings? settings,
+    String? name,
+    bool clearName = false,
+    AnswerStats? answerStats,
+    MotivationState? motivation,
+  }) => StoredState(
+    progress: progress ?? _state.progress,
+    settings: settings ?? _state.settings,
+    name: clearName ? null : (name ?? _state.name),
+    answerStats: answerStats ?? _state.answerStats,
+    motivation: motivation ?? _state.motivation,
+  );
 
   @override
   Future<StoredState> load() async => _state;
@@ -22,37 +38,39 @@ class InMemoryProgressRepository implements ProgressRepository {
     required Progress updated,
   }) async {
     this.answers.addAll(answers);
-    _state = StoredState(
+    _state = _copy(
       progress: updated,
-      settings: _state.settings,
-      name: _state.name,
       answerStats: _state.answerStats.withAttempts(answers),
     );
   }
 
   @override
   Future<void> saveSettings(AppSettings settings) async {
-    _state = StoredState(
-      progress: _state.progress,
-      settings: settings,
-      name: _state.name,
-      answerStats: _state.answerStats,
-    );
+    _state = _copy(settings: settings);
   }
 
   @override
   Future<void> saveName(String? name) async {
-    _state = StoredState(
-      progress: _state.progress,
-      settings: _state.settings,
-      name: name,
-      answerStats: _state.answerStats,
-    );
+    _state = _copy(name: name, clearName: name == null);
+  }
+
+  @override
+  Future<void> saveProgress(Progress progress) async {
+    _state = _copy(progress: progress);
+  }
+
+  @override
+  Future<void> saveMotivation(MotivationState motivation) async {
+    _state = _copy(motivation: motivation);
   }
 
   @override
   Future<void> resetProgress() async {
     answers.clear();
-    _state = StoredState(settings: _state.settings, name: _state.name);
+    _state = StoredState(
+      settings: _state.settings,
+      name: _state.name,
+      motivation: _state.motivation.resetStats(),
+    );
   }
 }

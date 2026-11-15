@@ -7,13 +7,30 @@ import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
 
 /// One glossary term: definition, an example, and related terms as chips.
-class TermScreen extends ConsumerWidget {
+class TermScreen extends ConsumerStatefulWidget {
   const new({required this.termId, super.key});
 
   final String termId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TermScreen> createState() => _TermScreenState();
+}
+
+class _TermScreenState extends ConsumerState<TermScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Counts toward glossary quests.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(motivationProvider.notifier).recordGlossaryView(widget.termId);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final termId = widget.termId;
     final course = ref.watch(courseProvider).value;
     final term = course?.termById(termId);
     final text = Theme.of(context).textTheme;
