@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:six_on_six/app/theme.dart';
+import 'package:six_on_six/core/domain/motivation.dart';
 
 // Shared building blocks used across screens. Every colour comes from the
 // theme tokens, so restyling a component here restyles it everywhere.
@@ -287,6 +288,93 @@ class StreakBadge extends StatelessWidget {
                 ?.copyWith(fontWeight: FontWeight.w800),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Today's XP against the daily goal, as a labelled bar.
+class DailyGoalBar extends StatelessWidget {
+  const new({required this.xp, required this.goal, super.key});
+
+  final int xp;
+  final DailyGoal goal;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = AppTokens.of(context);
+    final text = Theme.of(context).textTheme;
+    final met = xp >= goal.xp;
+    final label = met ? 'Daily goal met!' : 'Daily goal: $xp of ${goal.xp} XP';
+    return Semantics(
+      label: label,
+      excludeSemantics: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: text.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: met ? tokens.success : null,
+            ),
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: (xp / goal.xp).clamp(0.0, 1.0),
+              minHeight: 12,
+              color: met ? tokens.success : tokens.brandOrange,
+              backgroundColor: tokens.surfaceMuted,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A small ring that fills toward today's goal, with the XP inside.
+class GoalRing extends StatelessWidget {
+  const new({required this.xp, required this.goal, this.onTap, super.key});
+
+  final int xp;
+  final DailyGoal goal;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = AppTokens.of(context);
+    final met = xp >= goal.xp;
+    return Semantics(
+      button: onTap != null,
+      label: met
+          ? 'Daily goal met, $xp XP today'
+          : 'Daily goal, $xp of ${goal.xp} XP today',
+      excludeSemantics: true,
+      child: InkResponse(
+        onTap: onTap,
+        radius: 24,
+        child: SizedBox.square(
+          dimension: 36,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CircularProgressIndicator(
+                value: (xp / goal.xp).clamp(0.0, 1.0),
+                strokeWidth: 4,
+                color: met ? tokens.success : tokens.brandOrange,
+                backgroundColor: tokens.surfaceMuted,
+              ),
+              Icon(
+                met ? Icons.check : Icons.flag,
+                size: 16,
+                color: met ? tokens.success : tokens.textSecondary,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

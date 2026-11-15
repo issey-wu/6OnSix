@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 
 enum ThemePreference { system, light, dark }
@@ -114,9 +115,13 @@ class StoredState {
     this.settings = const AppSettings(),
     this.name,
     this.answerStats = const AnswerStats(),
+    this.motivation = const MotivationState(),
   });
 
   final Progress progress;
+
+  /// Daily goal, quests, streak freezes and related stats.
+  final MotivationState motivation;
   final AppSettings settings;
 
   /// Right and wrong counts per question, from the answer log.

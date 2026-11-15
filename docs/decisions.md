@@ -50,6 +50,14 @@ A short list of the current stack and architecture choices. Update an entry when
 - **GitHub Actions CI** on pushes and PRs to `main`. One job runs format, analyze, and test. A second job builds a debug APK, because the Mac has no Android SDK.
 - **Claude Code attribution is turned off** in `.claude/settings.json`.
 
+## Motivation layer (Round 2)
+
+- **Follows Duolingo's mechanics** as closely as an offline app allows (research and sources in the roadmap doc). Changes are only where we have no shop, accounts or internet: chests give bonus XP or streak freezes instead of gems.
+- **Daily goal:** four levels shown as minutes (5, 10, 15, 20) with XP targets (10, 20, 30, 50). Asked after the first lesson, keeping our "no questionnaire before the first lesson" rule.
+- **Streak freezes:** at most 2 held, applied automatically, and only when there are enough to cover every missed day.
+- **Quests:** 3 a day, one easy, one medium, one hard, chosen from the date so they stay the same all day. The third chest is always a 15-minute double-XP boost.
+- **Storage:** the motivation state is one JSON document in a new `user_extras` table (schema version 2). It holds derived and preference data only; the append-only answer log and completions remain the source of truth for learning history.
+
 ## Team workflow
 
 - **Yash leads UI and UX.** He owns the look and behaviour of screens: `lib/core/ui/`, `lib/app/theme.dart` and `lib/features/*/presentation/`. Issey owns logic, data, content, tests and tooling. Either can change the other's area for the demo, and design changes are reconciled in rounds.

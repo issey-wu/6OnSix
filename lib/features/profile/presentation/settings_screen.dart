@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
+import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 
 /// App version shown under About. Keep in step with pubspec.yaml.
@@ -19,6 +20,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
     final controller = ref.read(settingsProvider.notifier);
+    final goal = ref.watch(motivationProvider.select((m) => m.goal));
     final text = Theme.of(context).textTheme;
     final tokens = AppTokens.of(context);
 
@@ -72,6 +74,13 @@ class SettingsScreen extends ConsumerWidget {
                 controller.update(settings.copyWith(hapticsOn: on)),
           ),
           section('Progress'),
+          ListTile(
+            leading: const Icon(Icons.flag_outlined),
+            title: const Text('Daily goal'),
+            subtitle: Text('${goal.label}: ${goal.minutes} min a day'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => unawaited(context.push('/goal')),
+          ),
           ListTile(
             title: Text(
               'Reset progress',
@@ -157,7 +166,11 @@ class _DeveloperMenu extends ConsumerWidget {
         ListTile(
           leading: const Icon(Icons.today_outlined),
           title: const Text('Simulate next day'),
-          onTap: () => shiftController.addDays(1),
+          onTap: () {
+            shiftController.addDays(1);
+            // As if the app had just been opened on the new day.
+            ref.read(progressProvider.notifier).checkStreakFreezes();
+          },
         ),
         ListTile(
           leading: const Icon(Icons.update),
@@ -169,8 +182,32 @@ class _DeveloperMenu extends ConsumerWidget {
           title: const Text('Jump to any lesson'),
           onTap: () => unawaited(_jump(context, ref)),
         ),
+        ListTile(
+          leading: const Icon(Icons.ac_unit),
+          title: const Text('Give a streak freeze'),
+          subtitle: Text('Holding ${ref.watch(motivationProvider).freezes}'),
+          onTap: ref.read(motivationProvider.notifier).giveFreeze,
+        ),
+        ListTile(
+          leading: const Icon(Icons.restart_alt),
+          title: const Text('Start over as a new learner'),
+          subtitle: const Text('Clears everything and shows the welcome'),
+          onTap: () => _startOver(context, ref),
+        ),
       ],
     );
+  }
+
+  void _startOver(BuildContext context, WidgetRef ref) {
+    ref.read(progressProvider.notifier).reset();
+    ref.read(motivationProvider.notifier).replace(const MotivationState());
+    ref.read(nameProvider.notifier).set(null);
+    final settings = ref.read(settingsProvider);
+    ref
+        .read(settingsProvider.notifier)
+        .update(settings.copyWith(welcomeSeen: false));
+    ref.read(clockShiftProvider.notifier).reset();
+    context.go('/welcome');
   }
 
   Future<void> _jump(BuildContext context, WidgetRef ref) async {

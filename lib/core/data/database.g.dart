@@ -1942,6 +1942,279 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
   }
 }
 
+class $UserExtrasTable extends UserExtras
+    with TableInfo<$UserExtrasTable, UserExtrasRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserExtrasTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES local_users (id)',
+    ),
+  );
+  static const VerificationMeta _motivationJsonMeta = const VerificationMeta(
+    'motivationJson',
+  );
+  @override
+  late final GeneratedColumn<String> motivationJson = GeneratedColumn<String>(
+    'motivation_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('{}'),
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [userId, motivationJson, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_extras';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<UserExtrasRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
+    if (data.containsKey('motivation_json')) {
+      context.handle(
+        _motivationJsonMeta,
+        motivationJson.isAcceptableOrUnknown(
+          data['motivation_json']!,
+          _motivationJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId};
+  @override
+  UserExtrasRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserExtrasRow(
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      )!,
+      motivationJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}motivation_json'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $UserExtrasTable createAlias(String alias) {
+    return $UserExtrasTable(attachedDatabase, alias);
+  }
+}
+
+class UserExtrasRow extends DataClass implements Insertable<UserExtrasRow> {
+  final String userId;
+  final String motivationJson;
+  final DateTime updatedAt;
+  const UserExtrasRow({
+    required this.userId,
+    required this.motivationJson,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<String>(userId);
+    map['motivation_json'] = Variable<String>(motivationJson);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  UserExtrasCompanion toCompanion(bool nullToAbsent) {
+    return UserExtrasCompanion(
+      userId: Value(userId),
+      motivationJson: Value(motivationJson),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory UserExtrasRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserExtrasRow(
+      userId: serializer.fromJson<String>(json['userId']),
+      motivationJson: serializer.fromJson<String>(json['motivationJson']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userId': serializer.toJson<String>(userId),
+      'motivationJson': serializer.toJson<String>(motivationJson),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  UserExtrasRow copyWith({
+    String? userId,
+    String? motivationJson,
+    DateTime? updatedAt,
+  }) => UserExtrasRow(
+    userId: userId ?? this.userId,
+    motivationJson: motivationJson ?? this.motivationJson,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  UserExtrasRow copyWithCompanion(UserExtrasCompanion data) {
+    return UserExtrasRow(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      motivationJson: data.motivationJson.present
+          ? data.motivationJson.value
+          : this.motivationJson,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserExtrasRow(')
+          ..write('userId: $userId, ')
+          ..write('motivationJson: $motivationJson, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(userId, motivationJson, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserExtrasRow &&
+          other.userId == this.userId &&
+          other.motivationJson == this.motivationJson &&
+          other.updatedAt == this.updatedAt);
+}
+
+class UserExtrasCompanion extends UpdateCompanion<UserExtrasRow> {
+  final Value<String> userId;
+  final Value<String> motivationJson;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const UserExtrasCompanion({
+    this.userId = const Value.absent(),
+    this.motivationJson = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserExtrasCompanion.insert({
+    required String userId,
+    this.motivationJson = const Value.absent(),
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : userId = Value(userId),
+       updatedAt = Value(updatedAt);
+  static Insertable<UserExtrasRow> custom({
+    Expression<String>? userId,
+    Expression<String>? motivationJson,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (motivationJson != null) 'motivation_json': motivationJson,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserExtrasCompanion copyWith({
+    Value<String>? userId,
+    Value<String>? motivationJson,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return UserExtrasCompanion(
+      userId: userId ?? this.userId,
+      motivationJson: motivationJson ?? this.motivationJson,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (motivationJson.present) {
+      map['motivation_json'] = Variable<String>(motivationJson.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserExtrasCompanion(')
+          ..write('userId: $userId, ')
+          ..write('motivationJson: $motivationJson, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1952,6 +2225,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $UserSettingsTable userSettings = $UserSettingsTable(this);
+  late final $UserExtrasTable userExtras = $UserExtrasTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1962,6 +2236,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     completions,
     progressSummary,
     userSettings,
+    userExtras,
   ];
 }
 
@@ -2053,6 +2328,24 @@ final class $$LocalUsersTableReferences
     ).filter((f) => f.userId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_userSettingsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$UserExtrasTable, List<UserExtrasRow>>
+  _userExtrasRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.userExtras,
+    aliasName: 'local_users__id__user_extras__user_id',
+  );
+
+  $$UserExtrasTableProcessedTableManager get userExtrasRefs {
+    final manager = $$UserExtrasTableTableManager(
+      $_db,
+      $_db.userExtras,
+    ).filter((f) => f.userId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_userExtrasRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -2179,6 +2472,31 @@ class $$LocalUsersTableFilterComposer
           }) => $$UserSettingsTableFilterComposer(
             $db: $db,
             $table: $db.userSettings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> userExtrasRefs(
+    Expression<bool> Function($$UserExtrasTableFilterComposer f) f,
+  ) {
+    final $$UserExtrasTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.userExtras,
+      getReferencedColumn: (t) => t.userId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserExtrasTableFilterComposer(
+            $db: $db,
+            $table: $db.userExtras,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2341,6 +2659,31 @@ class $$LocalUsersTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> userExtrasRefs<T extends Object>(
+    Expression<T> Function($$UserExtrasTableAnnotationComposer a) f,
+  ) {
+    final $$UserExtrasTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.userExtras,
+      getReferencedColumn: (t) => t.userId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserExtrasTableAnnotationComposer(
+            $db: $db,
+            $table: $db.userExtras,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$LocalUsersTableTableManager
@@ -2361,6 +2704,7 @@ class $$LocalUsersTableTableManager
             bool completionsRefs,
             bool progressSummaryRefs,
             bool userSettingsRefs,
+            bool userExtrasRefs,
           })
         > {
   $$LocalUsersTableTableManager(_$AppDatabase db, $LocalUsersTable table)
@@ -2416,6 +2760,7 @@ class $$LocalUsersTableTableManager
                 completionsRefs = false,
                 progressSummaryRefs = false,
                 userSettingsRefs = false,
+                userExtrasRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -2424,6 +2769,7 @@ class $$LocalUsersTableTableManager
                     if (completionsRefs) db.completions,
                     if (progressSummaryRefs) db.progressSummary,
                     if (userSettingsRefs) db.userSettings,
+                    if (userExtrasRefs) db.userExtras,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -2508,6 +2854,26 @@ class $$LocalUsersTableTableManager
                           referencedColumn: 'user_id',
                           typedResults: items,
                         ),
+                      if (userExtrasRefs)
+                        await $_getPrefetchedDataByColumns<
+                          LocalUserRow,
+                          $LocalUsersTable,
+                          UserExtrasRow,
+                          $UserExtrasTable
+                        >(
+                          currentTable: table,
+                          referencedTable: $$LocalUsersTableReferences
+                              ._userExtrasRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$LocalUsersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).userExtrasRefs,
+                          currentColumn: 'id',
+                          referencedColumn: 'user_id',
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -2533,6 +2899,7 @@ typedef $$LocalUsersTableProcessedTableManager =
         bool completionsRefs,
         bool progressSummaryRefs,
         bool userSettingsRefs,
+        bool userExtrasRefs,
       })
     >;
 typedef $$AnswerLogTableCreateCompanionBuilder = AnswerLogCompanion Function({
@@ -3871,6 +4238,283 @@ typedef $$UserSettingsTableProcessedTableManager =
       UserSettingsRow,
       PrefetchHooks Function({bool userId})
     >;
+typedef $$UserExtrasTableCreateCompanionBuilder = UserExtrasCompanion Function({
+  required String userId,
+  Value<String> motivationJson,
+  required DateTime updatedAt,
+  Value<int> rowid,
+});
+typedef $$UserExtrasTableUpdateCompanionBuilder = UserExtrasCompanion Function({
+  Value<String> userId,
+  Value<String> motivationJson,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+final class $$UserExtrasTableReferences
+    extends BaseReferences<_$AppDatabase, $UserExtrasTable, UserExtrasRow> {
+  $$UserExtrasTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $LocalUsersTable _userIdTable(_$AppDatabase db) =>
+      db.localUsers.createAlias('user_extras__user_id__local_users__id');
+
+  $$LocalUsersTableProcessedTableManager get userId {
+    final $_column = $_itemColumn<String>('user_id')!;
+
+    final manager = $$LocalUsersTableTableManager(
+      $_db,
+      $_db.localUsers,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_userIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$UserExtrasTableFilterComposer
+    extends Composer<_$AppDatabase, $UserExtrasTable> {
+  $$UserExtrasTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get motivationJson => $composableBuilder(
+    column: $table.motivationJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$LocalUsersTableFilterComposer get userId {
+    final $$LocalUsersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.localUsers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LocalUsersTableFilterComposer(
+            $db: $db,
+            $table: $db.localUsers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserExtrasTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserExtrasTable> {
+  $$UserExtrasTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get motivationJson => $composableBuilder(
+    column: $table.motivationJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$LocalUsersTableOrderingComposer get userId {
+    final $$LocalUsersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.localUsers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LocalUsersTableOrderingComposer(
+            $db: $db,
+            $table: $db.localUsers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserExtrasTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserExtrasTable> {
+  $$UserExtrasTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get motivationJson => $composableBuilder(
+    column: $table.motivationJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$LocalUsersTableAnnotationComposer get userId {
+    final $$LocalUsersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.userId,
+      referencedTable: $db.localUsers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LocalUsersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.localUsers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserExtrasTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $UserExtrasTable,
+          UserExtrasRow,
+          $$UserExtrasTableFilterComposer,
+          $$UserExtrasTableOrderingComposer,
+          $$UserExtrasTableAnnotationComposer,
+          $$UserExtrasTableCreateCompanionBuilder,
+          $$UserExtrasTableUpdateCompanionBuilder,
+          (UserExtrasRow, $$UserExtrasTableReferences),
+          UserExtrasRow,
+          PrefetchHooks Function({bool userId})
+        > {
+  $$UserExtrasTableTableManager(_$AppDatabase db, $UserExtrasTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserExtrasTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserExtrasTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserExtrasTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> userId = const Value.absent(),
+                Value<String> motivationJson = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UserExtrasCompanion(
+                userId: userId,
+                motivationJson: motivationJson,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String userId,
+                Value<String> motivationJson = const Value.absent(),
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => UserExtrasCompanion.insert(
+                userId: userId,
+                motivationJson: motivationJson,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$UserExtrasTable, UserExtrasRow>(table),
+                  $$UserExtrasTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({userId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (userId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.userId,
+                        referencedTable: $$UserExtrasTableReferences
+                            ._userIdTable(db),
+                        referencedColumn: $$UserExtrasTableReferences
+                            ._userIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$UserExtrasTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $UserExtrasTable,
+      UserExtrasRow,
+      $$UserExtrasTableFilterComposer,
+      $$UserExtrasTableOrderingComposer,
+      $$UserExtrasTableAnnotationComposer,
+      $$UserExtrasTableCreateCompanionBuilder,
+      $$UserExtrasTableUpdateCompanionBuilder,
+      (UserExtrasRow, $$UserExtrasTableReferences),
+      UserExtrasRow,
+      PrefetchHooks Function({bool userId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3885,4 +4529,6 @@ class $AppDatabaseManager {
       $$ProgressSummaryTableTableManager(_db, _db.progressSummary);
   $$UserSettingsTableTableManager get userSettings =>
       $$UserSettingsTableTableManager(_db, _db.userSettings);
+  $$UserExtrasTableTableManager get userExtras =>
+      $$UserExtrasTableTableManager(_db, _db.userExtras);
 }

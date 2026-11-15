@@ -45,7 +45,10 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   bool? _lastCorrect;
   bool _matchingMistake = false;
   String _praiseLine = _praise.first;
-  int _xpEarned = 0;
+  LessonOutcome? _outcome;
+
+  /// Question types by id, for counting court questions right first try.
+  Map<String, QuestionType> _types = const {};
   int _streakBefore = 0;
 
   /// True between the last answer and the complete screen, while the
@@ -95,6 +98,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     final lesson = node.lesson;
     _node = node;
     _session = LessonSession(questions);
+    _types = {for (final q in questions) q.id: q.type};
     _cards = lesson?.cards ?? const [];
     _stage = _cards.isEmpty ? _Stage.question : _Stage.teaching;
     _prepareQuestion();
@@ -221,13 +225,34 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   void _finish() {
     final localNow = ref.read(clockProvider).now().toLocal();
     _streakBefore = ref.read(progressProvider).streakOn(localNow);
-    _xpEarned = ref
+    // First attempts decide what counts as "right first try".
+    final firstTry = <String, bool>{};
+    for (final a in _answers) {
+      firstTry.putIfAbsent(a.questionId, () => a.correct);
+    }
+    bool isCourt(QuestionType? t) =>
+        t == QuestionType.tapZone || t == QuestionType.dragDrop;
+    var combo = 0;
+    var bestCombo = 0;
+    for (final a in _answers) {
+      combo = a.correct ? combo + 1 : 0;
+      bestCombo = max(bestCombo, combo);
+    }
+    _outcome = ref
         .read(progressProvider.notifier)
         .complete(
           nodeId: _node.id,
           isReview: _node.isReview,
           perfect: _session!.isPerfect,
           answers: List.of(_answers),
+          bestCombo: bestCombo,
+          courtCorrect: firstTry.entries
+              .where((e) => e.value && isCourt(_types[e.key]))
+              .length,
+          dragFirstTry: firstTry.entries
+              .where((e) => e.value && _types[e.key] == QuestionType.dragDrop)
+              .length,
+          isWeakSpots: _node.id == Course.weakSpotsId,
         );
     ref.read(feedbackProvider).play(FeedbackEvent.complete);
     _stage = _Stage.complete;
@@ -551,71 +576,148 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     }
   }
 
+  /// After the first lesson ever, the learner sets a daily goal next.
+  void _afterComplete() {
+    if (!ref.read(motivationProvider).goalChosen) {
+      context.go('/goal');
+    } else {
+      _leave();
+    }
+  }
+
   Widget _complete(BuildContext context, LessonSession session) {
     final text = Theme.of(context).textTheme;
     final tokens = AppTokens.of(context);
     final progress = ref.watch(progressProvider);
     final streak = progress.streakOn(ref.read(clockProvider).now().toLocal());
     final streakGrew = streak > _streakBefore;
+    final outcome = _outcome;
+    final milestone = outcome?.milestone;
     return Column(
       children: [
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.emoji_events, size: 72, color: tokens.brandOrange),
-                const SizedBox(height: 12),
-                Semantics(
-                  header: true,
-                  child: Text(
-                    switch ((session.isPerfect, _node.isReview)) {
-                      (true, false) => 'Perfect lesson!',
-                      (true, true) => 'Perfect review!',
-                      (false, false) => 'Lesson complete!',
-                      (false, true) => 'Review complete!',
-                    },
-                    style: text.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.emoji_events, size: 72, color: tokens.brandOrange),
+                  const SizedBox(height: 12),
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      switch ((session.isPerfect, _node.isReview)) {
+                        (true, false) => 'Perfect lesson!',
+                        (true, true) => 'Perfect review!',
+                        (false, false) => 'Lesson complete!',
+                        (false, true) => 'Review complete!',
+                      },
+                      textAlign: TextAlign.center,
+                      style: text.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
-                ),
-                if (streakGrew) ...[
-                  const SizedBox(height: 12),
-                  _StreakCelebration(streak: streak),
-                ],
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    StatCard(label: 'XP earned', value: '+$_xpEarned'),
-                    StatCard(
-                      label: 'Accuracy',
-                      value: '${(session.accuracy * 100).round()}%',
+                  if (milestone != null) ...[
+                    const SizedBox(height: 12),
+                    _StreakCelebration(streak: streak, milestone: true),
+                    const SizedBox(height: 4),
+                    Text(
+                      '$milestone-day milestone! You earned a streak freeze.',
+                      textAlign: TextAlign.center,
+                      style: text.bodyMedium,
                     ),
-                    StatCard(
-                      label: 'Streak',
-                      value: '$streak',
-                      icon: Icons.local_fire_department,
-                      iconColor: tokens.brandOrange,
-                    ),
+                  ] else if (streakGrew) ...[
+                    const SizedBox(height: 12),
+                    _StreakCelebration(streak: streak),
                   ],
-                ),
-              ],
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      StatCard(
+                        label: (outcome?.boosted ?? false)
+                            ? 'XP earned (2x)'
+                            : 'XP earned',
+                        value: '+${outcome?.xp ?? 0}',
+                      ),
+                      StatCard(
+                        label: 'Accuracy',
+                        value: '${(session.accuracy * 100).round()}%',
+                      ),
+                      StatCard(
+                        label: 'Streak',
+                        value: '$streak',
+                        icon: Icons.local_fire_department,
+                        iconColor: tokens.brandOrange,
+                      ),
+                    ],
+                  ),
+                  if (outcome != null) ...[
+                    const SizedBox(height: 20),
+                    DailyGoalBar(xp: outcome.todayXp, goal: outcome.goal),
+                    for (final quest in outcome.questsJustDone)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: _QuestDoneChip(title: quest.title),
+                      ),
+                  ],
+                ],
+              ),
             ),
           ),
         ),
-        _bottomButton(label: 'Continue', onPressed: _leave),
+        _bottomButton(label: 'Continue', onPressed: _afterComplete),
       ],
+    );
+  }
+}
+
+/// A finished quest on the lesson complete screen.
+class _QuestDoneChip extends StatelessWidget {
+  const new({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = AppTokens.of(context);
+    return Semantics(
+      liveRegion: true,
+      label: 'Quest complete: $title. Open your chest in Quests.',
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: tokens.selectedBg,
+          border: Border.all(color: tokens.brandOrange),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.redeem, color: tokens.brandOrange),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Quest complete: $title\nOpen your chest in Quests.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
 /// The flame grows in and shows the new streak when a lesson extends it.
 class _StreakCelebration extends StatelessWidget {
-  const new({required this.streak});
+  const new({required this.streak, this.milestone = false});
 
   final int streak;
+
+  /// A bigger celebration for 7, 30, 100 and 365 days.
+  final bool milestone;
 
   @override
   Widget build(BuildContext context) {
@@ -637,7 +739,7 @@ class _StreakCelebration extends StatelessWidget {
             Icon(
               Icons.local_fire_department,
               color: tokens.brandOrange,
-              size: 36,
+              size: milestone ? 56 : 36,
             ),
             Text(
               '$streak day streak!',

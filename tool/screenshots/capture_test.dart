@@ -15,6 +15,7 @@ import 'package:six_on_six/app/router.dart';
 import 'package:six_on_six/core/data/course_parser.dart';
 import 'package:six_on_six/core/data/in_memory_progress_repository.dart';
 import 'package:six_on_six/core/domain/course.dart';
+import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
@@ -281,6 +282,36 @@ void main() {
     await _shot(tester, '19_final_review');
     await tester.scrollUntilVisible(find.text('Practice weak spots'), -300);
     await _shot(tester, '20_weak_spots');
+  });
+
+  testWidgets('daily goal and quests', (tester) async {
+    final container = await _pumpApp(tester, state: const StoredState());
+    container.read(routerProvider).go('/goal');
+    await _shot(tester, '21_daily_goal');
+
+    final local = DateTime.now();
+    final state = StoredState(
+      name: 'Issey',
+      settings: const AppSettings(welcomeSeen: true),
+      progress: _returning.progress,
+      motivation: MotivationState(
+        goalChosen: true,
+        freezes: 1,
+        days: {
+          dayKey(local): const DayStats(
+            xp: 15,
+            lessons: 1,
+            perfectLessons: 1,
+            bestCombo: 5,
+            glossaryViews: 1,
+            courtCorrect: 2,
+          ),
+        },
+      ),
+    );
+    final second = await _pumpApp(tester, state: state);
+    second.read(routerProvider).go('/quests');
+    await _shot(tester, '22_quests');
   });
 
   testWidgets('matching', (tester) async {

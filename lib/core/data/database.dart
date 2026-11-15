@@ -73,15 +73,43 @@ class UserSettings extends Table {
   Set<Column<Object>> get primaryKey => {userId};
 }
 
+/// Newer per-learner state stored as one JSON document: the daily goal,
+/// quests, streak freezes and related stats. Added in schema version 2.
+@DataClassName('UserExtrasRow')
+class UserExtras extends Table {
+  TextColumn get userId => text().references(LocalUsers, #id)();
+  TextColumn get motivationJson => text().withDefault(const Constant('{}'))();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {userId};
+}
+
 /// Opens the database file on the device.
 AppDatabase openAppDatabase() => AppDatabase(driftDatabase(name: 'six_on_six'));
 
 @DriftDatabase(
-  tables: [LocalUsers, AnswerLog, Completions, ProgressSummary, UserSettings],
+  tables: [
+    LocalUsers,
+    AnswerLog,
+    Completions,
+    ProgressSummary,
+    UserSettings,
+    UserExtras,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      // Version 2 added the motivation layer's table.
+      if (from < 2) await m.createTable(userExtras);
+    },
+  );
 }
