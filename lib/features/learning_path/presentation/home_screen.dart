@@ -8,6 +8,7 @@ import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/domain/course.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/ui/components.dart';
+import 'package:six_on_six/core/ui/motion.dart';
 
 /// The Learn tab: one vertical path of lessons and unit reviews.
 class HomeScreen extends ConsumerWidget {
@@ -85,6 +86,14 @@ class _PathState extends ConsumerState<_Path> {
   void _scrollToCurrent() {
     final target = _currentKey.currentContext;
     if (target == null || !mounted) return;
+    // Leave the list at the top when the next lesson is already on screen,
+    // so cards above it (such as weak spots) stay in view.
+    final node = target.findRenderObject();
+    final list = Scrollable.of(target).context.findRenderObject();
+    if (node is RenderBox && list is RenderBox) {
+      final top = node.localToGlobal(Offset.zero, ancestor: list).dy;
+      if (top >= 0 && top + node.size.height <= list.size.height) return;
+    }
     Scrollable.ensureVisible(
       target,
       alignment: 0.4,
@@ -167,7 +176,17 @@ class _PathState extends ConsumerState<_Path> {
     }
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-      children: children,
+      children: [
+        // The first screenful drops in one item after another.
+        for (final (i, child) in children.indexed)
+          if (i < 14)
+            PopIn(
+              delay: Duration(milliseconds: 45 * i),
+              child: child,
+            )
+          else
+            child,
+      ],
     );
   }
 
@@ -226,13 +245,12 @@ class _WeakSpotsCard extends StatelessWidget {
       padding: const EdgeInsets.only(top: 12),
       child: Material(
         color: tokens.selectedBg,
-        shape: RoundedRectangleBorder(
+        shape: LedgeBorder(
           side: BorderSide(color: tokens.brandOrange, width: 2),
-          borderRadius: BorderRadius.circular(16),
         ),
         child: InkWell(
           key: const ValueKey('weak-spots'),
-          borderRadius: BorderRadius.circular(16),
+          customBorder: const LedgeBorder(),
           onTap: onStart,
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -343,51 +361,18 @@ class _NodeButton extends StatefulWidget {
   State<_NodeButton> createState() => _NodeButtonState();
 }
 
-class _NodeButtonState extends State<_NodeButton>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _pulse = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 900),
-    lowerBound: 1,
-    upperBound: 1.08,
-  );
+class _NodeButtonState extends State<_NodeButton> {
+  bool _pressed = false;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _syncPulse();
-  }
-
-  @override
-  void didUpdateWidget(_NodeButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _syncPulse();
-  }
-
-  void _syncPulse() {
-    final animate =
-        widget.state == NodeState.current &&
-        !MediaQuery.of(context).disableAnimations &&
-        TickerMode.valuesOf(context).enabled;
-    if (animate && !_pulse.isAnimating) {
-      _pulse.repeat(reverse: true);
-    } else if (!animate && _pulse.isAnimating) {
-      _pulse
-        ..stop()
-        ..value = 1;
-    }
-  }
-
-  @override
-  void dispose() {
-    _pulse.dispose();
-    super.dispose();
+  void _press(bool down) {
+    if (_pressed != down) setState(() => _pressed = down);
   }
 
   @override
   Widget build(BuildContext context) {
     final tokens = AppTokens.of(context);
     final node = widget.node;
+    final current = widget.state == NodeState.current;
     final (fill, iconColor, icon, stateLabel) = switch (widget.state) {
       NodeState.locked => (
         tokens.surfaceMuted,
@@ -397,7 +382,7 @@ class _NodeButtonState extends State<_NodeButton>
       ),
       NodeState.current => (
         tokens.brandOrange,
-        tokens.onYellowOrange,
+        Colors.white,
         _icon(node, Icons.play_arrow_rounded),
         'current',
       ),
@@ -408,36 +393,128 @@ class _NodeButtonState extends State<_NodeButton>
         'completed',
       ),
     };
-    final size = widget.state == NodeState.current ? 80.0 : 72.0;
+    // The circle sits on a darker copy of itself; pressing pushes it down.
+    final edge = Color.lerp(fill, Colors.black, 0.22)!;
+    const depth = 7.0;
+    final size = current ? 78.0 : 70.0;
+    final lift = _pressed ? 1.0 : depth;
+    Widget circle = GestureDetector(
+      onTapDown: (_) => _press(true),
+      onTapUp: (_) => _press(false),
+      onTapCancel: () => _press(false),
+      onTap: widget.onOpen,
+      child: SizedBox(
+        width: size,
+        height: size * 0.92 + depth,
+        child: Stack(
+          children: [
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: size * 0.92,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: edge,
+                  borderRadius: BorderRadius.all(
+                    Radius.elliptical(size / 2, size * 0.46),
+                  ),
+                ),
+              ),
+            ),
+            AnimatedPositioned(
+              duration: motion(context, const Duration(milliseconds: 70)),
+              left: 0,
+              right: 0,
+              top: depth - lift,
+              height: size * 0.92,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: fill,
+                  borderRadius: BorderRadius.all(
+                    Radius.elliptical(size / 2, size * 0.46),
+                  ),
+                ),
+                child: Icon(icon, color: iconColor, size: 36),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (current) {
+      // A ring around the next lesson, and a Start tag floating above it.
+      circle = Bob(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _StartTag(color: tokens.brandOrange),
+            const SizedBox(height: 6),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: tokens.brandOrange.withValues(alpha: 0.3),
+                  width: 6,
+                ),
+              ),
+              child: Padding(padding: const EdgeInsets.all(6), child: circle),
+            ),
+          ],
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Semantics(
         button: true,
         label: '${widget.label}, ${node.title}, $stateLabel',
         excludeSemantics: true,
+        onTap: widget.onOpen,
         child: Column(
           children: [
-            ScaleTransition(
-              scale: _pulse,
-              child: Material(
-                color: fill,
-                shape: const CircleBorder(),
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: widget.onOpen,
-                  child: SizedBox(
-                    width: size,
-                    height: size,
-                    child: Icon(icon, color: iconColor, size: 34),
-                  ),
-                ),
+            circle,
+            const SizedBox(height: 6),
+            Text(
+              node.title,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: widget.state == NodeState.locked
+                    ? tokens.textSecondary
+                    : null,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(node.title, style: Theme.of(context).textTheme.labelLarge),
           ],
         ),
       ),
     );
   }
+}
+
+/// The "START" tag above the next lesson.
+class _StartTag extends StatelessWidget {
+  const new({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.fromLTRB(12, 5, 12, 7),
+    decoration: ShapeDecoration(
+      color: Theme.of(context).colorScheme.surface,
+      shape: LedgeBorder(
+        radius: 12,
+        ledge: 3,
+        side: BorderSide(color: AppTokens.of(context).surfaceMuted, width: 2),
+      ),
+    ),
+    child: Text(
+      'START',
+      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+        color: color,
+        fontWeight: FontWeight.w900,
+        letterSpacing: 1,
+      ),
+    ),
+  );
 }

@@ -49,9 +49,7 @@ class PlayerToken extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: libero ? scheme.onSurface : tokens.brandOrange,
-          border: selected
-              ? Border.all(color: AppTheme.buttonRed, width: 3)
-              : null,
+          border: selected ? Border.all(color: tokens.choice, width: 3) : null,
           boxShadow: [
             BoxShadow(
               color: scheme.shadow.withValues(alpha: lifted ? 0.3 : 0.12),

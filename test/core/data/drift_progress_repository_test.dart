@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:six_on_six/core/data/database.dart';
 import 'package:six_on_six/core/data/drift_progress_repository.dart';
+import 'package:six_on_six/core/domain/avatar.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
@@ -156,4 +159,48 @@ void main() {
     expect(state.motivation.freezes, 2);
     expect(state.progress.xp, 40);
   });
+
+  test('the avatar survives a restart, and can be cleared', () async {
+    await repo().saveMotivation(const MotivationState(goalChosen: true));
+    const avatar = Avatar(hair: HairStyle.ponytail, jersey: 3, number: 12);
+    await repo().saveAvatar(avatar);
+
+    final loaded = await repo().load();
+    expect(loaded.avatar, avatar);
+    // Saving the avatar keeps the motivation document in the same row.
+    expect(loaded.motivation.goalChosen, isTrue);
+
+    await repo().saveAvatar(null);
+    expect((await repo().load()).avatar, isNull);
+  });
+
+  test(
+    'a version 2 database gains the avatar column and keeps its data',
+    () async {
+      final dir = Directory.systemTemp.createTempSync('six_on_six');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final file = File('${dir.path}/app.sqlite');
+
+      // Make a database as version 2 left it: no avatar column.
+      final old = AppDatabase(NativeDatabase(file));
+      final before = DriftProgressRepository(old, clock: clock);
+      await before.load();
+      await before.saveMotivation(const MotivationState(goalChosen: true));
+      await old.customStatement(
+        'ALTER TABLE user_extras DROP COLUMN avatar_json',
+      );
+      await old.customStatement('PRAGMA user_version = 2');
+      await old.close();
+
+      final upgraded = AppDatabase(NativeDatabase(file));
+      addTearDown(upgraded.close);
+      final after = DriftProgressRepository(upgraded, clock: clock);
+      final loaded = await after.load();
+      expect(loaded.motivation.goalChosen, isTrue);
+      expect(loaded.avatar, isNull);
+
+      await after.saveAvatar(const Avatar(number: 9));
+      expect((await after.load()).avatar?.number, 9);
+    },
+  );
 }

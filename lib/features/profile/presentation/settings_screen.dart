@@ -202,6 +202,7 @@ class _DeveloperMenu extends ConsumerWidget {
     ref.read(progressProvider.notifier).reset();
     ref.read(motivationProvider.notifier).replace(const MotivationState());
     ref.read(nameProvider.notifier).set(null);
+    ref.read(avatarProvider.notifier).set(null);
     final settings = ref.read(settingsProvider);
     ref
         .read(settingsProvider.notifier)

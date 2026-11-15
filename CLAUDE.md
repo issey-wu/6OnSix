@@ -37,7 +37,7 @@
 - **Local SQLite:** drift.
 - **Lints:** very_good_analysis.
 - **Content:** bundled JSON in `assets/content/`, generated from the authoring spreadsheet by a validated Dart export script. Never hand-edit the generated JSON.
-- **Fonts:** Unbounded and Work Sans, bundled as assets.
+- **Fonts:** Nunito, bundled as assets.
 - Only add dependencies when they are needed, and say why when you add one.
 
 ## Architecture
@@ -103,7 +103,7 @@ These keep a future online sync cheap to add.
 - One control per action. For example, never show a Back button and an X button that do the same thing.
 - No tutorials or pop-over hints. The welcome screen leads straight into Lesson 1.1, and every interaction must be self-explanatory.
 - All colours come from the theme tokens in `docs/design.md`. Never hard-code colours.
-- Light (Rally) and dark (Night) themes. The app follows the system setting by default.
+- Light (Flame Court) and dark (Flame Court Night) themes. The app follows the system setting by default.
 
 ## Reliability and accessibility
 
@@ -140,7 +140,7 @@ lib/
   core/           # shared domain models, repository interfaces, data implementations
   features/       # learning_path, lesson, glossary, profile, settings, dev_menu
 assets/content/   # generated JSON (never hand-edited)
-assets/fonts/     # Unbounded, Work Sans
+assets/fonts/     # Nunito
 content/          # authoring source + Dart export/validation script
 docs/             # project-context.md, design.md, decisions.md, reference/
 ```

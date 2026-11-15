@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:six_on_six/app/app_shell.dart';
 import 'package:six_on_six/app/providers.dart';
+import 'package:six_on_six/features/avatar/presentation/avatar_screen.dart';
 import 'package:six_on_six/features/glossary/presentation/glossary_screen.dart';
 import 'package:six_on_six/features/glossary/presentation/term_screen.dart';
 import 'package:six_on_six/features/goal/presentation/goal_screen.dart';
@@ -73,14 +75,51 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-      GoRoute(path: '/goal', builder: (context, state) => const GoalScreen()),
+      GoRoute(
+        path: '/goal',
+        pageBuilder: (context, state) => _slideUp(state, const GoalScreen()),
+      ),
+      GoRoute(
+        path: '/avatar',
+        pageBuilder: (context, state) => _slideUp(state, const AvatarScreen()),
+      ),
       GoRoute(
         path: '/lesson/:nodeId',
-        builder: (context, state) =>
-            LessonScreen(nodeId: state.pathParameters['nodeId']!),
+        pageBuilder: (context, state) => _slideUp(
+          state,
+          LessonScreen(nodeId: state.pathParameters['nodeId']!),
+        ),
       ),
     ],
   );
   ref.onDispose(router.dispose);
   return router;
 });
+
+/// Full-screen tasks (a lesson, the goal or the avatar) rise up from the
+/// bottom and drop away when closed. Reduce Motion shows them at once.
+CustomTransitionPage<void> _slideUp(GoRouterState state, Widget child) =>
+    CustomTransitionPage<void>(
+      key: state.pageKey,
+      child: child,
+      transitionDuration: const Duration(milliseconds: 380),
+      reverseTransitionDuration: const Duration(milliseconds: 280),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        if (MediaQuery.disableAnimationsOf(context)) return child;
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return FadeTransition(
+          opacity: curved,
+          child: SlideTransition(
+            position: Tween(
+              begin: const Offset(0, 0.12),
+              end: Offset.zero,
+            ).animate(curved),
+            child: child,
+          ),
+        );
+      },
+    );

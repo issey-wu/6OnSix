@@ -41,7 +41,7 @@ A short list of the current stack and architecture choices. Update an entry when
 
 ## Sound
 
-- Correct, incorrect and lesson-complete sounds are made in-house in Duolingo's style: a short rising chime, a soft falling tone and a quick rising jingle. The matching pop and token snap come from Kenney's Interface Sounds (CC0, public domain).
+- **All sounds are made in-house** by `tool/sounds/synth.py` (numpy only, no samples, nothing to license). The set mixes two of its styles, picked by the team: "bright chime" (marimba and bells) for answers, pairs, placed players and chests, and "arcade" for lesson complete and streak extended.
 
 ## Tooling
 
@@ -64,3 +64,8 @@ A short list of the current stack and architecture choices. Update an entry when
 - **Always branch from the latest `main`** and keep branches short, so work merges cleanly.
 - **Co-author credit:** from Nov 8, 2026, Yash collaborates on every feature, so every commit ends with `Co-authored-by: Yash Dubey <dubeyy@mcmaster.ca>` and Yash is added as reviewer on each pull request.
 - **Reconciling `yash/screens` (Nov 2026):** the demo build stayed the base. Yash's developer menu, drag-and-drop interaction, player token design, correct-arrangement court, tests, 2 new questions and 9 new glossary terms were ported into it, credited to him. His duplicate rotation question and the glossary terms that matched existing ones were left out.
+
+## Look and avatars (polish round)
+
+- **Flame Court theme:** colours from the app icon, Nunito bundled as the only font (replaces the planned Unbounded and Work Sans, which were never bundled), and chunky pressable shapes. Animation helpers live in `lib/core/ui/motion.dart` and all respect Reduce Motion. No new packages.
+- **Avatars:** a player drawn with a `CustomPainter` from a few options (skin tone, hair, hair colour, jersey colour and number, headband), plus 50 fixed ready-made combinations. Saved as JSON in a new `user_extras.avatar_json` column (schema version 3).

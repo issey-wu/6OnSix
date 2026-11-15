@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:six_on_six/core/ui/motion.dart';
 
 /// The main app frame: the four tabs and the bottom navigation bar.
 /// Lessons open above this frame, so the bar is hidden while playing.
@@ -11,7 +12,7 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: shell,
+      body: TabFade(index: shell.currentIndex, child: shell),
       bottomNavigationBar: NavigationBar(
         selectedIndex: shell.currentIndex,
         onDestinationSelected: (index) => shell.goBranch(

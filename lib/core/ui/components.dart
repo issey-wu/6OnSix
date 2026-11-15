@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
+import 'package:six_on_six/core/ui/motion.dart';
 
 // Shared building blocks used across screens. Every colour comes from the
 // theme tokens, so restyling a component here restyles it everywhere.
@@ -23,32 +24,46 @@ class OptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = AppTokens.of(context);
+    final edge = selected ? tokens.choice : tokens.surfaceMuted;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Semantics(
         button: true,
         selected: selected,
-        child: Material(
-          color: selected
-              ? tokens.selectedBg
-              : Theme.of(context).colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            side: BorderSide(
-              color: selected ? tokens.brandOrange : tokens.surfaceMuted,
-              width: 2,
+        child: TweenAnimationBuilder<double>(
+          // A small bounce when picked.
+          key: ValueKey(selected),
+          tween: Tween(begin: selected ? 0.95 : 1, end: 1),
+          duration: motion(context, const Duration(milliseconds: 260)),
+          curve: Curves.easeOutBack,
+          builder: (context, scale, child) =>
+              Transform.scale(scale: scale, child: child),
+          child: Material(
+            color: selected
+                ? tokens.choiceBg
+                : Theme.of(context).colorScheme.surface,
+            animationDuration: motion(
+              context,
+              const Duration(milliseconds: 120),
             ),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(14),
-            onTap: onTap,
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 56),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              alignment: centered ? Alignment.center : Alignment.centerLeft,
-              child: Text(
-                label,
-                style: Theme.of(context).textTheme.titleMedium,
+            shape: LedgeBorder(
+              radius: 14,
+              side: BorderSide(color: edge, width: 2),
+            ),
+            child: InkWell(
+              customBorder: const LedgeBorder(radius: 14),
+              onTap: onTap,
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 58),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+                alignment: centered ? Alignment.center : Alignment.centerLeft,
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: selected ? tokens.choice : null,
+                  ),
+                ),
               ),
             ),
           ),
@@ -103,16 +118,32 @@ class FeedbackPanel extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(correct ? Icons.check_circle : Icons.cancel, color: fg),
-                const SizedBox(width: 8),
+                PopIn(
+                  scale: true,
+                  offset: 0,
+                  child: Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: correct ? tokens.success : tokens.error,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      correct ? Icons.check_rounded : Icons.close_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Semantics(
                     liveRegion: true,
                     child: Text(
                       title,
-                      style: text.titleMedium?.copyWith(
+                      style: text.titleLarge?.copyWith(
                         color: fg,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
                   ),
@@ -169,6 +200,8 @@ class StatCard extends StatelessWidget {
     required this.value,
     this.icon,
     this.iconColor,
+    this.countTo,
+    this.prefix = '',
     super.key,
   });
 
@@ -176,6 +209,12 @@ class StatCard extends StatelessWidget {
   final String value;
   final IconData? icon;
   final Color? iconColor;
+
+  /// When set, the number counts up to this instead of showing [value].
+  final int? countTo;
+
+  /// Shown before a counted number, such as "+".
+  final String prefix;
 
   @override
   Widget build(BuildContext context) {
@@ -190,12 +229,21 @@ class StatCard extends StatelessWidget {
             child: Column(
               children: [
                 if (icon != null) Icon(icon, color: iconColor),
-                Text(
-                  value,
-                  style: text.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
+                if (countTo case final count?)
+                  CountUpText(
+                    value: count,
+                    prefix: prefix,
+                    style: text.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
+                  )
+                else
+                  Text(
+                    value,
+                    style: text.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
-                ),
                 Text(
                   label,
                   style: text.labelMedium,
@@ -232,28 +280,44 @@ class UnitHeader extends StatelessWidget {
       header: true,
       child: Container(
         margin: const EdgeInsets.only(top: 16, bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppTheme.buttonRed,
-          borderRadius: BorderRadius.circular(16),
+        decoration: ShapeDecoration(
+          color: tokens.brandRed,
+          shape: const LedgeBorder(radius: 18, ledge: 5),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.fromLTRB(16, 14, 12, 19),
+        child: Row(
           children: [
-            Text(
-              number == null ? 'ALL UNITS' : 'UNIT $number',
-              style: text.labelLarge?.copyWith(color: tokens.onBrandRed),
-            ),
-            Text(
-              title,
-              style: text.titleLarge?.copyWith(
-                color: tokens.onBrandRed,
-                fontWeight: FontWeight.w800,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    number == null ? 'ALL UNITS' : 'UNIT $number',
+                    style: text.labelLarge?.copyWith(
+                      color: tokens.onBrandRed.withValues(alpha: 0.8),
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  Text(
+                    title,
+                    style: text.titleLarge?.copyWith(
+                      color: tokens.onBrandRed,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    description,
+                    style: text.bodyMedium?.copyWith(color: tokens.onBrandRed),
+                  ),
+                ],
               ),
             ),
-            Text(
-              description,
-              style: text.bodyMedium?.copyWith(color: tokens.onBrandRed),
+            const SizedBox(width: 8),
+            Icon(
+              number == null ? Icons.military_tech : Icons.sports_volleyball,
+              size: 40,
+              color: tokens.brandYellow,
             ),
           ],
         ),
@@ -320,14 +384,9 @@ class DailyGoalBar extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: (xp / goal.xp).clamp(0.0, 1.0),
-              minHeight: 12,
-              color: met ? tokens.success : tokens.brandOrange,
-              backgroundColor: tokens.surfaceMuted,
-            ),
+          ChunkyBar(
+            value: xp / goal.xp,
+            color: met ? tokens.success : tokens.brandOrange,
           ),
         ],
       ),
@@ -378,4 +437,91 @@ class GoalRing extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A thick rounded progress bar with a shine along the top of the fill. The
+/// fill eases to each new value.
+class ChunkyBar extends StatelessWidget {
+  const new({
+    required this.value,
+    this.color,
+    this.height = 14,
+    this.semanticsLabel,
+    super.key,
+  });
+
+  /// From 0 to 1. Values outside are clamped.
+  final double value;
+  final Color? color;
+  final double height;
+  final String? semanticsLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = AppTokens.of(context);
+    final fill = color ?? tokens.brandOrange;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(end: value.clamp(0.0, 1.0)),
+      duration: motion(context, const Duration(milliseconds: 600)),
+      curve: Curves.easeOutCubic,
+      builder: (context, v, _) => ShineBar(
+        value: v,
+        color: fill,
+        track: tokens.surfaceMuted,
+        height: height,
+        semanticsLabel: semanticsLabel,
+      ),
+    );
+  }
+}
+
+/// Draws one frame of a rounded progress bar with a shine. Uses a
+/// [LinearProgressIndicator] underneath, for screen readers and tests.
+class ShineBar extends StatelessWidget {
+  const new({
+    required this.value,
+    required this.color,
+    required this.track,
+    this.height = 14,
+    this.semanticsLabel,
+    super.key,
+  });
+
+  final double value;
+  final Color color;
+  final Color track;
+  final double height;
+  final String? semanticsLabel;
+
+  @override
+  Widget build(BuildContext context) => ClipRRect(
+    borderRadius: BorderRadius.circular(height),
+    child: Stack(
+      children: [
+        LinearProgressIndicator(
+          value: value,
+          minHeight: height,
+          color: color,
+          backgroundColor: track,
+          semanticsLabel: semanticsLabel,
+        ),
+        Positioned(
+          left: height / 2,
+          right: 0,
+          top: height * 0.22,
+          height: height * 0.22,
+          child: FractionallySizedBox(
+            alignment: Alignment.centerLeft,
+            widthFactor: (value - 0.04).clamp(0.0, 1.0),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.35),
+                borderRadius: BorderRadius.circular(height),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }

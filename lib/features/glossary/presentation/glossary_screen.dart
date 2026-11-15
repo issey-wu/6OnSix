@@ -60,7 +60,7 @@ class _GlossaryScreenState extends ConsumerState<GlossaryScreen> {
               child: Text(
                 first,
                 style: text.titleMedium?.copyWith(
-                  color: AppTheme.buttonRed,
+                  color: tokens.brandRed,
                   fontWeight: FontWeight.w800,
                 ),
               ),

@@ -13,6 +13,7 @@ import 'package:six_on_six/core/domain/user_state.dart';
 import 'package:six_on_six/core/ui/components.dart';
 import 'package:six_on_six/core/ui/court_lineup.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
+import 'package:six_on_six/core/ui/motion.dart';
 import 'package:six_on_six/features/lesson/presentation/drag_drop_view.dart';
 import 'package:six_on_six/features/lesson/presentation/matching_view.dart';
 import 'package:six_on_six/features/lesson/presentation/show_me_how.dart';
@@ -254,7 +255,15 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
               .length,
           isWeakSpots: _node.id == Course.weakSpotsId,
         );
-    ref.read(feedbackProvider).play(FeedbackEvent.complete);
+    final feedback = ref.read(feedbackProvider)..play(FeedbackEvent.complete);
+    final streakNow = ref.read(progressProvider).streakOn(localNow);
+    if (streakNow > _streakBefore) {
+      // After the lesson complete fanfare, not over it.
+      feedback.play(
+        FeedbackEvent.streakExtended,
+        delay: const Duration(milliseconds: 1300),
+      );
+    }
     _stage = _Stage.complete;
   }
 
@@ -306,11 +315,17 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       child: Scaffold(
         body: SafeArea(
           bottom: false,
-          child: switch (_stage) {
-            _Stage.teaching => _teaching(context, session),
-            _Stage.question => _question(context, session, course),
-            _Stage.complete => _complete(context, session),
-          },
+          child: AnimatedSwitcher(
+            duration: motion(context, const Duration(milliseconds: 300)),
+            child: KeyedSubtree(
+              key: ValueKey(_stage),
+              child: switch (_stage) {
+                _Stage.teaching => _teaching(context, session),
+                _Stage.question => _question(context, session, course),
+                _Stage.complete => _complete(context, session),
+              },
+            ),
+          ),
         ),
       ),
     );
@@ -329,20 +344,19 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           onPressed: _confirmQuit,
         ),
         Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: TweenAnimationBuilder<double>(
-              tween: Tween(end: session.progress),
-              duration: Duration(milliseconds: _finishing ? 900 : 250),
-              curve: _finishing
-                  ? const Interval(0, 0.5, curve: Curves.easeOut)
-                  : Curves.linear,
-              onEnd: _barFilled,
-              builder: (context, value, _) => LinearProgressIndicator(
-                value: value,
-                minHeight: 14,
-                semanticsLabel: 'Lesson progress',
-              ),
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(end: session.progress),
+            duration: Duration(milliseconds: _finishing ? 900 : 350),
+            curve: _finishing
+                ? const Interval(0, 0.5, curve: Curves.easeOut)
+                : Curves.easeOutCubic,
+            onEnd: _barFilled,
+            builder: (context, value, _) => ShineBar(
+              value: value,
+              color: AppTokens.of(context).brandOrange,
+              track: AppTokens.of(context).surfaceMuted,
+              height: 16,
+              semanticsLabel: 'Lesson progress',
             ),
           ),
         ),
@@ -448,36 +462,45 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           ),
         ),
         Expanded(
-          child: ListView(
-            key: ValueKey('${q.id}-$_attempt'),
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-            children: [
-              Text(
-                instruction,
-                style: text.labelLarge?.copyWith(color: tokens.textSecondary),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                q.prompt,
-                style: text.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 20),
-              // Always present, so the answer area below keeps its place in
-              // the list and its state (placed players, matched pairs) when
-              // a hint appears.
-              if (hintText == null)
-                const SizedBox.shrink()
-              else
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: _HintBox(text: hintText),
+          child: AnimatedSwitcher(
+            duration: motion(context, const Duration(milliseconds: 320)),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: _slideQuestion,
+            child: ListView(
+              key: ValueKey('${q.id}-$_attempt'),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+              children: [
+                Text(
+                  instruction,
+                  style: text.labelLarge?.copyWith(color: tokens.textSecondary),
                 ),
-              _answerArea(q, locked: answered),
-            ],
+                const SizedBox(height: 8),
+                Text(
+                  q.prompt,
+                  style: text.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 20),
+                // Always present, so the answer area below keeps its place in
+                // the list and its state (placed players, matched pairs) when
+                // a hint appears.
+                if (hintText == null)
+                  const SizedBox.shrink()
+                else
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: _HintBox(text: hintText),
+                  ),
+                _answerArea(q, locked: answered),
+              ],
+            ),
           ),
         ),
         AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
+          // The answer panel springs up from the bottom.
+          duration: motion(context, const Duration(milliseconds: 380)),
+          reverseDuration: motion(context, const Duration(milliseconds: 160)),
+          switchInCurve: Curves.easeOutBack,
           transitionBuilder: (child, animation) => SlideTransition(
             position: Tween(
               begin: const Offset(0, 1),
@@ -514,6 +537,23 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                 ),
         ),
       ],
+    );
+  }
+
+  /// The next question slides in from the right as the last one leaves to
+  /// the left.
+  Widget _slideQuestion(Widget child, Animation<double> animation) {
+    final key = _shown == null ? null : ValueKey('${_shown!.id}-$_attempt');
+    final incoming = child.key == key;
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: Tween(
+          begin: Offset(incoming ? 0.3 : -0.3, 0),
+          end: Offset.zero,
+        ).animate(animation),
+        child: child,
+      ),
     );
   }
 
@@ -596,75 +636,101 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     return Column(
       children: [
         Expanded(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.emoji_events, size: 72, color: tokens.brandOrange),
-                  const SizedBox(height: 12),
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      switch ((session.isPerfect, _node.isReview)) {
-                        (true, false) => 'Perfect lesson!',
-                        (true, true) => 'Perfect review!',
-                        (false, false) => 'Lesson complete!',
-                        (false, true) => 'Review complete!',
-                      },
-                      textAlign: TextAlign.center,
-                      style: text.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                  if (milestone != null) ...[
-                    const SizedBox(height: 12),
-                    _StreakCelebration(streak: streak, milestone: true),
-                    const SizedBox(height: 4),
-                    Text(
-                      '$milestone-day milestone! You earned a streak freeze.',
-                      textAlign: TextAlign.center,
-                      style: text.bodyMedium,
-                    ),
-                  ] else if (streakGrew) ...[
-                    const SizedBox(height: 12),
-                    _StreakCelebration(streak: streak),
-                  ],
-                  const SizedBox(height: 24),
-                  Row(
+          child: Stack(
+            children: [
+              const Positioned.fill(child: ConfettiBurst()),
+              Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      StatCard(
-                        label: (outcome?.boosted ?? false)
-                            ? 'XP earned (2x)'
-                            : 'XP earned',
-                        value: '+${outcome?.xp ?? 0}',
+                      PopIn(
+                        scale: true,
+                        duration: const Duration(milliseconds: 600),
+                        child: Icon(
+                          Icons.emoji_events,
+                          size: 96,
+                          color: tokens.brandYellow,
+                          shadows: [
+                            Shadow(
+                              color: tokens.brandOrange.withValues(alpha: 0.6),
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
                       ),
-                      StatCard(
-                        label: 'Accuracy',
-                        value: '${(session.accuracy * 100).round()}%',
+                      const SizedBox(height: 12),
+                      Semantics(
+                        header: true,
+                        child: Text(
+                          switch ((session.isPerfect, _node.isReview)) {
+                            (true, false) => 'Perfect lesson!',
+                            (true, true) => 'Perfect review!',
+                            (false, false) => 'Lesson complete!',
+                            (false, true) => 'Review complete!',
+                          },
+                          textAlign: TextAlign.center,
+                          style: text.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ),
-                      StatCard(
-                        label: 'Streak',
-                        value: '$streak',
-                        icon: Icons.local_fire_department,
-                        iconColor: tokens.brandOrange,
+                      if (milestone != null) ...[
+                        const SizedBox(height: 12),
+                        _StreakCelebration(streak: streak, milestone: true),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$milestone-day milestone! '
+                          'You earned a streak freeze.',
+                          textAlign: TextAlign.center,
+                          style: text.bodyMedium,
+                        ),
+                      ] else if (streakGrew) ...[
+                        const SizedBox(height: 12),
+                        _StreakCelebration(streak: streak),
+                      ],
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          StatCard(
+                            label: (outcome?.boosted ?? false)
+                                ? 'XP earned (2x)'
+                                : 'XP earned',
+                            value: '+${outcome?.xp ?? 0}',
+                            countTo: outcome?.xp ?? 0,
+                            prefix: '+',
+                            icon: Icons.bolt,
+                            iconColor: tokens.brandYellow,
+                          ),
+                          StatCard(
+                            label: 'Accuracy',
+                            value: '${(session.accuracy * 100).round()}%',
+                            icon: Icons.track_changes,
+                            iconColor: tokens.choice,
+                          ),
+                          StatCard(
+                            label: 'Streak',
+                            value: '$streak',
+                            icon: Icons.local_fire_department,
+                            iconColor: tokens.brandOrange,
+                          ),
+                        ],
                       ),
+                      if (outcome != null) ...[
+                        const SizedBox(height: 20),
+                        DailyGoalBar(xp: outcome.todayXp, goal: outcome.goal),
+                        for (final quest in outcome.questsJustDone)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: _QuestDoneChip(title: quest.title),
+                          ),
+                      ],
                     ],
                   ),
-                  if (outcome != null) ...[
-                    const SizedBox(height: 20),
-                    DailyGoalBar(xp: outcome.todayXp, goal: outcome.goal),
-                    for (final quest in outcome.questsJustDone)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: _QuestDoneChip(title: quest.title),
-                      ),
-                  ],
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
         _bottomButton(label: 'Continue', onPressed: _afterComplete),

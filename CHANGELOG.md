@@ -7,6 +7,22 @@ All notable changes to this project are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added (polish round)
+- Avatar builder on the Profile tab: pick one of 50 ready-made players, or
+  build your own from skin tone, hair, hair colour, jersey colour and
+  number, and a headband. Saved on the device (database schema version 3).
+- New sounds for answers, matched pairs, placed players, lesson complete,
+  and two new moments: chest opened and streak extended.
+- Motion throughout: screens rise and fade in, the path drops in, the next
+  lesson floats, questions slide, the answer panel springs up, XP counts up,
+  confetti on lesson complete, and ready chests wiggle. All of it follows
+  the phone's Reduce Motion setting.
+
+### Changed (polish round)
+- New Flame Court look, built from the app icon's colours, with the Nunito
+  font and chunky buttons and cards that press down.
+- The welcome screen shows the app icon artwork instead of a generic ball.
+
 ### Added (Round 2a: motivation, following Duolingo's mechanics)
 - Daily goal: Casual, Regular, Serious or Intense (5, 10, 15 or 20 minutes,
   backed by 10, 20, 30 or 50 XP). Asked once after the first lesson, with a

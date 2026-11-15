@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:six_on_six/core/domain/avatar.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 
@@ -116,7 +117,11 @@ class StoredState {
     this.name,
     this.answerStats = const AnswerStats(),
     this.motivation = const MotivationState(),
+    this.avatar,
   });
+
+  /// The learner's player avatar. Null until they make one.
+  final Avatar? avatar;
 
   final Progress progress;
 

@@ -1,5 +1,5 @@
 // Renders real app screens to PNG for reports and design reviews.
-// Not part of CI (it needs the Mac's system fonts). Run on the Mac with:
+// Not part of CI. Run it with:
 //   dart run tool/check.dart --screens
 // Images are written to build/screens/.
 import 'dart:convert';
@@ -19,15 +19,17 @@ import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
+import 'package:six_on_six/features/welcome/presentation/welcome_screen.dart';
 
 Future<void> _loadFonts() async {
   Future<ByteData> bytes(String path) async =>
       ByteData.sublistView(await File(path).readAsBytes());
-  const supplemental = '/System/Library/Fonts/Supplemental';
-  final text = FontLoader('Roboto')
-    ..addFont(bytes('$supplemental/Arial.ttf'))
-    ..addFont(bytes('$supplemental/Arial Bold.ttf'));
-  await text.load();
+  // The app's own font, bundled in assets/fonts.
+  final nunito = FontLoader('Nunito');
+  for (final weight in ['Regular', 'SemiBold', 'Bold', 'ExtraBold', 'Black']) {
+    nunito.addFont(bytes('assets/fonts/Nunito-$weight.ttf'));
+  }
+  await nunito.load();
   final root = Platform.environment['FLUTTER_ROOT'] ?? '';
   final icons = FontLoader('MaterialIcons')
     ..addFont(
@@ -143,6 +145,13 @@ void main() {
 
   testWidgets('welcome', (tester) async {
     await _pumpApp(tester, state: const StoredState());
+    // Images decode outside the test's fake clock.
+    await tester.runAsync(
+      () => precacheImage(
+        const AssetImage(appLogoAsset),
+        tester.element(find.byType(WelcomeScreen)),
+      ),
+    );
     await _shot(tester, '01_welcome');
   });
 
@@ -336,6 +345,20 @@ void main() {
     await tester.pumpAndSettle();
     await _tap(tester, find.text('Libero').last);
     await _shot(tester, '12_term_detail');
+  });
+
+  testWidgets('avatar builder and profile', (tester) async {
+    final container = await _pumpApp(tester);
+    container.read(routerProvider).go('/avatar');
+    await tester.pumpAndSettle();
+    await _shot(tester, '23_avatar_presets');
+    await _tap(tester, find.text('Build your own'));
+    await _tap(tester, find.byKey(const ValueKey('hair-curly')));
+    await _tap(tester, find.byKey(const ValueKey('jersey-0')));
+    await _shot(tester, '24_avatar_builder');
+    // Saving returns to the Profile tab.
+    await _tap(tester, find.byKey(const ValueKey('save-avatar')));
+    await _shot(tester, '25_profile_avatar');
   });
 
   testWidgets('profile and settings, dark theme', (tester) async {
