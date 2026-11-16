@@ -348,61 +348,64 @@ The authoring pipeline validates the spreadsheet before export, so broken or inc
 
 ### Themes
 
-- **Light mode, Rally:** bold and energetic, carried over from the Capstone I presentation.
-- **Dark mode, Night:** a dark background with the same brand colors as light mode, so the brand looks the same in both.
+- **Flame Court (light):** built from the app icon: maroon, flame orange, and the volleyball's yellow and blue on a warm white background. Chosen in the November 2026 polish round.
+- **Flame Court Night (dark):** a warm near-black background with the same brand colors, so the brand looks the same in both.
 - The app follows the phone's setting by default, with a manual override in Settings.
 
 ### Color tokens
 
 All colors come from these named tokens. Screens never hard-code colors.
 
-| Token | Light (Rally) | Dark (Night) | Used for |
+| Token | Light | Dark | Used for |
 |---|---|---|---|
-| background | #FBFAF5 | #121318 | Screen background |
-| surface | #FFFFFF | #1E2030 | Cards, panels, popups |
-| surfaceMuted | #E8E4DA | #2A2C3A | Locked nodes, empty progress |
-| textPrimary | #2A1A10 | #F2F2F5 | Main text |
-| textSecondary | #7A746A | #A9ADC9 | Supporting text, locked icons |
-| brandRed | #E03A1E | #E03A1E | Unit headers, accents |
-| buttonRed | #C9341A | #C9341A | Primary buttons (meets 4.5:1 with onBrandRed) |
-| onBrandRed | #FFF6EE | #FFF6EE | Text on brand red and button red |
-| brandOrange | #F7941D | #F7941D | Current node, highlights |
-| brandYellow | #F2F55C | #F2F55C | Completed nodes, XP accents |
-| onYellowOrange | #3A1C00 | #3A1C00 | Text and icons on yellow or orange |
+| background | #FFFAF4 | #161112 | Screen background |
+| surface | #FFFFFF | #231B1B | Cards, panels, popups |
+| surfaceMuted | #EEE2D8 | #3A2C2B | Outlines, locked nodes, empty progress |
+| textPrimary | #2B1410 | #F6ECEA | Main text |
+| textSecondary | #7D6A62 | #BBA9A5 | Supporting text, locked icons |
+| brandRed (maroon) | #800000 | #9A1414 | Unit banners, the wordmark |
+| primary | #E8650A | #E8650A | Main buttons (bold white labels, 3:1 or more) |
+| onBrandRed | #FFF6EE | #FFF6EE | Text on maroon |
+| brandOrange | #F07A12 | #FF8A1F | Streak, progress bars, current node |
+| brandYellow | #FFD54A | #FFD54A | Completed nodes, trophies, XP accents |
+| onYellowOrange | #3A1C00 | #3A1C00 | Text and icons on yellow |
+| choice | #3554B0 | #9BB0FF | The answer the learner has picked (volleyball blue) |
+| choiceBg | #E9EEFF | #232B4D | Background of the picked answer |
+| selectedBg | #FFF0E0 | #3A2616 | Hints, banners and highlighted cards |
 | success | #2FA84F | #3DC463 | Correct feedback |
-| error | #C2185B | #E04882 | Incorrect feedback |
-| selectedBg | #FEF1E2 | #3A2A18 | Background of a selected answer (border uses brandOrange) |
 | successBg | #E3F5E8 | #16301F | Correct feedback panel, matched pairs |
 | onSuccess | #1E6B33 | #9BE8B0 | Text on successBg |
-| errorBg | #FBE3EC | #3A1626 | Incorrect feedback panel, wrong selection |
-| onError | #8E1145 | #F4B3CB | Text on errorBg |
-| buttonEdge | #A82A14 | #A82A14 | Darker bottom edge under primary buttons |
+| error | #D7263D | #FF5A6E | Incorrect feedback |
+| errorBg | #FDE6E8 | #3A161C | Incorrect feedback panel, wrong selection |
+| onError | #9B1426 | #FFB3BD | Text on errorBg |
 
-- **Incorrect uses raspberry pink.** Because the brand color is red, "incorrect" uses raspberry pink instead of red, so mistakes aren't confused with normal buttons.
+- **Picked answers are blue.** Orange means "go" (buttons, the current lesson), so a picked answer uses the volleyball blue to stay distinct.
 - **Never color alone.** Feedback always includes an icon and text too.
 - **Yellow is for fills only.** Never use yellow text on a light background.
 
 ### Typography
 
-- **Headings, numbers, wordmark:** Unbounded.
-- **Body text, buttons, questions:** Work Sans.
-- Both fonts are bundled with the app. There are no runtime font downloads.
+- **Everything:** Nunito, a rounded sans serif, in weights 400 to 900. Headings and buttons use 800 to 900.
+- The font is bundled with the app (`assets/fonts/`, SIL Open Font License). There are no runtime font downloads.
 - The app supports the phone's text size setting. At the default size, question text is never smaller than 18 px.
 
 ### Shapes and layout
 
-- **Corner radii:** cards about 16 px, buttons about 14 px. Nodes are fully circular.
-- **Primary buttons:** full width, button red, about 56 px tall, with a slightly darker bottom edge so they look pressable.
+- **Chunky, pressable shapes:** buttons, answer cards, panels and path nodes sit on a darker bottom edge (`LedgeBorder` in `lib/app/theme.dart`). Pressing a button pushes it down onto the edge.
+- **Corner radii:** cards and buttons about 14 to 18 px. Path nodes are round.
+- **Primary buttons:** full width, flame orange, about 54 px tall.
 - **Tap targets:** at least 48 × 48 px.
 - **Spacing:** generous, with one main action per screen.
 
 ### Motion
 
-Short and snappy, about 150 to 300 ms. Nothing should delay the user from continuing. The key moments are:
-- the feedback panel sliding up
-- matching pairs locking in
-- a node unlocking on the path
-- the streak flame on the complete screen
+Short and lively, about 150 to 600 ms. Nothing delays the learner from continuing. All motion turns off with the phone's Reduce Motion setting, and nothing loops while it is on.
+- Full-screen tasks (a lesson, the daily goal, the avatar) rise up from the bottom; tabs fade in.
+- The learning path drops in one item after another, and the next lesson floats gently under a START tag.
+- Questions slide in from the right; the feedback panel springs up from the bottom.
+- Picked answers bounce slightly; progress bars ease to their new value with a shine on the fill.
+- Lesson complete: trophy pops in, XP counts up, confetti bursts.
+- Ready chests wiggle every couple of seconds.
 
 ### Tone of voice
 
@@ -418,7 +421,9 @@ Sound and haptics have separate on/off toggles. Sound respects the phone's silen
 | Incorrect answer | Soft low tone | Medium tap |
 | Matching pair locked | Small pop | Light tap |
 | Token snaps to zone | Click | Light "snap" tap |
-| Lesson complete | Short celebration jingle | Success pattern |
+| Lesson complete | Short arcade fanfare | Success pattern |
+| Streak extended | Rising fanfare, after the lesson complete sound | Success pattern |
+| Chest opened | Thunk, shimmer and bell | Success pattern |
 | Regular button taps | None | None |
 
 ## 10. Accessibility
@@ -434,6 +439,5 @@ Sound and haptics have separate on/off toggles. Sound respects the phone's silen
 ## 11. Still to decide
 
 - Final lesson titles and content.
-- Logo and app icon.
 - Whether to have a mascot.
 - Final feedback colors (success and error).

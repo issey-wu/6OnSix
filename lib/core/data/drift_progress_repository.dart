@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:six_on_six/core/data/database.dart';
+import 'package:six_on_six/core/domain/avatar.dart';
 import 'package:six_on_six/core/domain/clock.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
@@ -91,7 +92,33 @@ class DriftProgressRepository implements ProgressRepository {
         for (final a in answers) (a.questionId, a.correct),
       ]),
       motivation: _decodeMotivation(extras?.motivationJson),
+      avatar: _decodeAvatar(extras?.avatarJson),
     );
+  }
+
+  static Avatar? _decodeAvatar(String? json) {
+    if (json == null || json.isEmpty) return null;
+    try {
+      return avatarFromJson(jsonDecode(json) as Map<String, Object?>);
+    } on Object {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> saveAvatar(Avatar? avatar) async {
+    final userId = await _ensureUser();
+    await _db
+        .into(_db.userExtras)
+        .insertOnConflictUpdate(
+          UserExtrasCompanion.insert(
+            userId: userId,
+            avatarJson: Value(
+              avatar == null ? null : jsonEncode(avatar.toJson()),
+            ),
+            updatedAt: _clock.now(),
+          ),
+        );
   }
 
   static MotivationState _decodeMotivation(String? json) {

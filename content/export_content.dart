@@ -7,6 +7,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:six_on_six/core/domain/course.dart' show cardDiagrams;
+
 const _schemaVersion = 2;
 const _sourceDir = 'content/source';
 const _outputPath = 'assets/content/course.json';
@@ -39,6 +41,14 @@ void main(List<String> args) {
   for (final c in cards) {
     if (!lessonIds.contains(c['lesson'])) {
       errors.add('Card "${c['title']}" points to missing lesson');
+    }
+    final diagram = c['diagram']!;
+    if (diagram.isNotEmpty) {
+      final [kind, ...rest] = diagram.split(':');
+      final highlights = cardDiagrams[kind];
+      if (highlights == null || !highlights.contains(rest.join(':'))) {
+        errors.add('Card "${c['title']}" has an unknown diagram "$diagram"');
+      }
     }
   }
 
@@ -138,7 +148,11 @@ void main(List<String> args) {
                 'title': l['title'],
                 'cards': [
                   for (final c in cards.where((c) => c['lesson'] == l['id']))
-                    {'title': c['title'], 'body': c['body']},
+                    {
+                      'title': c['title'],
+                      'body': c['body'],
+                      if (c['diagram']!.isNotEmpty) 'diagram': c['diagram'],
+                    },
                 ],
                 'questions': [
                   for (final q in questions.where(

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +7,7 @@ import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
+import 'package:six_on_six/core/ui/dialogs.dart';
 
 /// App version shown under About. Keep in step with pubspec.yaml.
 const appVersion = '0.2.0';
@@ -90,30 +90,17 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
             onTap: () async {
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Reset progress?'),
-                  content: const Text(
+              final confirmed = await confirmSheet(
+                context,
+                title: 'Reset progress?',
+                message:
                     'This clears your XP, streak, and completed lessons. '
                     "This can't be undone.",
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: Text(
-                        'Reset',
-                        style: TextStyle(color: tokens.error),
-                      ),
-                    ),
-                  ],
-                ),
+                stay: 'Keep my progress',
+                action: 'Reset progress',
+                icon: Icons.restart_alt_rounded,
               );
-              if (confirmed ?? false) {
+              if (confirmed) {
                 ref.read(progressProvider.notifier).reset();
               }
             },
@@ -128,10 +115,10 @@ class SettingsScreen extends ConsumerWidget {
             ),
             isThreeLine: true,
           ),
-          if (kDebugMode) ...[
-            section('Developer menu'),
-            const _DeveloperMenu(),
-          ],
+          // Shown in every build, release included: the app is only used for
+          // demos, and the menu is how a demo jumps around.
+          section('Developer menu'),
+          const _DeveloperMenu(),
         ],
       ),
     );
@@ -202,6 +189,7 @@ class _DeveloperMenu extends ConsumerWidget {
     ref.read(progressProvider.notifier).reset();
     ref.read(motivationProvider.notifier).replace(const MotivationState());
     ref.read(nameProvider.notifier).set(null);
+    ref.read(avatarProvider.notifier).set(null);
     final settings = ref.read(settingsProvider);
     ref
         .read(settingsProvider.notifier)

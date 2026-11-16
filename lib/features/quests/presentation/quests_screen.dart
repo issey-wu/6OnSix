@@ -8,6 +8,7 @@ import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/ui/components.dart';
+import 'package:six_on_six/core/ui/motion.dart';
 
 const _months = [
   'January',
@@ -130,14 +131,10 @@ class QuestsScreen extends ConsumerWidget {
                   style: text.bodyMedium,
                 ),
                 const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: (monthDone / monthlyQuestTarget).clamp(0.0, 1.0),
-                    minHeight: 10,
-                    color: tokens.brandOrange,
-                    backgroundColor: tokens.surfaceMuted,
-                  ),
+                ChunkyBar(
+                  value: monthDone / monthlyQuestTarget,
+                  color: tokens.brandRed,
+                  height: 12,
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -164,10 +161,12 @@ class _Panel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      border: Border.all(color: AppTokens.of(context).surfaceMuted, width: 2),
-      borderRadius: BorderRadius.circular(16),
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 19),
+    decoration: ShapeDecoration(
+      color: Theme.of(context).colorScheme.surface,
+      shape: LedgeBorder(
+        side: BorderSide(color: AppTokens.of(context).surfaceMuted, width: 2),
+      ),
     ),
     child: child,
   );
@@ -281,14 +280,10 @@ class _QuestCard extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: progress / quest.target,
-                      minHeight: 10,
-                      color: done ? tokens.success : tokens.brandOrange,
-                      backgroundColor: tokens.surfaceMuted,
-                    ),
+                  ChunkyBar(
+                    value: progress / quest.target,
+                    color: done ? tokens.success : tokens.brandOrange,
+                    height: 12,
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -317,7 +312,7 @@ class _QuestCard extends ConsumerWidget {
   Future<void> _open(BuildContext context, WidgetRef ref) async {
     final reward = ref.read(motivationProvider.notifier).openChest(index);
     if (reward == null) return;
-    ref.read(feedbackProvider).play(FeedbackEvent.complete);
+    ref.read(feedbackProvider).play(FeedbackEvent.chestOpened);
     await showDialog<void>(
       context: context,
       builder: (context) => _RewardDialog(reward: reward),
@@ -342,13 +337,15 @@ class _ChestButton extends StatelessWidget {
         excludeSemantics: true,
         child: Icon(Icons.redeem, size: 36, color: tokens.surfaceMuted),
       ),
-      _ChestState.ready => FilledButton.icon(
-        // The app's buttons are full width by default; this one sits in a
-        // row, so it needs its own size.
-        style: FilledButton.styleFrom(minimumSize: const Size(96, 44)),
-        onPressed: onOpen,
-        icon: const Icon(Icons.redeem),
-        label: const Text('Open'),
+      _ChestState.ready => Wiggle(
+        child: FilledButton.icon(
+          // The app's buttons are full width by default; this one sits in a
+          // row, so it needs its own size.
+          style: FilledButton.styleFrom(minimumSize: const Size(96, 44)),
+          onPressed: onOpen,
+          icon: const Icon(Icons.redeem),
+          label: const Text('Open'),
+        ),
       ),
       _ChestState.opened => Semantics(
         label: 'Chest opened',

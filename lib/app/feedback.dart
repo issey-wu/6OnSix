@@ -10,7 +10,15 @@ import 'package:six_on_six/app/providers.dart';
 const _logger = AppLogger('feedback');
 
 /// The moments that get a sound and a haptic (docs/design.md, section 9).
-enum FeedbackEvent { correct, incorrect, pairMatched, tokenSnapped, complete }
+enum FeedbackEvent {
+  correct,
+  incorrect,
+  pairMatched,
+  tokenSnapped,
+  complete,
+  chestOpened,
+  streakExtended,
+}
 
 /// Plays sounds and haptics for key moments, following the learner's
 /// sound and haptics settings. Regular button taps get neither.
@@ -30,9 +38,21 @@ class FeedbackService {
     FeedbackEvent.pairMatched: 'sounds/match_pop.wav',
     FeedbackEvent.tokenSnapped: 'sounds/token_snap.wav',
     FeedbackEvent.complete: 'sounds/lesson_complete.wav',
+    FeedbackEvent.chestOpened: 'sounds/chest_open.wav',
+    FeedbackEvent.streakExtended: 'sounds/streak.wav',
   };
 
-  void play(FeedbackEvent event) {
+  /// Plays [event] now, or after [delay] so it follows another sound, such
+  /// as the streak sound after the lesson complete sound.
+  void play(FeedbackEvent event, {Duration delay = Duration.zero}) {
+    // Delayed feedback is skipped in widget tests, which fail on timers
+    // still waiting when a test ends.
+    if (delay > Duration.zero && !playSounds) return;
+    unawaited(_play(event, delay));
+  }
+
+  Future<void> _play(FeedbackEvent event, Duration delay) async {
+    if (delay > Duration.zero) await Future<void>.delayed(delay);
     final settings = _ref.read(settingsProvider);
     if (settings.hapticsOn) unawaited(_haptic(event));
     if (settings.soundOn && playSounds) unawaited(_sound(event));
@@ -48,6 +68,8 @@ class FeedbackService {
       case FeedbackEvent.incorrect:
         await HapticFeedback.mediumImpact();
       case FeedbackEvent.complete:
+      case FeedbackEvent.chestOpened:
+      case FeedbackEvent.streakExtended:
         await HapticFeedback.heavyImpact();
     }
   }

@@ -1,5 +1,5 @@
 // Renders real app screens to PNG for reports and design reviews.
-// Not part of CI (it needs the Mac's system fonts). Run on the Mac with:
+// Not part of CI. Run it with:
 //   dart run tool/check.dart --screens
 // Images are written to build/screens/.
 import 'dart:convert';
@@ -19,15 +19,17 @@ import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
+import 'package:six_on_six/features/welcome/presentation/welcome_screen.dart';
 
 Future<void> _loadFonts() async {
   Future<ByteData> bytes(String path) async =>
       ByteData.sublistView(await File(path).readAsBytes());
-  const supplemental = '/System/Library/Fonts/Supplemental';
-  final text = FontLoader('Roboto')
-    ..addFont(bytes('$supplemental/Arial.ttf'))
-    ..addFont(bytes('$supplemental/Arial Bold.ttf'));
-  await text.load();
+  // The app's own font, bundled in assets/fonts.
+  final nunito = FontLoader('Nunito');
+  for (final weight in ['Regular', 'SemiBold', 'Bold', 'ExtraBold', 'Black']) {
+    nunito.addFont(bytes('assets/fonts/Nunito-$weight.ttf'));
+  }
+  await nunito.load();
   final root = Platform.environment['FLUTTER_ROOT'] ?? '';
   final icons = FontLoader('MaterialIcons')
     ..addFont(
@@ -109,6 +111,13 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 Future<void> _continue(WidgetTester tester) =>
     _tap(tester, find.text('Continue').last);
 
+/// Taps through every teaching card to the first question.
+Future<void> _throughCards(WidgetTester tester, Lesson lesson) async {
+  for (var i = 0; i < lesson.cards.length; i++) {
+    await _continue(tester);
+  }
+}
+
 Future<void> _answer(WidgetTester tester, Question q) async {
   switch (q.type) {
     case QuestionType.multipleChoice:
@@ -143,6 +152,13 @@ void main() {
 
   testWidgets('welcome', (tester) async {
     await _pumpApp(tester, state: const StoredState());
+    // Images decode outside the test's fake clock.
+    await tester.runAsync(
+      () => precacheImage(
+        const AssetImage(appLogoAsset),
+        tester.element(find.byType(WelcomeScreen)),
+      ),
+    );
     await _shot(tester, '01_welcome');
   });
 
@@ -158,21 +174,26 @@ void main() {
     final lesson = _course().units.first.lessons.first;
     container.read(routerProvider).go('/lesson/${lesson.id}');
     await _shot(tester, '04_teaching_card');
-    await _continue(tester);
-    await _continue(tester);
+    await _throughCards(tester, lesson);
 
-    final first = lesson.questions.first;
-    await _tap(tester, find.text(first.answer));
+    // An easy true or false first, then multiple choice.
+    await _answer(tester, lesson.questions[0]);
+    await _continue(tester);
+    final mc = lesson.questions[1];
+    await _tap(tester, find.text(mc.answer));
     await _shot(tester, '05_multiple_choice');
     await _tap(tester, find.text('Check'));
     await _shot(tester, '06_correct_feedback');
     await _continue(tester);
 
-    await _answer(tester, lesson.questions[1]);
-    await _continue(tester);
-
-    // Third question is tap the zone: answer it wrong on purpose.
-    await _tap(tester, find.bySemanticsLabel('Front left'));
+    // Third question is tap the zone. The hint numbers one other zone;
+    // then answer it wrong on purpose.
+    await _tap(tester, find.byKey(const ValueKey('hint')));
+    await _shot(tester, '31_tap_zone_hint');
+    await _tap(
+      tester,
+      find.bySemanticsLabel(RegExp('front left', caseSensitive: false)),
+    );
     await _tap(tester, find.text('Check'));
     await _shot(tester, '07_court_wrong_answer');
     await _continue(tester);
@@ -184,13 +205,36 @@ void main() {
     await _shot(tester, '08_lesson_complete');
   });
 
+  testWidgets('teaching card diagrams', (tester) async {
+    final container = await _pumpApp(tester);
+    final course = _course();
+    final shots = {
+      (0, 0, 2): '26_card_attack_line',
+      (0, 0, 3): '27_card_zones',
+      (0, 0, 6): '28_card_zone_1',
+      (0, 1, 0): '29_card_roles',
+      (0, 2, 1): '30_card_rotation',
+    };
+    for (final MapEntry(key: (unit, lesson, card), value: name)
+        in shots.entries) {
+      final id = course.units[unit].lessons[lesson].id;
+      container.read(routerProvider).go('/learn');
+      await tester.pumpAndSettle();
+      container.read(routerProvider).go('/lesson/$id');
+      await tester.pumpAndSettle();
+      for (var i = 0; i < card; i++) {
+        await _continue(tester);
+      }
+      await _shot(tester, name);
+    }
+  });
+
   testWidgets('drag and drop', (tester) async {
     final container = await _pumpApp(tester);
     final lesson = _course().units.last.lessons.first;
     container.read(routerProvider).go('/lesson/${lesson.id}');
     await tester.pumpAndSettle();
-    await _continue(tester);
-    await _continue(tester);
+    await _throughCards(tester, lesson);
     final drag = lesson.questions.indexWhere(
       (q) => q.type == QuestionType.dragDrop,
     );
@@ -218,12 +262,13 @@ void main() {
     final lesson = _course().units.first.lessons.first;
     container.read(routerProvider).go('/lesson/${lesson.id}');
     await tester.pumpAndSettle();
-    await _continue(tester);
+    await _throughCards(tester, lesson);
+    await _answer(tester, lesson.questions[0]);
     await _continue(tester);
     await _tap(tester, find.byKey(const ValueKey('hint')));
     await _shot(tester, '16_hint');
 
-    final first = lesson.questions.first;
+    final first = lesson.questions[1];
     final wrong = first.options.firstWhere(
       (o) => o != first.answer && find.text(o).evaluate().isNotEmpty,
     );
@@ -233,13 +278,23 @@ void main() {
     await _shot(tester, '17_show_me_how');
   });
 
+  testWidgets('show me how with a rotation', (tester) async {
+    final container = await _pumpApp(tester);
+    final lesson = _course().units.first.lessons[2];
+    container.read(routerProvider).go('/lesson/${lesson.id}');
+    await tester.pumpAndSettle();
+    await _throughCards(tester, lesson);
+    await _answer(tester, lesson.questions.first);
+    await _tap(tester, find.byKey(const ValueKey('show-me-how')));
+    await _shot(tester, '32_show_me_how_rotation');
+  });
+
   testWidgets('show me how on a court question', (tester) async {
     final container = await _pumpApp(tester);
     final lesson = _course().units.last.lessons.first;
     container.read(routerProvider).go('/lesson/${lesson.id}');
     await tester.pumpAndSettle();
-    await _continue(tester);
-    await _continue(tester);
+    await _throughCards(tester, lesson);
     final drag = lesson.questions.indexWhere(
       (q) => q.type == QuestionType.dragDrop,
     );
@@ -336,6 +391,20 @@ void main() {
     await tester.pumpAndSettle();
     await _tap(tester, find.text('Libero').last);
     await _shot(tester, '12_term_detail');
+  });
+
+  testWidgets('avatar builder and profile', (tester) async {
+    final container = await _pumpApp(tester);
+    container.read(routerProvider).go('/avatar');
+    await tester.pumpAndSettle();
+    await _shot(tester, '23_avatar_presets');
+    await _tap(tester, find.text('Build your own'));
+    await _tap(tester, find.byKey(const ValueKey('hair-curly')));
+    await _tap(tester, find.byKey(const ValueKey('jersey-0')));
+    await _shot(tester, '24_avatar_builder');
+    // Saving returns to the Profile tab.
+    await _tap(tester, find.byKey(const ValueKey('save-avatar')));
+    await _shot(tester, '25_profile_avatar');
   });
 
   testWidgets('profile and settings, dark theme', (tester) async {

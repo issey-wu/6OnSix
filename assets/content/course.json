@@ -11,15 +11,53 @@
           "title": "The court",
           "cards": [
             {
-              "title": "A court of two halves",
-              "body": "A volleyball court is 18 m long and 9 m wide. The net splits it into two 9 m by 9 m halves, one for each team. The attack line runs across each half, 3 m from the net."
+              "title": "Welcome to the court",
+              "body": "This is a volleyball court seen from above. It is 18 m long and 9 m wide.",
+              "diagram": "court"
             },
             {
-              "title": "Six zones",
-              "body": "Each half is split into six zones, numbered 1 to 6. With the net at the top, the front row is 4, 3, 2 from left to right and the back row is 5, 6, 1. Zone 1 is the right back, where the server starts."
+              "title": "The net",
+              "body": "The net runs across the middle and splits the court into two halves, one for each team. Each half is a 9 m by 9 m square.",
+              "diagram": "court:net"
+            },
+            {
+              "title": "The attack line",
+              "body": "On each side, a line runs across the court 3 m from the net. It is called the attack line.",
+              "diagram": "court:attack"
+            },
+            {
+              "title": "Six numbered zones",
+              "body": "Your team's half is split into six zones, numbered 1 to 6. In this app, the net is always at the top.",
+              "diagram": "zones"
+            },
+            {
+              "title": "The front row",
+              "body": "The three zones next to the net are the front row. From left to right, they are 4, 3 and 2.",
+              "diagram": "zones:front"
+            },
+            {
+              "title": "The back row",
+              "body": "The three zones behind them are the back row. From left to right, they are 5, 6 and 1.",
+              "diagram": "zones:back"
+            },
+            {
+              "title": "Zone 1 serves",
+              "body": "Zone 1 is the right back. The player standing there is the one who serves.",
+              "diagram": "zones:1"
             }
           ],
           "questions": [
+            {
+              "id": "u1.l1.q07",
+              "type": "tf",
+              "prompt": "The net splits the court into two halves, one for each team.",
+              "answer": "true",
+              "explanation": "The net runs across the middle, so each team gets one 9 m by 9 m half.",
+              "concepts": [
+                "court-size"
+              ],
+              "ruleRef": "FIVB 1.1"
+            },
             {
               "id": "u1.l1.q01",
               "type": "mc",
@@ -36,17 +74,6 @@
                 "court-size"
               ],
               "ruleRef": "FIVB 1.1"
-            },
-            {
-              "id": "u1.l1.q02",
-              "type": "tf",
-              "prompt": "The attack line is 3 m from the net.",
-              "answer": "true",
-              "explanation": "The attack line is 3 m from the centre line under the net.",
-              "concepts": [
-                "court-lines"
-              ],
-              "ruleRef": "FIVB 1.3.4"
             },
             {
               "id": "u1.l1.q03",
@@ -85,6 +112,17 @@
               ]
             },
             {
+              "id": "u1.l1.q02",
+              "type": "tf",
+              "prompt": "The attack line is 3 m from the net.",
+              "answer": "true",
+              "explanation": "The attack line is 3 m from the centre line under the net.",
+              "concepts": [
+                "court-lines"
+              ],
+              "ruleRef": "FIVB 1.3.4"
+            },
+            {
               "id": "u1.l1.q06",
               "type": "zone",
               "prompt": "Tap the middle back zone.",
@@ -102,11 +140,13 @@
           "cards": [
             {
               "title": "Five roles",
-              "body": "The setter takes the second contact and sets up the attack. Outside hitters attack from the left and pass the serve. Middle blockers block at the centre of the net. The opposite attacks from the right."
+              "body": "The setter takes the second contact and sets up the attack. Outside hitters attack from the left and pass the serve. Middle blockers block at the centre of the net. The opposite attacks from the right.",
+              "diagram": "roles"
             },
             {
               "title": "The libero",
-              "body": "The libero is a back-row defensive specialist. They wear a different coloured jersey so officials can spot them, and they usually replace a middle blocker in the back row."
+              "body": "The libero is a back-row defensive specialist. They wear a different coloured jersey so officials can spot them, and they usually replace a middle blocker in the back row.",
+              "diagram": "libero"
             }
           ],
           "questions": [
@@ -202,11 +242,13 @@
           "cards": [
             {
               "title": "The lineup",
-              "body": "Before each set, the coach records the starting order of the six players. That order stays the same for the whole set, even as players move around."
+              "body": "Before each set, the coach records the starting order of the six players. That order stays the same for the whole set, even as players move around.",
+              "diagram": "roles"
             },
             {
               "title": "Rotating",
-              "body": "When your team wins the serve back from the other team, everyone moves one zone clockwise. The player who moves from zone 2 to zone 1 serves next."
+              "body": "When your team wins the serve back from the other team, everyone moves one zone clockwise. The player who moves from zone 2 to zone 1 serves next.",
+              "diagram": "rotation"
             }
           ],
           "questions": [

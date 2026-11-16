@@ -29,6 +29,7 @@ class CourtView extends StatelessWidget {
     this.cellBuilder,
     this.revealZoneNumbers = false,
     this.hintZones = const {},
+    this.numberedZones = const {},
     super.key,
   });
 
@@ -45,6 +46,10 @@ class CourtView extends StatelessWidget {
 
   /// Zones lightly highlighted by a hint, such as the whole front row.
   final Set<int> hintZones;
+
+  /// Zones that show their number, such as the one a hint reveals so the
+  /// learner can count round to the answer.
+  final Set<int> numberedZones;
 
   @override
   Widget build(BuildContext context) {
@@ -90,20 +95,47 @@ class CourtView extends StatelessWidget {
   Widget _defaultCell(int zone) {
     final token = tokens[zone];
     final place = courtZoneNames[zone]!;
-    final label = revealZoneNumbers ? 'Zone $zone, $place' : _capital(place);
+    final numbered = numberedZones.contains(zone);
+    final label = revealZoneNumbers || numbered
+        ? 'Zone $zone, $place'
+        : _capital(place);
     return Semantics(
       button: onZoneTap != null,
       selected: zone == selectedZone,
       label: token == null ? label : '$label, $token',
       child: InkWell(
         onTap: onZoneTap == null ? null : () => onZoneTap!(zone),
-        child: Center(child: token == null ? null : PlayerToken(label: token)),
+        child: Center(
+          child: token != null
+              ? PlayerToken(label: token)
+              : numbered
+              ? _FaintNumber(zone: zone, selected: zone == selectedZone)
+              : null,
+        ),
       ),
     );
   }
 }
 
 String _capital(String s) => s[0].toUpperCase() + s.substring(1);
+
+class _FaintNumber extends StatelessWidget {
+  const new({required this.zone, required this.selected});
+
+  final int zone;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    '$zone',
+    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+      fontWeight: FontWeight.w900,
+      color: selected
+          ? Colors.white
+          : AppTokens.of(context).textSecondary.withValues(alpha: 0.6),
+    ),
+  );
+}
 
 class _CourtPainter extends CustomPainter {
   new({

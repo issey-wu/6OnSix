@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:six_on_six/app/logger.dart';
 import 'package:six_on_six/core/data/asset_content_repository.dart';
 import 'package:six_on_six/core/data/in_memory_progress_repository.dart';
+import 'package:six_on_six/core/domain/avatar.dart';
 import 'package:six_on_six/core/domain/clock.dart';
 import 'package:six_on_six/core/domain/content_repository.dart';
 import 'package:six_on_six/core/domain/course.dart';
@@ -17,7 +18,7 @@ import 'package:six_on_six/core/domain/user_state.dart';
 const _logger = AppLogger('providers');
 
 /// How far the developer menu has moved the app's clock forward. Always
-/// zero unless someone uses the developer menu in a debug build.
+/// zero unless someone uses the developer menu.
 final clockShiftProvider = NotifierProvider<ClockShiftController, Duration>(
   ClockShiftController.new,
 );
@@ -310,6 +311,21 @@ class AnswerStatsController extends Notifier<AnswerStats> {
       state = state.withAttempts(answers);
 
   void clear() => state = const AnswerStats();
+}
+
+final avatarProvider = NotifierProvider<AvatarController, Avatar?>(
+  AvatarController.new,
+);
+
+/// The learner's player avatar, or null before they make one.
+class AvatarController extends Notifier<Avatar?> {
+  @override
+  Avatar? build() => ref.read(initialStateProvider).avatar;
+
+  void set(Avatar? avatar) {
+    state = avatar;
+    _save(ref.read(progressRepositoryProvider).saveAvatar(avatar), 'avatar');
+  }
 }
 
 final settingsProvider = NotifierProvider<SettingsController, AppSettings>(
