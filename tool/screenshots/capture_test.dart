@@ -111,6 +111,13 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 Future<void> _continue(WidgetTester tester) =>
     _tap(tester, find.text('Continue').last);
 
+/// Taps through every teaching card to the first question.
+Future<void> _throughCards(WidgetTester tester, Lesson lesson) async {
+  for (var i = 0; i < lesson.cards.length; i++) {
+    await _continue(tester);
+  }
+}
+
 Future<void> _answer(WidgetTester tester, Question q) async {
   switch (q.type) {
     case QuestionType.multipleChoice:
@@ -167,21 +174,26 @@ void main() {
     final lesson = _course().units.first.lessons.first;
     container.read(routerProvider).go('/lesson/${lesson.id}');
     await _shot(tester, '04_teaching_card');
-    await _continue(tester);
-    await _continue(tester);
+    await _throughCards(tester, lesson);
 
-    final first = lesson.questions.first;
-    await _tap(tester, find.text(first.answer));
+    // An easy true or false first, then multiple choice.
+    await _answer(tester, lesson.questions[0]);
+    await _continue(tester);
+    final mc = lesson.questions[1];
+    await _tap(tester, find.text(mc.answer));
     await _shot(tester, '05_multiple_choice');
     await _tap(tester, find.text('Check'));
     await _shot(tester, '06_correct_feedback');
     await _continue(tester);
 
-    await _answer(tester, lesson.questions[1]);
-    await _continue(tester);
-
-    // Third question is tap the zone: answer it wrong on purpose.
-    await _tap(tester, find.bySemanticsLabel('Front left'));
+    // Third question is tap the zone. The hint numbers one other zone;
+    // then answer it wrong on purpose.
+    await _tap(tester, find.byKey(const ValueKey('hint')));
+    await _shot(tester, '31_tap_zone_hint');
+    await _tap(
+      tester,
+      find.bySemanticsLabel(RegExp('front left', caseSensitive: false)),
+    );
     await _tap(tester, find.text('Check'));
     await _shot(tester, '07_court_wrong_answer');
     await _continue(tester);
@@ -193,13 +205,36 @@ void main() {
     await _shot(tester, '08_lesson_complete');
   });
 
+  testWidgets('teaching card diagrams', (tester) async {
+    final container = await _pumpApp(tester);
+    final course = _course();
+    final shots = {
+      (0, 0, 2): '26_card_attack_line',
+      (0, 0, 3): '27_card_zones',
+      (0, 0, 6): '28_card_zone_1',
+      (0, 1, 0): '29_card_roles',
+      (0, 2, 1): '30_card_rotation',
+    };
+    for (final MapEntry(key: (unit, lesson, card), value: name)
+        in shots.entries) {
+      final id = course.units[unit].lessons[lesson].id;
+      container.read(routerProvider).go('/learn');
+      await tester.pumpAndSettle();
+      container.read(routerProvider).go('/lesson/$id');
+      await tester.pumpAndSettle();
+      for (var i = 0; i < card; i++) {
+        await _continue(tester);
+      }
+      await _shot(tester, name);
+    }
+  });
+
   testWidgets('drag and drop', (tester) async {
     final container = await _pumpApp(tester);
     final lesson = _course().units.last.lessons.first;
     container.read(routerProvider).go('/lesson/${lesson.id}');
     await tester.pumpAndSettle();
-    await _continue(tester);
-    await _continue(tester);
+    await _throughCards(tester, lesson);
     final drag = lesson.questions.indexWhere(
       (q) => q.type == QuestionType.dragDrop,
     );
@@ -227,12 +262,13 @@ void main() {
     final lesson = _course().units.first.lessons.first;
     container.read(routerProvider).go('/lesson/${lesson.id}');
     await tester.pumpAndSettle();
-    await _continue(tester);
+    await _throughCards(tester, lesson);
+    await _answer(tester, lesson.questions[0]);
     await _continue(tester);
     await _tap(tester, find.byKey(const ValueKey('hint')));
     await _shot(tester, '16_hint');
 
-    final first = lesson.questions.first;
+    final first = lesson.questions[1];
     final wrong = first.options.firstWhere(
       (o) => o != first.answer && find.text(o).evaluate().isNotEmpty,
     );
@@ -242,13 +278,23 @@ void main() {
     await _shot(tester, '17_show_me_how');
   });
 
+  testWidgets('show me how with a rotation', (tester) async {
+    final container = await _pumpApp(tester);
+    final lesson = _course().units.first.lessons[2];
+    container.read(routerProvider).go('/lesson/${lesson.id}');
+    await tester.pumpAndSettle();
+    await _throughCards(tester, lesson);
+    await _answer(tester, lesson.questions.first);
+    await _tap(tester, find.byKey(const ValueKey('show-me-how')));
+    await _shot(tester, '32_show_me_how_rotation');
+  });
+
   testWidgets('show me how on a court question', (tester) async {
     final container = await _pumpApp(tester);
     final lesson = _course().units.last.lessons.first;
     container.read(routerProvider).go('/lesson/${lesson.id}');
     await tester.pumpAndSettle();
-    await _continue(tester);
-    await _continue(tester);
+    await _throughCards(tester, lesson);
     final drag = lesson.questions.indexWhere(
       (q) => q.type == QuestionType.dragDrop,
     );

@@ -7,6 +7,7 @@ import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/ui/avatar_view.dart';
 import 'package:six_on_six/core/ui/components.dart';
+import 'package:six_on_six/core/ui/dialogs.dart';
 
 /// The Profile tab: name, streak, XP, lessons and units completed, and
 /// progress for each unit.
@@ -230,32 +231,12 @@ class ProfileScreen extends ConsumerWidget {
     WidgetRef ref,
     String? current,
   ) async {
-    final controller = TextEditingController(text: current ?? '');
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Your name'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          maxLength: 30,
-          textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(hintText: 'Player'),
-          onSubmitted: (value) => Navigator.pop(context, value),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+    final result = await textSheet(
+      context,
+      title: 'Your name',
+      initial: current ?? '',
+      hint: 'Player',
     );
-    controller.dispose();
     if (result != null) ref.read(nameProvider.notifier).set(result);
   }
 }

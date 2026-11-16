@@ -3,12 +3,17 @@ import 'package:meta/meta.dart';
 /// Hair styles for the avatar builder.
 enum HairStyle {
   none('None'),
-  buzz('Buzz'),
+  buzz('Buzz cut'),
   short('Short'),
+  spiky('Spiky'),
   curly('Curly'),
   afro('Afro'),
+  mohawk('Mohawk'),
+  bob('Bob'),
   ponytail('Ponytail'),
+  pigtails('Pigtails'),
   bun('Bun'),
+  braids('Braids'),
   long('Long');
 
   new(this.label);

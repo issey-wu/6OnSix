@@ -30,7 +30,7 @@ void main() {
   test('damaged or out-of-range values fall back to the defaults', () {
     final avatar = avatarFromJson({
       'skin': 40,
-      'hair': 'mohawk',
+      'hair': 'mullet',
       'hairColor': -1,
       'jersey': 'red',
       'number': 150,

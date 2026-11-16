@@ -18,7 +18,7 @@ import 'package:six_on_six/core/domain/user_state.dart';
 const _logger = AppLogger('providers');
 
 /// How far the developer menu has moved the app's clock forward. Always
-/// zero unless someone uses the developer menu in a debug build.
+/// zero unless someone uses the developer menu.
 final clockShiftProvider = NotifierProvider<ClockShiftController, Duration>(
   ClockShiftController.new,
 );

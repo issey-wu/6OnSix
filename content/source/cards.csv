@@ -1,10 +1,15 @@
-lesson,title,body
-u1.l1,A court of two halves,"A volleyball court is 18 m long and 9 m wide. The net splits it into two 9 m by 9 m halves, one for each team. The attack line runs across each half, 3 m from the net."
-u1.l1,Six zones,"Each half is split into six zones, numbered 1 to 6. With the net at the top, the front row is 4, 3, 2 from left to right and the back row is 5, 6, 1. Zone 1 is the right back, where the server starts."
-u1.l2,Five roles,The setter takes the second contact and sets up the attack. Outside hitters attack from the left and pass the serve. Middle blockers block at the centre of the net. The opposite attacks from the right.
-u1.l2,The libero,"The libero is a back-row defensive specialist. They wear a different coloured jersey so officials can spot them, and they usually replace a middle blocker in the back row."
-u1.l3,The lineup,"Before each set, the coach records the starting order of the six players. That order stays the same for the whole set, even as players move around."
-u1.l3,Rotating,"When your team wins the serve back from the other team, everyone moves one zone clockwise. The player who moves from zone 2 to zone 1 serves next."
+lesson,title,body,diagram
+u1.l1,Welcome to the court,This is a volleyball court seen from above. It is 18 m long and 9 m wide.,court
+u1.l1,The net,"The net runs across the middle and splits the court into two halves, one for each team. Each half is a 9 m by 9 m square.",court:net
+u1.l1,The attack line,"On each side, a line runs across the court 3 m from the net. It is called the attack line.",court:attack
+u1.l1,Six numbered zones,"Your team's half is split into six zones, numbered 1 to 6. In this app, the net is always at the top.",zones
+u1.l1,The front row,"The three zones next to the net are the front row. From left to right, they are 4, 3 and 2.",zones:front
+u1.l1,The back row,"The three zones behind them are the back row. From left to right, they are 5, 6 and 1.",zones:back
+u1.l1,Zone 1 serves,Zone 1 is the right back. The player standing there is the one who serves.,zones:1
+u1.l2,Five roles,The setter takes the second contact and sets up the attack. Outside hitters attack from the left and pass the serve. Middle blockers block at the centre of the net. The opposite attacks from the right.,roles
+u1.l2,The libero,"The libero is a back-row defensive specialist. They wear a different coloured jersey so officials can spot them, and they usually replace a middle blocker in the back row.",libero
+u1.l3,The lineup,"Before each set, the coach records the starting order of the six players. That order stays the same for the whole set, even as players move around.",roles
+u1.l3,Rotating,"When your team wins the serve back from the other team, everyone moves one zone clockwise. The player who moves from zone 2 to zone 1 serves next.",rotation
 u2.l1,Three contacts,"A team can touch the ball up to three times before sending it over. A block does not count as one of those three, and the same player cannot touch the ball twice in a row."
 u2.l1,Rally scoring,"Every rally scores a point, no matter which team served. A set is won at 25 points with a two-point lead. A deciding fifth set goes to 15."
 u2.l2,The net,Touching the net between the antennae while playing the ball is a fault. The ball must cross the net between the antennae.

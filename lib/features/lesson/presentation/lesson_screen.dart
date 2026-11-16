@@ -13,7 +13,9 @@ import 'package:six_on_six/core/domain/user_state.dart';
 import 'package:six_on_six/core/ui/components.dart';
 import 'package:six_on_six/core/ui/court_lineup.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
+import 'package:six_on_six/core/ui/dialogs.dart';
 import 'package:six_on_six/core/ui/motion.dart';
+import 'package:six_on_six/features/lesson/presentation/card_diagram.dart';
 import 'package:six_on_six/features/lesson/presentation/drag_drop_view.dart';
 import 'package:six_on_six/features/lesson/presentation/matching_view.dart';
 import 'package:six_on_six/features/lesson/presentation/show_me_how.dart';
@@ -199,11 +201,14 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         case QuestionType.trueFalse:
           _hintText = _trueFalseHint(course, q);
         case QuestionType.tapZone:
-          final front = const {4, 3, 2}.contains(int.tryParse(q.answer));
-          _hintZones = front ? const {4, 3, 2} : const {5, 6, 1};
-          _hintText = front
-              ? "It's in the front row, by the net."
-              : "It's in the back row.";
+          // Name one other zone, two along from the answer, so the learner
+          // counts round to it instead of being shown it.
+          final target = int.tryParse(q.answer) ?? 1;
+          final anchor = (target + 1) % 6 + 1;
+          _hintZones = {anchor};
+          _hintText =
+              'This is zone $anchor. The numbers count up anticlockwise '
+              'around the court.';
         case QuestionType.dragDrop:
           _hintText = 'One player is placed for you.';
         case QuestionType.matching:
@@ -276,24 +281,15 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   }
 
   Future<void> _confirmQuit() async {
-    final quit = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Quit this lesson?'),
-        content: const Text("Your progress in this lesson won't be saved."),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Keep going'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Quit'),
-          ),
-        ],
-      ),
+    final quit = await confirmSheet(
+      context,
+      title: "Wait, don't go!",
+      message: "If you quit now, your progress in this lesson won't be saved.",
+      stay: 'Keep going',
+      action: 'Quit lesson',
+      icon: Icons.sports_volleyball_rounded,
     );
-    if ((quit ?? false) && mounted) _leave();
+    if (quit && mounted) _leave();
   }
 
   @override
@@ -409,7 +405,16 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              if (card.diagram case final diagram?) ...[
+                const SizedBox(height: 20),
+                PopIn(
+                  key: ValueKey('diagram-$_cardIndex'),
+                  scale: true,
+                  offset: 0,
+                  child: CardDiagram(spec: diagram),
+                ),
+              ],
+              const SizedBox(height: 20),
               Text(card.body, style: text.bodyLarge?.copyWith(height: 1.5)),
             ],
           ),
@@ -594,6 +599,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           selectedZone: int.tryParse(_response ?? ''),
           onZoneTap: locked ? null : (zone) => choose('$zone'),
           hintZones: _hintZones,
+          numberedZones: _hintZones,
         );
       case QuestionType.matching:
         final feedback = ref.read(feedbackProvider);

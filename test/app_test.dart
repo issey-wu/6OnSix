@@ -36,7 +36,7 @@ void main() {
 
     await tester.tap(find.text('Get started'));
     await tester.pumpAndSettle();
-    expect(find.text('A court of two halves'), findsOneWidget);
+    expect(find.text('Welcome to the court'), findsOneWidget);
   });
 
   testWidgets('a returning learner opens on the learning path', (tester) async {

@@ -7,11 +7,32 @@ enum QuestionType { multipleChoice, trueFalse, matching, tapZone, dragDrop }
 
 @immutable
 class TeachingCard {
-  const new({required this.title, required this.body});
+  const new({required this.title, required this.body, this.diagram});
 
   final String title;
   final String body;
+
+  /// A picture drawn with the card, such as `court:net` or `zones:1`. See
+  /// [cardDiagrams] for the kinds; the part after the colon picks what to
+  /// highlight.
+  final String? diagram;
 }
+
+/// The diagrams a teaching card can show, with the highlights each allows.
+/// The content exporter checks cards against this list.
+const cardDiagrams = <String, Set<String>>{
+  // A whole court from above, with its measurements.
+  'court': {'', 'net', 'attack', 'half'},
+  // One half with the six zone numbers drawn in.
+  'zones': {'', 'front', 'back', '1', '2', '3', '4', '5', '6'},
+  // A starting lineup with each role in its zone.
+  'roles': {''},
+  // The same lineup with the libero in for the back-row middle blocker.
+  'libero': {''},
+  // Zone numbers with arrows showing the clockwise rotation; `play` instead
+  // animates a lineup moving one zone clockwise.
+  'rotation': {'', 'play'},
+};
 
 @immutable
 class MatchPair {

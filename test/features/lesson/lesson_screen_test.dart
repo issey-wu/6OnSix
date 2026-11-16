@@ -181,9 +181,14 @@ void main() {
     await _tap(tester, find.text('Check'));
     await _tap(tester, find.text('Continue').last);
 
-    // Tap the zone: names the row.
+    // Tap the zone: numbers one other zone, two along from the answer, so
+    // the learner counts round. The answer is zone 4, so zone 6 is named.
     await _tap(tester, _hint);
-    expect(find.textContaining('front row'), findsOneWidget);
+    expect(find.textContaining('This is zone 6'), findsOneWidget);
+    expect(
+      find.bySemanticsLabel(RegExp('Zone 6, back middle')),
+      findsOneWidget,
+    );
     await _tap(tester, find.bySemanticsLabel('Front left'));
     await _tap(tester, find.text('Check'));
     await _tap(tester, find.text('Continue').last);

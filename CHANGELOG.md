@@ -7,6 +7,27 @@ All notable changes to this project are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed (from user testing, Nov 15)
+- Teaching cards now show diagrams: the whole court with its measurements,
+  the six numbered zones, the starting lineup with each role, the libero,
+  and the clockwise rotation.
+- The first lesson works like a tutorial: seven short cards, one idea each,
+  then the easiest questions first.
+- The hint on a tap the zone question numbers one other zone, two along
+  from the answer, so the learner counts round to it.
+- Help fades as the course goes on: Unit 1 teaches with diagrams on every
+  card; later units teach in words, so answers are less obvious.
+- "Show me how" adds a picture when the question is about a place on the
+  court (size, lines, zones, lineup, rotation), including an animation of
+  the team rotating. Rules and terms are explained in words alone.
+- Each unit header has its own badge (zones, whistle, rotation, team), and
+  the final review shows the app logo.
+- Five more avatar hairstyles (spiky, mohawk, bob, pigtails, braids), and
+  the buzz cut now follows the shape of the head.
+- Confirmations (quit a lesson, reset progress) and the name box are now
+  sheets in the app's own style.
+- The developer menu is in every build, release included, for demos.
+
 ### Added (polish round)
 - Avatar builder on the Profile tab: pick one of 50 ready-made players, or
   build your own from skin tone, hair, hair colour, jersey colour and

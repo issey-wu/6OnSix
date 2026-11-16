@@ -313,15 +313,64 @@ class UnitHeader extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            Icon(
-              number == null ? Icons.military_tech : Icons.sports_volleyball,
-              size: 40,
-              color: tokens.brandYellow,
-            ),
+            const SizedBox(width: 10),
+            _UnitBadge(number: number),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Each unit's symbol: the six zones, the referee's whistle, the rotation
+/// arrows, and a team of six. Units past the fourth reuse them in order.
+const List<IconData> _unitSymbols = [
+  Icons.grid_view_rounded,
+  Icons.sports,
+  Icons.autorenew_rounded,
+  Icons.groups_rounded,
+];
+
+/// A chunky round badge for a unit header, like the path's lesson circles:
+/// the unit's symbol in maroon on volleyball yellow. The final review shows
+/// the app's own logo instead.
+class _UnitBadge extends StatelessWidget {
+  const new({required this.number});
+
+  final int? number;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = AppTokens.of(context);
+    const size = 58.0;
+    final number = this.number;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: tokens.brandYellow,
+        shape: BoxShape.circle,
+        border: Border.all(color: tokens.onBrandRed, width: 3),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: number == null
+          ? ClipOval(
+              child: Image.asset(
+                'assets/images/app_logo.png',
+                fit: BoxFit.cover,
+                excludeFromSemantics: true,
+              ),
+            )
+          : Icon(
+              _unitSymbols[(number - 1) % _unitSymbols.length],
+              size: 32,
+              color: tokens.brandRed,
+            ),
     );
   }
 }

@@ -43,6 +43,7 @@ Lesson _lesson(Map<String, Object?> json) => Lesson(
       TeachingCard(
         title: _string(_map(c), 'title'),
         body: _string(_map(c), 'body'),
+        diagram: _map(c)['diagram'] as String?,
       ),
   ],
   questions: [for (final q in _list(json, 'questions')) _question(_map(q))],

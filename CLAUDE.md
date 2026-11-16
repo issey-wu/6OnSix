@@ -111,7 +111,7 @@ These keep a future online sync cheap to add.
 - At runtime, content is parsed defensively. In debug builds, fail loudly on bad content. In release builds, show an error state instead.
 - Repositories return typed failures. Uncaught exceptions never reach the UI.
 - Log through the project's logger wrapper, never `print`.
-- There is a debug-only developer menu with these actions:
+- There is a developer menu (in every build, since the app is only used for demos) with these actions:
   - reset progress
   - unlock all units
   - jump to any lesson

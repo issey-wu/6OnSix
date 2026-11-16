@@ -381,6 +381,30 @@ abstract final class AppTheme {
         side: outline,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: tokens.selectedBg,
+        hintStyle: type.titleMedium?.copyWith(
+          color: tokens.textSecondary,
+          fontWeight: FontWeight.w700,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: outline,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: outline,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: tokens.choice, width: 2.5),
+        ),
+      ),
       progressIndicatorTheme: ProgressIndicatorThemeData(
         color: tokens.brandOrange,
         linearTrackColor: tokens.surfaceMuted,

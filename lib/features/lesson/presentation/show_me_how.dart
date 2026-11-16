@@ -4,6 +4,29 @@ import 'package:six_on_six/core/domain/course.dart';
 import 'package:six_on_six/core/ui/court_lineup.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
 import 'package:six_on_six/core/ui/player_token.dart';
+import 'package:six_on_six/features/lesson/presentation/card_diagram.dart';
+
+/// The picture shown in "Show me how" for a multiple choice, true or false
+/// or matching question, picked from its concepts. Only questions about a
+/// place on the court get one: its size and lines, the zones, where players
+/// stand, and how they rotate. Questions about rules, scoring, terms or what
+/// a role does are explained in words alone, so this returns null. Court
+/// questions (tap the zone, drag-and-drop) draw their own answer instead.
+String? howToDiagram(Question question) {
+  for (final concept in question.concepts) {
+    final spec = switch (concept) {
+      'court-size' => 'court:net',
+      'court-lines' || 'back-row-attack' => 'court:attack',
+      'zones' || 'overlap' => 'zones',
+      'serving' => 'zones:1',
+      'lineup' => 'roles',
+      'rotating' || 'rotations' || 'setter-position' => 'rotation:play',
+      _ => null,
+    };
+    if (spec != null) return spec;
+  }
+  return null;
+}
 
 /// The explanation for [question] broken into short steps, for the
 /// "Show me how" panel. Court questions get a step per player or zone, built
@@ -129,6 +152,13 @@ class _ShowMeHowSheetState extends State<ShowMeHowSheet> {
               ),
             ),
           ],
+          if (q.type == QuestionType.multipleChoice ||
+              q.type == QuestionType.trueFalse ||
+              q.type == QuestionType.matching)
+            if (howToDiagram(q) case final diagram?) ...[
+              const SizedBox(height: 16),
+              CardDiagram(spec: diagram),
+            ],
           if (q.type == QuestionType.tapZone) ...[
             const SizedBox(height: 16),
             Center(
@@ -140,6 +170,11 @@ class _ShowMeHowSheetState extends State<ShowMeHowSheet> {
                 ),
               ),
             ),
+            // Rotation questions also watch the whole team move.
+            if (howToDiagram(q) == 'rotation:play') ...[
+              const SizedBox(height: 16),
+              const CardDiagram(spec: 'rotation:play'),
+            ],
           ],
           heading('Step by step'),
           for (final (i, step) in steps.indexed)
