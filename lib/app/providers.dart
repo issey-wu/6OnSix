@@ -10,6 +10,7 @@ import 'package:six_on_six/core/domain/clock.dart';
 import 'package:six_on_six/core/domain/content_repository.dart';
 import 'package:six_on_six/core/domain/course.dart';
 import 'package:six_on_six/core/domain/game_rules.dart';
+import 'package:six_on_six/core/domain/league.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/progress_repository.dart';
@@ -156,6 +157,7 @@ class ProgressController extends Notifier<Progress> {
     final xp = boosted ? baseXp * 2 : baseXp;
     state = state.complete(nodeId: nodeId, xpEarned: xp, localNow: local);
     ref.read(answerStatsProvider.notifier).record(answers);
+    ref.read(leagueProvider.notifier).addXp(xp);
     _save(
       ref
           .read(progressRepositoryProvider)
@@ -188,6 +190,7 @@ class ProgressController extends Notifier<Progress> {
   /// Adds bonus XP from a chest.
   void addBonusXp(int xp) {
     state = state.withBonusXp(xp);
+    ref.read(leagueProvider.notifier).addXp(xp);
     _save(ref.read(progressRepositoryProvider).saveProgress(state), 'bonus');
   }
 
@@ -196,6 +199,7 @@ class ProgressController extends Notifier<Progress> {
     state = const Progress();
     ref.read(answerStatsProvider.notifier).clear();
     ref.read(motivationProvider.notifier).resetStats();
+    ref.read(leagueProvider.notifier).reset();
     _save(ref.read(progressRepositoryProvider).resetProgress(), 'reset');
   }
 }
@@ -326,6 +330,56 @@ class AvatarController extends Notifier<Avatar?> {
     state = avatar;
     _save(ref.read(progressRepositoryProvider).saveAvatar(avatar), 'avatar');
   }
+}
+
+final leagueProvider = NotifierProvider<LeagueController, LeagueState>(
+  LeagueController.new,
+);
+
+/// The learner's division and this week's simulated league.
+class LeagueController extends Notifier<LeagueState> {
+  @override
+  LeagueState build() => ref.read(initialStateProvider).league;
+
+  DateTime get _now => ref.read(clockProvider).now();
+
+  void _set(LeagueState next) {
+    if (identical(next, state)) return;
+    state = next;
+    _save(ref.read(progressRepositoryProvider).saveLeague(next), 'league');
+  }
+
+  /// Closes the league week if it has ended. Runs when the app opens, when
+  /// the League tab shows, and before XP is added.
+  void settle() => _set(state.settle(_now));
+
+  /// Adds XP from a lesson or chest, joining this week's league if needed.
+  void addXp(int xp) {
+    settle();
+    if (xp > 0) _set(state.addXp(xp, _now));
+  }
+
+  /// Developer menu: ends the current league week right now.
+  void endWeekNow() => _set(state.settle(_now, force: true));
+
+  /// The results sheet has been shown.
+  void markResultSeen() {
+    final result = state.lastResult;
+    if (result == null || result.seen) return;
+    _set(
+      state.copyWith(
+        lastResult: LeagueResult(
+          division: result.division,
+          rank: result.rank,
+          newDivision: result.newDivision,
+          seen: true,
+        ),
+      ),
+    );
+  }
+
+  /// Back to Rec with no league joined.
+  void reset() => _set(const LeagueState());
 }
 
 final settingsProvider = NotifierProvider<SettingsController, AppSettings>(

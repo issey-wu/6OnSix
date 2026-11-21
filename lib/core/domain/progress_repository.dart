@@ -1,4 +1,5 @@
 import 'package:six_on_six/core/domain/avatar.dart';
+import 'package:six_on_six/core/domain/league.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
@@ -32,6 +33,9 @@ abstract interface class ProgressRepository {
 
   /// Saves the player avatar. Null clears it.
   Future<void> saveAvatar(Avatar? avatar);
+
+  /// Saves the learner's league state.
+  Future<void> saveLeague(LeagueState league);
 
   /// Clears progress (completions, answers, XP, streak). Settings and the
   /// name are kept.

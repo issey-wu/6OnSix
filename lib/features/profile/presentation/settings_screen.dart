@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
+import 'package:six_on_six/core/domain/league.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 import 'package:six_on_six/core/ui/dialogs.dart';
@@ -157,6 +158,7 @@ class _DeveloperMenu extends ConsumerWidget {
             shiftController.addDays(1);
             // As if the app had just been opened on the new day.
             ref.read(progressProvider.notifier).checkStreakFreezes();
+            ref.read(leagueProvider.notifier).settle();
           },
         ),
         ListTile(
@@ -176,6 +178,16 @@ class _DeveloperMenu extends ConsumerWidget {
           onTap: ref.read(motivationProvider.notifier).giveFreeze,
         ),
         ListTile(
+          key: const ValueKey('end-league-week'),
+          leading: const Icon(Icons.leaderboard_outlined),
+          title: const Text('End this league week now'),
+          subtitle: Text(_leagueStatus(ref.watch(leagueProvider))),
+          onTap: () {
+            ref.read(leagueProvider.notifier).endWeekNow();
+            context.go('/league');
+          },
+        ),
+        ListTile(
           leading: const Icon(Icons.restart_alt),
           title: const Text('Start over as a new learner'),
           subtitle: const Text('Clears everything and shows the welcome'),
@@ -190,6 +202,7 @@ class _DeveloperMenu extends ConsumerWidget {
     ref.read(motivationProvider.notifier).replace(const MotivationState());
     ref.read(nameProvider.notifier).set(null);
     ref.read(avatarProvider.notifier).set(null);
+    ref.read(leagueProvider.notifier).reset();
     final settings = ref.read(settingsProvider);
     ref
         .read(settingsProvider.notifier)
@@ -219,3 +232,7 @@ class _DeveloperMenu extends ConsumerWidget {
     if (nodeId != null) unawaited(router.push('/lesson/$nodeId'));
   }
 }
+
+String _leagueStatus(LeagueState league) => league.joined
+    ? '${league.division.label}, ${league.xp} XP this week'
+    : '${league.division.label}, not joined this week';

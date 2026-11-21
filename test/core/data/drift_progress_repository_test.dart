@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:six_on_six/core/data/database.dart';
 import 'package:six_on_six/core/data/drift_progress_repository.dart';
 import 'package:six_on_six/core/domain/avatar.dart';
+import 'package:six_on_six/core/domain/league.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
@@ -174,33 +175,51 @@ void main() {
     expect((await repo().load()).avatar, isNull);
   });
 
-  test(
-    'a version 2 database gains the avatar column and keeps its data',
-    () async {
-      final dir = Directory.systemTemp.createTempSync('six_on_six');
-      addTearDown(() => dir.deleteSync(recursive: true));
-      final file = File('${dir.path}/app.sqlite');
+  test('a version 2 database gains the avatar and league columns and keeps its '
+      'data', () async {
+    final dir = Directory.systemTemp.createTempSync('six_on_six');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final file = File('${dir.path}/app.sqlite');
 
-      // Make a database as version 2 left it: no avatar column.
-      final old = AppDatabase(NativeDatabase(file));
-      final before = DriftProgressRepository(old, clock: clock);
-      await before.load();
-      await before.saveMotivation(const MotivationState(goalChosen: true));
-      await old.customStatement(
-        'ALTER TABLE user_extras DROP COLUMN avatar_json',
-      );
-      await old.customStatement('PRAGMA user_version = 2');
-      await old.close();
+    // Make a database as version 2 left it: no avatar or league column.
+    final old = AppDatabase(NativeDatabase(file));
+    final before = DriftProgressRepository(old, clock: clock);
+    await before.load();
+    await before.saveMotivation(const MotivationState(goalChosen: true));
+    await old.customStatement(
+      'ALTER TABLE user_extras DROP COLUMN avatar_json',
+    );
+    await old.customStatement(
+      'ALTER TABLE user_extras DROP COLUMN league_json',
+    );
+    await old.customStatement('PRAGMA user_version = 2');
+    await old.close();
 
-      final upgraded = AppDatabase(NativeDatabase(file));
-      addTearDown(upgraded.close);
-      final after = DriftProgressRepository(upgraded, clock: clock);
-      final loaded = await after.load();
-      expect(loaded.motivation.goalChosen, isTrue);
-      expect(loaded.avatar, isNull);
+    final upgraded = AppDatabase(NativeDatabase(file));
+    addTearDown(upgraded.close);
+    final after = DriftProgressRepository(upgraded, clock: clock);
+    final loaded = await after.load();
+    expect(loaded.motivation.goalChosen, isTrue);
+    expect(loaded.avatar, isNull);
 
-      await after.saveAvatar(const Avatar(number: 9));
-      expect((await after.load()).avatar?.number, 9);
-    },
-  );
+    expect(loaded.league.division, Division.rec);
+
+    await after.saveAvatar(const Avatar(number: 9));
+    await after.saveLeague(const LeagueState(division: Division.club));
+    final reloaded = await after.load();
+    expect(reloaded.avatar?.number, 9);
+    expect(reloaded.league.division, Division.club);
+  });
+
+  test('the league survives a restart', () async {
+    final league = const LeagueState(division: Division.house)
+        .addXp(35, DateTime.utc(2026, 11, 18, 18));
+    await repo().saveLeague(league);
+    final loaded = (await repo().load()).league;
+    expect(loaded.division, Division.house);
+    expect(loaded.xp, 35);
+    expect(loaded.start, league.start);
+    expect(loaded.end, league.end);
+    expect(loaded.seed, league.seed);
+  });
 }

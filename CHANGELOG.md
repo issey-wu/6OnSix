@@ -7,6 +7,16 @@ All notable changes to this project are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added (Round 3: demo community)
+- A League tab. Earning XP joins this week's league with 29 simulated
+  players, Monday to Monday. The top players move up a division and the
+  bottom ones move down, across seven divisions from Rec to Olympic. A
+  results sheet shows how the week ended.
+- Six simulated friends, with avatars, streaks and weekly XP, and a profile
+  page each with their recent lessons.
+- Everything here is labelled "Demo community" and runs offline.
+- Developer menu: "End this league week now", to show a promotion in a demo.
+
 ### Changed (from user testing, Nov 15)
 - Teaching cards now show diagrams: the whole court with its measurements,
   the six numbered zones, the starting lineup with each role, the libero,

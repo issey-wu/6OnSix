@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:six_on_six/core/ui/motion.dart';
 
-/// The main app frame: the four tabs and the bottom navigation bar.
+/// The main app frame: the five tabs and the bottom navigation bar.
 /// Lessons open above this frame, so the bar is hidden while playing.
 class AppShell extends StatelessWidget {
   const new({required this.shell, super.key});
@@ -30,6 +30,11 @@ class AppShell extends StatelessWidget {
             icon: Icon(Icons.redeem_outlined),
             selectedIcon: Icon(Icons.redeem),
             label: 'Quests',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.leaderboard_outlined),
+            selectedIcon: Icon(Icons.leaderboard),
+            label: 'League',
           ),
           NavigationDestination(
             icon: Icon(Icons.menu_book_outlined),
