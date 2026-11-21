@@ -1,4 +1,5 @@
 import 'package:six_on_six/core/domain/avatar.dart';
+import 'package:six_on_six/core/domain/league.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/progress_repository.dart';
@@ -21,6 +22,7 @@ class InMemoryProgressRepository implements ProgressRepository {
     MotivationState? motivation,
     Avatar? avatar,
     bool clearAvatar = false,
+    LeagueState? league,
   }) => StoredState(
     progress: progress ?? _state.progress,
     settings: settings ?? _state.settings,
@@ -28,6 +30,7 @@ class InMemoryProgressRepository implements ProgressRepository {
     answerStats: answerStats ?? _state.answerStats,
     motivation: motivation ?? _state.motivation,
     avatar: clearAvatar ? null : (avatar ?? _state.avatar),
+    league: league ?? _state.league,
   );
 
   @override
@@ -64,6 +67,11 @@ class InMemoryProgressRepository implements ProgressRepository {
   }
 
   @override
+  Future<void> saveLeague(LeagueState league) async {
+    _state = _copy(league: league);
+  }
+
+  @override
   Future<void> saveProgress(Progress progress) async {
     _state = _copy(progress: progress);
   }
@@ -81,6 +89,7 @@ class InMemoryProgressRepository implements ProgressRepository {
       name: _state.name,
       motivation: _state.motivation.resetStats(),
       avatar: _state.avatar,
+      league: _state.league,
     );
   }
 }

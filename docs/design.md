@@ -56,6 +56,8 @@ A complete loop in airplane mode:
 
 Accounts and login, cloud sync, leaderboards, asynchronous duel mode, certificates, hearts or lives, streak freezes, placement tests, onboarding questionnaires, push notifications, paywalls or in-app purchases, and mascot animations.
 
+Added later, still fully offline: streak freezes (Round 2), and a weekly League with friends, played against simulated "Demo community" players (Round 3). See `docs/decisions.md`.
+
 ## 2. Game rules
 
 ### Learning path and unlocking
@@ -107,12 +109,14 @@ Accounts and login, cloud sync, leaderboards, asynchronous duel mode, certificat
 
 **First launch:** Splash → Welcome → Lesson 1.1 (teaching card, then questions) → Lesson complete → Home
 
-**Main app (bottom navigation bar, 3 tabs):**
+**Main app (bottom navigation bar, 5 tabs):**
 
 ```
 ├── Learn (home / learning path) → Lesson player → Lesson complete
+├── Quests (daily goal, quests and chests, monthly challenge)
+├── League (this week's table, friends) → Friend profile
 ├── Glossary (search + list) → Term detail
-└── Profile (stats) → Settings
+└── Profile (stats, avatar) → Settings
 ```
 
 - The bottom navigation bar is hidden inside the lesson player.

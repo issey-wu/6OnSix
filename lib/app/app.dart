@@ -18,7 +18,9 @@ class _SixOnSixAppState extends ConsumerState<SixOnSixApp> {
     super.initState();
     // A streak freeze covers any days missed since the app was last used.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) ref.read(progressProvider.notifier).checkStreakFreezes();
+      if (!mounted) return;
+      ref.read(progressProvider.notifier).checkStreakFreezes();
+      ref.read(leagueProvider.notifier).settle();
     });
   }
 

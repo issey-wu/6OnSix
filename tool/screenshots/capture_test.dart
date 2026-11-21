@@ -14,7 +14,9 @@ import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/router.dart';
 import 'package:six_on_six/core/data/course_parser.dart';
 import 'package:six_on_six/core/data/in_memory_progress_repository.dart';
+import 'package:six_on_six/core/domain/avatar.dart';
 import 'package:six_on_six/core/domain/course.dart';
+import 'package:six_on_six/core/domain/league.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
@@ -405,6 +407,39 @@ void main() {
     // Saving returns to the Profile tab.
     await _tap(tester, find.byKey(const ValueKey('save-avatar')));
     await _shot(tester, '25_profile_avatar');
+  });
+
+  testWidgets('league and friends', (tester) async {
+    final now = DateTime.now();
+    final joined = StoredState(
+      name: 'Issey',
+      settings: const AppSettings(welcomeSeen: true),
+      avatar: avatarPresets[8],
+      league: const LeagueState(division: Division.club).addXp(140, now),
+    );
+    var container = await _pumpApp(tester, state: joined);
+    container.read(routerProvider).go('/league');
+    await tester.pumpAndSettle();
+    await _shot(tester, '33_league');
+    final friend = find.byKey(ValueKey(demoFriends.first.id));
+    await tester.scrollUntilVisible(friend, 300);
+    await _tap(tester, friend);
+    await _shot(tester, '34_friend');
+
+    final finished = StoredState(
+      name: 'Issey',
+      settings: const AppSettings(welcomeSeen: true),
+      avatar: avatarPresets[8],
+      league: const LeagueState(division: Division.club)
+          .addXp(900, now)
+          .settle(now, force: true),
+    );
+    container = await _pumpApp(tester, state: finished);
+    container.read(routerProvider).go('/league');
+    await tester.pumpAndSettle();
+    await _shot(tester, '35_league_result');
+    await _tap(tester, find.byKey(const ValueKey('league-result-ok')));
+    await _shot(tester, '36_league_join');
   });
 
   testWidgets('profile and settings, dark theme', (tester) async {

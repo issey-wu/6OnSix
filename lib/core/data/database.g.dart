@@ -1983,6 +1983,17 @@ class $UserExtrasTable extends UserExtras
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _leagueJsonMeta = const VerificationMeta(
+    'leagueJson',
+  );
+  @override
+  late final GeneratedColumn<String> leagueJson = GeneratedColumn<String>(
+    'league_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -1999,6 +2010,7 @@ class $UserExtrasTable extends UserExtras
     userId,
     motivationJson,
     avatarJson,
+    leagueJson,
     updatedAt,
   ];
   @override
@@ -2036,6 +2048,12 @@ class $UserExtrasTable extends UserExtras
         avatarJson.isAcceptableOrUnknown(data['avatar_json']!, _avatarJsonMeta),
       );
     }
+    if (data.containsKey('league_json')) {
+      context.handle(
+        _leagueJsonMeta,
+        leagueJson.isAcceptableOrUnknown(data['league_json']!, _leagueJsonMeta),
+      );
+    }
     if (data.containsKey('updated_at')) {
       context.handle(
         _updatedAtMeta,
@@ -2065,6 +2083,10 @@ class $UserExtrasTable extends UserExtras
         DriftSqlType.string,
         data['${effectivePrefix}avatar_json'],
       ),
+      leagueJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}league_json'],
+      ),
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
@@ -2082,11 +2104,13 @@ class UserExtrasRow extends DataClass implements Insertable<UserExtrasRow> {
   final String userId;
   final String motivationJson;
   final String? avatarJson;
+  final String? leagueJson;
   final DateTime updatedAt;
   const UserExtrasRow({
     required this.userId,
     required this.motivationJson,
     this.avatarJson,
+    this.leagueJson,
     required this.updatedAt,
   });
   @override
@@ -2096,6 +2120,9 @@ class UserExtrasRow extends DataClass implements Insertable<UserExtrasRow> {
     map['motivation_json'] = Variable<String>(motivationJson);
     if (!nullToAbsent || avatarJson != null) {
       map['avatar_json'] = Variable<String>(avatarJson);
+    }
+    if (!nullToAbsent || leagueJson != null) {
+      map['league_json'] = Variable<String>(leagueJson);
     }
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -2108,6 +2135,9 @@ class UserExtrasRow extends DataClass implements Insertable<UserExtrasRow> {
       avatarJson: avatarJson == null && nullToAbsent
           ? const Value.absent()
           : Value(avatarJson),
+      leagueJson: leagueJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(leagueJson),
       updatedAt: Value(updatedAt),
     );
   }
@@ -2121,6 +2151,7 @@ class UserExtrasRow extends DataClass implements Insertable<UserExtrasRow> {
       userId: serializer.fromJson<String>(json['userId']),
       motivationJson: serializer.fromJson<String>(json['motivationJson']),
       avatarJson: serializer.fromJson<String?>(json['avatarJson']),
+      leagueJson: serializer.fromJson<String?>(json['leagueJson']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
@@ -2131,6 +2162,7 @@ class UserExtrasRow extends DataClass implements Insertable<UserExtrasRow> {
       'userId': serializer.toJson<String>(userId),
       'motivationJson': serializer.toJson<String>(motivationJson),
       'avatarJson': serializer.toJson<String?>(avatarJson),
+      'leagueJson': serializer.toJson<String?>(leagueJson),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
@@ -2139,11 +2171,13 @@ class UserExtrasRow extends DataClass implements Insertable<UserExtrasRow> {
     String? userId,
     String? motivationJson,
     Value<String?> avatarJson = const Value.absent(),
+    Value<String?> leagueJson = const Value.absent(),
     DateTime? updatedAt,
   }) => UserExtrasRow(
     userId: userId ?? this.userId,
     motivationJson: motivationJson ?? this.motivationJson,
     avatarJson: avatarJson.present ? avatarJson.value : this.avatarJson,
+    leagueJson: leagueJson.present ? leagueJson.value : this.leagueJson,
     updatedAt: updatedAt ?? this.updatedAt,
   );
   UserExtrasRow copyWithCompanion(UserExtrasCompanion data) {
@@ -2155,6 +2189,9 @@ class UserExtrasRow extends DataClass implements Insertable<UserExtrasRow> {
       avatarJson: data.avatarJson.present
           ? data.avatarJson.value
           : this.avatarJson,
+      leagueJson: data.leagueJson.present
+          ? data.leagueJson.value
+          : this.leagueJson,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
@@ -2165,6 +2202,7 @@ class UserExtrasRow extends DataClass implements Insertable<UserExtrasRow> {
           ..write('userId: $userId, ')
           ..write('motivationJson: $motivationJson, ')
           ..write('avatarJson: $avatarJson, ')
+          ..write('leagueJson: $leagueJson, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
@@ -2172,7 +2210,7 @@ class UserExtrasRow extends DataClass implements Insertable<UserExtrasRow> {
 
   @override
   int get hashCode =>
-      Object.hash(userId, motivationJson, avatarJson, updatedAt);
+      Object.hash(userId, motivationJson, avatarJson, leagueJson, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2180,6 +2218,7 @@ class UserExtrasRow extends DataClass implements Insertable<UserExtrasRow> {
           other.userId == this.userId &&
           other.motivationJson == this.motivationJson &&
           other.avatarJson == this.avatarJson &&
+          other.leagueJson == this.leagueJson &&
           other.updatedAt == this.updatedAt);
 }
 
@@ -2187,12 +2226,14 @@ class UserExtrasCompanion extends UpdateCompanion<UserExtrasRow> {
   final Value<String> userId;
   final Value<String> motivationJson;
   final Value<String?> avatarJson;
+  final Value<String?> leagueJson;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
   const UserExtrasCompanion({
     this.userId = const Value.absent(),
     this.motivationJson = const Value.absent(),
     this.avatarJson = const Value.absent(),
+    this.leagueJson = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -2200,6 +2241,7 @@ class UserExtrasCompanion extends UpdateCompanion<UserExtrasRow> {
     required String userId,
     this.motivationJson = const Value.absent(),
     this.avatarJson = const Value.absent(),
+    this.leagueJson = const Value.absent(),
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
   }) : userId = Value(userId),
@@ -2208,6 +2250,7 @@ class UserExtrasCompanion extends UpdateCompanion<UserExtrasRow> {
     Expression<String>? userId,
     Expression<String>? motivationJson,
     Expression<String>? avatarJson,
+    Expression<String>? leagueJson,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
   }) {
@@ -2215,6 +2258,7 @@ class UserExtrasCompanion extends UpdateCompanion<UserExtrasRow> {
       if (userId != null) 'user_id': userId,
       if (motivationJson != null) 'motivation_json': motivationJson,
       if (avatarJson != null) 'avatar_json': avatarJson,
+      if (leagueJson != null) 'league_json': leagueJson,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -2224,6 +2268,7 @@ class UserExtrasCompanion extends UpdateCompanion<UserExtrasRow> {
     Value<String>? userId,
     Value<String>? motivationJson,
     Value<String?>? avatarJson,
+    Value<String?>? leagueJson,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
   }) {
@@ -2231,6 +2276,7 @@ class UserExtrasCompanion extends UpdateCompanion<UserExtrasRow> {
       userId: userId ?? this.userId,
       motivationJson: motivationJson ?? this.motivationJson,
       avatarJson: avatarJson ?? this.avatarJson,
+      leagueJson: leagueJson ?? this.leagueJson,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -2248,6 +2294,9 @@ class UserExtrasCompanion extends UpdateCompanion<UserExtrasRow> {
     if (avatarJson.present) {
       map['avatar_json'] = Variable<String>(avatarJson.value);
     }
+    if (leagueJson.present) {
+      map['league_json'] = Variable<String>(leagueJson.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -2263,6 +2312,7 @@ class UserExtrasCompanion extends UpdateCompanion<UserExtrasRow> {
           ..write('userId: $userId, ')
           ..write('motivationJson: $motivationJson, ')
           ..write('avatarJson: $avatarJson, ')
+          ..write('leagueJson: $leagueJson, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -4297,6 +4347,7 @@ typedef $$UserExtrasTableCreateCompanionBuilder = UserExtrasCompanion Function({
   required String userId,
   Value<String> motivationJson,
   Value<String?> avatarJson,
+  Value<String?> leagueJson,
   required DateTime updatedAt,
   Value<int> rowid,
 });
@@ -4304,6 +4355,7 @@ typedef $$UserExtrasTableUpdateCompanionBuilder = UserExtrasCompanion Function({
   Value<String> userId,
   Value<String> motivationJson,
   Value<String?> avatarJson,
+  Value<String?> leagueJson,
   Value<DateTime> updatedAt,
   Value<int> rowid,
 });
@@ -4346,6 +4398,11 @@ class $$UserExtrasTableFilterComposer
 
   ColumnFilters<String> get avatarJson => $composableBuilder(
     column: $table.avatarJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get leagueJson => $composableBuilder(
+    column: $table.leagueJson,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4397,6 +4454,11 @@ class $$UserExtrasTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get leagueJson => $composableBuilder(
+    column: $table.leagueJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -4442,6 +4504,11 @@ class $$UserExtrasTableAnnotationComposer
 
   GeneratedColumn<String> get avatarJson => $composableBuilder(
     column: $table.avatarJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get leagueJson => $composableBuilder(
+    column: $table.leagueJson,
     builder: (column) => column,
   );
 
@@ -4503,12 +4570,14 @@ class $$UserExtrasTableTableManager
                 Value<String> userId = const Value.absent(),
                 Value<String> motivationJson = const Value.absent(),
                 Value<String?> avatarJson = const Value.absent(),
+                Value<String?> leagueJson = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => UserExtrasCompanion(
                 userId: userId,
                 motivationJson: motivationJson,
                 avatarJson: avatarJson,
+                leagueJson: leagueJson,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),
@@ -4517,12 +4586,14 @@ class $$UserExtrasTableTableManager
                 required String userId,
                 Value<String> motivationJson = const Value.absent(),
                 Value<String?> avatarJson = const Value.absent(),
+                Value<String?> leagueJson = const Value.absent(),
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
               }) => UserExtrasCompanion.insert(
                 userId: userId,
                 motivationJson: motivationJson,
                 avatarJson: avatarJson,
+                leagueJson: leagueJson,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),

@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:six_on_six/core/data/database.dart';
 import 'package:six_on_six/core/domain/avatar.dart';
 import 'package:six_on_six/core/domain/clock.dart';
+import 'package:six_on_six/core/domain/league.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/progress_repository.dart';
@@ -93,7 +94,31 @@ class DriftProgressRepository implements ProgressRepository {
       ]),
       motivation: _decodeMotivation(extras?.motivationJson),
       avatar: _decodeAvatar(extras?.avatarJson),
+      league: _decodeLeague(extras?.leagueJson),
     );
+  }
+
+  static LeagueState _decodeLeague(String? json) {
+    if (json == null || json.isEmpty) return const LeagueState();
+    try {
+      return leagueFromJson(jsonDecode(json) as Map<String, Object?>);
+    } on Object {
+      return const LeagueState();
+    }
+  }
+
+  @override
+  Future<void> saveLeague(LeagueState league) async {
+    final userId = await _ensureUser();
+    await _db
+        .into(_db.userExtras)
+        .insertOnConflictUpdate(
+          UserExtrasCompanion.insert(
+            userId: userId,
+            leagueJson: Value(jsonEncode(league.toJson())),
+            updatedAt: _clock.now(),
+          ),
+        );
   }
 
   static Avatar? _decodeAvatar(String? json) {

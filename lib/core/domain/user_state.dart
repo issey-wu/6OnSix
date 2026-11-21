@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:six_on_six/core/domain/avatar.dart';
+import 'package:six_on_six/core/domain/league.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 
@@ -118,10 +119,14 @@ class StoredState {
     this.answerStats = const AnswerStats(),
     this.motivation = const MotivationState(),
     this.avatar,
+    this.league = const LeagueState(),
   });
 
   /// The learner's player avatar. Null until they make one.
   final Avatar? avatar;
+
+  /// The learner's division and current league week.
+  final LeagueState league;
 
   final Progress progress;
 

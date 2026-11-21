@@ -75,12 +75,13 @@ class UserSettings extends Table {
 
 /// Newer per-learner state stored as JSON documents: the daily goal,
 /// quests, streak freezes and related stats (schema version 2), and the
-/// player avatar (schema version 3).
+/// player avatar (schema version 3), and the league (schema version 4).
 @DataClassName('UserExtrasRow')
 class UserExtras extends Table {
   TextColumn get userId => text().references(LocalUsers, #id)();
   TextColumn get motivationJson => text().withDefault(const Constant('{}'))();
   TextColumn get avatarJson => text().nullable()();
+  TextColumn get leagueJson => text().nullable()();
   DateTimeColumn get updatedAt => dateTime()();
 
   @override
@@ -104,19 +105,20 @@ class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
     onUpgrade: (m, from, to) async {
-      // Version 2 added the motivation layer's table, version 3 the avatar.
-      // A table created fresh already has every column.
+      // Version 2 added the motivation layer's table, version 3 the avatar,
+      // version 4 the league. A table created fresh has every column.
       if (from < 2) {
         await m.createTable(userExtras);
-      } else if (from < 3) {
-        await m.addColumn(userExtras, userExtras.avatarJson);
+        return;
       }
+      if (from < 3) await m.addColumn(userExtras, userExtras.avatarJson);
+      if (from < 4) await m.addColumn(userExtras, userExtras.leagueJson);
     },
   );
 }

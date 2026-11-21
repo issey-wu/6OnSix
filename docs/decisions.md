@@ -72,3 +72,10 @@ A short list of the current stack and architecture choices. Update an entry when
 - **Diagrams on teaching cards (user testing, Nov 15):** a `diagram` column in `content/source/cards.csv` (such as `court:net` or `zones:1`), drawn in `card_diagram.dart` and checked by the exporter. These are part of the lesson, not pop-over tutorials.
 - **Guidance fades as units progress** (the "fading" principle from worked-example research): Unit 1 cards carry diagrams; later units teach in text so questions are less obvious. Visual help stays available after answering, in "Show me how", where `howToDiagram` adds a diagram or animation only for questions about a place on the court. Zone numbers are never drawn on a question up front (that made the first questions too easy in testing); the hint numbers one other zone so the learner still has to count.
 - **Developer menu in release builds:** the app has no public users, and demos run the release build, so the menu ships in every build (Nov 16).
+
+## Demo community (Round 3)
+
+- **Simulated, offline, labelled.** The League and friends use made-up players generated on the device from a seed, so the same week always looks the same and nothing needs a server. Every screen with them says "Demo community". Real online play stays out of scope.
+- **League model:** 30 players per league, Monday to Monday in local time, joined by earning XP. Seven divisions (Rec, House League, Club, Varsity, Provincial, National, Olympic); top 10 move up from Rec, top 7 elsewhere; bottom 5 move down except in Rec. Each simulated player has XP for each day and a usual practice time, so their totals grow through the week. Higher divisions have stronger players.
+- **Storage:** `user_extras.league_json` (schema version 4). Friends need no storage: their streaks and XP are worked out from the date.
+

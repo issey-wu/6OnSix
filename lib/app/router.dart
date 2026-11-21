@@ -7,6 +7,8 @@ import 'package:six_on_six/features/avatar/presentation/avatar_screen.dart';
 import 'package:six_on_six/features/glossary/presentation/glossary_screen.dart';
 import 'package:six_on_six/features/glossary/presentation/term_screen.dart';
 import 'package:six_on_six/features/goal/presentation/goal_screen.dart';
+import 'package:six_on_six/features/league/presentation/friend_screen.dart';
+import 'package:six_on_six/features/league/presentation/league_screen.dart';
 import 'package:six_on_six/features/learning_path/presentation/home_screen.dart';
 import 'package:six_on_six/features/lesson/presentation/lesson_screen.dart';
 import 'package:six_on_six/features/profile/presentation/profile_screen.dart';
@@ -41,6 +43,22 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/quests',
                 builder: (context, state) => const QuestsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/league',
+                builder: (context, state) => const LeagueScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'friend/:friendId',
+                    builder: (context, state) => FriendScreen(
+                      friendId: state.pathParameters['friendId']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
