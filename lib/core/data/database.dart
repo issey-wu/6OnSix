@@ -67,6 +67,10 @@ class UserSettings extends Table {
   BoolColumn get soundOn => boolean().withDefault(const Constant(true))();
   BoolColumn get hapticsOn => boolean().withDefault(const Constant(true))();
   BoolColumn get welcomeSeen => boolean().withDefault(const Constant(false))();
+
+  /// First-run tips already shown, as ids separated by commas (schema
+  /// version 5).
+  TextColumn get tipsSeen => text().withDefault(const Constant(''))();
   DateTimeColumn get updatedAt => dateTime()();
 
   @override
@@ -105,14 +109,16 @@ class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
     onUpgrade: (m, from, to) async {
       // Version 2 added the motivation layer's table, version 3 the avatar,
-      // version 4 the league. A table created fresh has every column.
+      // version 4 the league, version 5 the tips seen. A table created
+      // fresh has every column.
+      if (from < 5) await m.addColumn(userSettings, userSettings.tipsSeen);
       if (from < 2) {
         await m.createTable(userExtras);
         return;

@@ -6,7 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:six_on_six/app/feedback.dart';
 import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
+import 'package:six_on_six/app/tips.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
+import 'package:six_on_six/core/domain/tips.dart';
+import 'package:six_on_six/core/ui/ace.dart';
 import 'package:six_on_six/core/ui/components.dart';
 import 'package:six_on_six/core/ui/motion.dart';
 
@@ -24,6 +27,9 @@ const _months = [
   'November',
   'December',
 ];
+
+/// What the first-run tip on this screen points at.
+final GlobalKey _questsTipKey = GlobalKey(debugLabel: 'daily quests');
 
 /// Today's goal, streak freezes, the XP boost, the three daily quests with
 /// their chests, and the monthly challenge.
@@ -66,85 +72,105 @@ class QuestsScreen extends ConsumerWidget {
       ),
     );
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Quests')),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-        children: [
-          _Panel(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                DailyGoalBar(xp: today.xp, goal: motivation.goal),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '${motivation.goal.label}: '
-                        '${motivation.goal.minutes} min a day',
-                        style: text.bodySmall?.copyWith(
-                          color: tokens.textSecondary,
+    return TipsOnArrival(
+      path: '/quests',
+      tips: [
+        Tip(
+          Tips.quests,
+          _questsTipKey,
+          'Three new quests every day. Finish one to open its chest.',
+          action: AceAction.cheer,
+        ),
+      ],
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Quests')),
+        body: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+          children: [
+            _Panel(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  DailyGoalBar(xp: today.xp, goal: motivation.goal),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '${motivation.goal.label}: '
+                          '${motivation.goal.minutes} min a day',
+                          style: text.bodySmall?.copyWith(
+                            color: tokens.textSecondary,
+                          ),
                         ),
                       ),
-                    ),
-                    TextButton(
-                      onPressed: () => unawaited(context.push('/goal')),
-                      child: const Text('Change'),
-                    ),
-                  ],
-                ),
-              ],
+                      TextButton(
+                        onPressed: () => unawaited(context.push('/goal')),
+                        child: const Text('Change'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          if (boostUntil != null && motivation.boostActive(now)) ...[
+            if (boostUntil != null && motivation.boostActive(now)) ...[
+              const SizedBox(height: 12),
+              _Banner(
+                icon: Icons.flash_on,
+                text: 'Double XP until ${_clockTime(context, boostUntil)}',
+              ),
+            ],
             const SizedBox(height: 12),
-            _Banner(
-              icon: Icons.flash_on,
-              text: 'Double XP until ${_clockTime(context, boostUntil)}',
+            _FreezeRow(count: motivation.freezes),
+            section(
+              'Daily quests',
+              'New quests in ${left.inHours} h ${left.inMinutes % 60} min',
+            ),
+            KeyedSubtree(
+              key: _questsTipKey,
+              child: Column(
+                children: [
+                  for (final (index, quest) in quests.indexed)
+                    _QuestCard(
+                      index: index,
+                      quest: quest,
+                      progress: quest.progressIn(today),
+                      done: quest.doneIn(today),
+                      opened: motivation.chestOpened(local, index),
+                    ),
+                ],
+              ),
+            ),
+            section('${_months.elementAt(local.month - 1)} challenge'),
+            _Panel(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    monthDone >= monthlyQuestTarget
+                        ? 'Badge earned! You finished $monthDone quests.'
+                        : 'Finish $monthlyQuestTarget quests this month '
+                              'to earn the monthly badge.',
+                    style: text.bodyMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  ChunkyBar(
+                    value: monthDone / monthlyQuestTarget,
+                    color: tokens.brandRed,
+                    height: 12,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$monthDone of $monthlyQuestTarget quests',
+                    style: text.bodySmall?.copyWith(
+                      color: tokens.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
-          const SizedBox(height: 12),
-          _FreezeRow(count: motivation.freezes),
-          section(
-            'Daily quests',
-            'New quests in ${left.inHours} h ${left.inMinutes % 60} min',
-          ),
-          for (final (index, quest) in quests.indexed)
-            _QuestCard(
-              index: index,
-              quest: quest,
-              progress: quest.progressIn(today),
-              done: quest.doneIn(today),
-              opened: motivation.chestOpened(local, index),
-            ),
-          section('${_months.elementAt(local.month - 1)} challenge'),
-          _Panel(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  monthDone >= monthlyQuestTarget
-                      ? 'Badge earned! You finished $monthDone quests.'
-                      : 'Finish $monthlyQuestTarget quests this month to earn '
-                            'the monthly badge.',
-                  style: text.bodyMedium,
-                ),
-                const SizedBox(height: 8),
-                ChunkyBar(
-                  value: monthDone / monthlyQuestTarget,
-                  color: tokens.brandRed,
-                  height: 12,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '$monthDone of $monthlyQuestTarget quests',
-                  style: text.bodySmall?.copyWith(color: tokens.textSecondary),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

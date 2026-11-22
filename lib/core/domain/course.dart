@@ -7,10 +7,20 @@ enum QuestionType { multipleChoice, trueFalse, matching, tapZone, dragDrop }
 
 @immutable
 class TeachingCard {
-  const new({required this.title, required this.body, this.diagram});
+  const new({
+    required this.title,
+    required this.body,
+    this.diagram,
+    this.check = const [],
+  });
 
   final String title;
   final String body;
+
+  /// Ids of the questions asked straight after this card, so a lesson
+  /// alternates between learning a bit and trying it. See
+  /// [Lesson.interleaved].
+  final List<String> check;
 
   /// A picture drawn with the card, such as `court:net` or `zones:1`. See
   /// [cardDiagrams] for the kinds; the part after the colon picks what to
@@ -117,6 +127,49 @@ class Lesson {
   final String title;
   final List<TeachingCard> cards;
   final List<Question> questions;
+
+  /// The lesson as a mix of cards and questions: each card, then the
+  /// questions it [TeachingCard.check]s, then the next card. Questions no
+  /// card checks come at the end. Returns the questions in that order, and
+  /// for each question id the cards (by index) to show just before it.
+  /// A card that checks nothing is shown with the next card that does, so
+  /// a lesson without any checks shows every card first.
+  ({List<Question> questions, Map<String, List<int>> cardsBefore})
+  interleaved() {
+    final byId = {for (final q in questions) q.id: q};
+    final order = <Question>[];
+    final cardsBefore = <String, List<int>>{};
+    var waiting = <int>[];
+    for (final (i, card) in cards.indexed) {
+      waiting.add(i);
+      final checks = [
+        for (final id in card.check)
+          if (byId[id] case final q? when !order.contains(q)) q,
+      ];
+      if (checks.isEmpty) continue;
+      cardsBefore[checks.first.id] = waiting;
+      waiting = [];
+      order.addAll(checks);
+    }
+    final rest = [
+      for (final q in questions)
+        if (!order.contains(q)) q,
+    ];
+    if (waiting.isNotEmpty) {
+      // Cards still to show go before the remaining questions, or before
+      // the last question when every question has been placed.
+      final target = rest.isNotEmpty
+          ? rest.first
+          : order.isNotEmpty
+          ? order.last
+          : null;
+      if (target != null) {
+        cardsBefore[target.id] = [...?cardsBefore[target.id], ...waiting]
+          ..sort();
+      }
+    }
+    return (questions: [...order, ...rest], cardsBefore: cardsBefore);
+  }
 }
 
 @immutable

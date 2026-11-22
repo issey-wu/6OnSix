@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:six_on_six/app/app.dart';
 import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/core/data/in_memory_progress_repository.dart';
+import 'package:six_on_six/core/domain/tips.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 import 'package:six_on_six/features/learning_path/presentation/home_screen.dart';
 import 'package:six_on_six/features/welcome/presentation/welcome_screen.dart';
@@ -39,10 +40,25 @@ void main() {
     expect(find.text('Welcome to the court'), findsOneWidget);
   });
 
+  testWidgets('a returning player can skip the tutorial after confirming', (
+    tester,
+  ) async {
+    await pumpApp(tester, const StoredState());
+    await tester.tap(find.byKey(const ValueKey('skip-tutorial')));
+    await tester.pumpAndSettle();
+    expect(find.text('Skip the tutorial?'), findsOneWidget);
+    await tester.tap(find.text('Skip tutorial'));
+    await tester.pumpAndSettle();
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byKey(const ValueKey('tips-ok')), findsNothing);
+  });
+
   testWidgets('a returning learner opens on the learning path', (tester) async {
     await pumpApp(
       tester,
-      const StoredState(settings: AppSettings(welcomeSeen: true)),
+      const StoredState(
+        settings: AppSettings(welcomeSeen: true, tipsSeen: Tips.all),
+      ),
     );
     expect(find.byType(HomeScreen), findsOneWidget);
     expect(find.text('6 On Six'), findsOneWidget);
@@ -57,7 +73,9 @@ void main() {
   ) async {
     await pumpApp(
       tester,
-      const StoredState(settings: AppSettings(welcomeSeen: true)),
+      const StoredState(
+        settings: AppSettings(welcomeSeen: true, tipsSeen: Tips.all),
+      ),
     );
     await tester.tap(find.text('Glossary'));
     await tester.pumpAndSettle();

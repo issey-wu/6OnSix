@@ -6,6 +6,7 @@ import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/router.dart';
 import 'package:six_on_six/core/data/in_memory_progress_repository.dart';
 import 'package:six_on_six/core/domain/avatar.dart';
+import 'package:six_on_six/core/domain/tips.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 import 'package:six_on_six/core/ui/avatar_view.dart';
 
@@ -15,7 +16,9 @@ Future<ProviderContainer> _pump(WidgetTester tester) async {
   addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
   tester.view.physicalSize = const Size(2400, 4800);
   addTearDown(tester.view.resetPhysicalSize);
-  const state = StoredState(settings: AppSettings(welcomeSeen: true));
+  const state = StoredState(
+    settings: AppSettings(welcomeSeen: true, tipsSeen: Tips.all),
+  );
   final container = ProviderContainer(
     overrides: [
       initialStateProvider.overrideWithValue(state),

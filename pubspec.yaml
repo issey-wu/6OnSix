@@ -63,6 +63,7 @@ flutter:
   assets:
     - assets/content/
     - assets/images/
+    - assets/images/ace/
     - assets/sounds/
 
   # Nunito, bundled so the app looks the same offline. SIL Open Font

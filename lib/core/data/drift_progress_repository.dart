@@ -88,6 +88,10 @@ class DriftProgressRepository implements ProgressRepository {
         soundOn: settings.soundOn,
         hapticsOn: settings.hapticsOn,
         welcomeSeen: settings.welcomeSeen,
+        tipsSeen: {
+          for (final id in settings.tipsSeen.split(','))
+            if (id.isNotEmpty) id,
+        },
       ),
       answerStats: const AnswerStats().withResults([
         for (final a in answers) (a.questionId, a.correct),
@@ -245,6 +249,7 @@ class DriftProgressRepository implements ProgressRepository {
         soundOn: Value(settings.soundOn),
         hapticsOn: Value(settings.hapticsOn),
         welcomeSeen: Value(settings.welcomeSeen),
+        tipsSeen: Value((settings.tipsSeen.toList()..sort()).join(',')),
         updatedAt: Value(_clock.now()),
       ),
     );

@@ -8,7 +8,9 @@ import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/domain/league.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
+import 'package:six_on_six/core/ui/ace.dart';
 import 'package:six_on_six/core/ui/dialogs.dart';
+import 'package:six_on_six/features/profile/presentation/jump_sheet.dart';
 
 /// App version shown under About. Keep in step with pubspec.yaml.
 const appVersion = '0.2.0';
@@ -83,6 +85,16 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => unawaited(context.push('/goal')),
           ),
           ListTile(
+            key: const ValueKey('replay-tips'),
+            leading: const Icon(Icons.tips_and_updates_outlined),
+            title: const Text('Replay the tutorial'),
+            subtitle: const Text("Ace's tips show again on each screen"),
+            onTap: () {
+              ref.read(settingsProvider.notifier).replayTips();
+              context.go('/learn');
+            },
+          ),
+          ListTile(
             title: Text(
               'Reset progress',
               style: TextStyle(
@@ -99,7 +111,12 @@ class SettingsScreen extends ConsumerWidget {
                     "This can't be undone.",
                 stay: 'Keep my progress',
                 action: 'Reset progress',
-                icon: Icons.restart_alt_rounded,
+                art: const Ace(
+                  height: 110,
+                  action: AceAction.sad,
+                  mood: AceMood.sad,
+                  semanticLabel: 'Ace the eagle, looking sad',
+                ),
               );
               if (confirmed) {
                 ref.read(progressProvider.notifier).reset();
@@ -171,12 +188,7 @@ class _DeveloperMenu extends ConsumerWidget {
           title: const Text('Jump to any lesson'),
           onTap: () => unawaited(_jump(context, ref)),
         ),
-        ListTile(
-          leading: const Icon(Icons.ac_unit),
-          title: const Text('Give a streak freeze'),
-          subtitle: Text('Holding ${ref.watch(motivationProvider).freezes}'),
-          onTap: ref.read(motivationProvider.notifier).giveFreeze,
-        ),
+        _FreezeTile(freezes: ref.watch(motivationProvider).freezes),
         ListTile(
           key: const ValueKey('end-league-week'),
           leading: const Icon(Icons.leaderboard_outlined),
@@ -206,7 +218,7 @@ class _DeveloperMenu extends ConsumerWidget {
     final settings = ref.read(settingsProvider);
     ref
         .read(settingsProvider.notifier)
-        .update(settings.copyWith(welcomeSeen: false));
+        .update(settings.copyWith(welcomeSeen: false, tipsSeen: const {}));
     ref.read(clockShiftProvider.notifier).reset();
     context.go('/welcome');
   }
@@ -215,21 +227,49 @@ class _DeveloperMenu extends ConsumerWidget {
     final course = ref.read(courseProvider).value;
     if (course == null) return;
     final router = GoRouter.of(context);
-    final nodeId = await showDialog<String>(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: const Text('Jump to'),
+    final nodeId = await showJumpSheet(
+      context,
+      course: course,
+      progress: ref.read(progressProvider),
+    );
+    if (nodeId != null) unawaited(router.push('/lesson/$nodeId'));
+  }
+}
+
+/// Streak freezes held, with buttons to take one back or give one more.
+class _FreezeTile extends ConsumerWidget {
+  const new({required this.freezes});
+
+  final int freezes;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(motivationProvider.notifier);
+    return ListTile(
+      leading: const Icon(Icons.ac_unit),
+      title: const Text('Streak freezes'),
+      subtitle: Text('Holding $freezes of $maxStreakFreezes'),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          for (final (index, unit) in course.units.indexed)
-            for (final node in course.path.where((n) => n.unit == unit))
-              SimpleDialogOption(
-                onPressed: () => Navigator.pop(context, node.id),
-                child: Text('Unit ${index + 1} · ${node.title}'),
-              ),
+          IconButton.outlined(
+            key: const ValueKey('take-freeze'),
+            tooltip: 'Take a streak freeze back',
+            onPressed: freezes > 0 ? controller.takeFreeze : null,
+            icon: const Icon(Icons.remove),
+          ),
+          const SizedBox(width: 4),
+          IconButton.outlined(
+            key: const ValueKey('give-freeze'),
+            tooltip: 'Give a streak freeze',
+            onPressed: freezes < maxStreakFreezes
+                ? controller.giveFreeze
+                : null,
+            icon: const Icon(Icons.add),
+          ),
         ],
       ),
     );
-    if (nodeId != null) unawaited(router.push('/lesson/$nodeId'));
   }
 }
 

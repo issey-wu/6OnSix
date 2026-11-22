@@ -6,6 +6,7 @@ import 'package:six_on_six/core/ui/motion.dart';
 /// bottom in the app's style. The safe choice is the big button; the
 /// [action] (such as Quit or Reset) is the smaller one below it, in red when
 /// [destructive]. Returns true only when the learner picks [action].
+/// [art], such as Ace looking sad, replaces the round [icon] badge.
 Future<bool> confirmSheet(
   BuildContext context, {
   required String title,
@@ -13,11 +14,14 @@ Future<bool> confirmSheet(
   required String action,
   String stay = 'Cancel',
   IconData icon = Icons.help_outline_rounded,
+  Widget? art,
   bool destructive = true,
 }) async {
   final result = await showModalBottomSheet<bool>(
     context: context,
     useSafeArea: true,
+    // Lets the sheet grow past half the screen when Ace is on it.
+    isScrollControlled: true,
     builder: (context) {
       final tokens = AppTokens.of(context);
       final text = Theme.of(context).textTheme;
@@ -27,7 +31,11 @@ Future<bool> confirmSheet(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            PopIn(scale: true, offset: 0, child: _Badge(icon: icon)),
+            PopIn(
+              scale: true,
+              offset: 0,
+              child: art == null ? _Badge(icon: icon) : Center(child: art),
+            ),
             const SizedBox(height: 16),
             Text(
               title,

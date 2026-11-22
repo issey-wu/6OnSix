@@ -6,6 +6,7 @@ import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/router.dart';
 import 'package:six_on_six/core/data/in_memory_progress_repository.dart';
 import 'package:six_on_six/core/domain/league.dart';
+import 'package:six_on_six/core/domain/tips.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 
 import '../../support/fake_clock.dart';
@@ -23,7 +24,7 @@ Future<ProviderContainer> _pump(
   tester.view.physicalSize = const Size(2400, 7200);
   addTearDown(tester.view.resetPhysicalSize);
   final state = StoredState(
-    settings: const AppSettings(welcomeSeen: true),
+    settings: const AppSettings(welcomeSeen: true, tipsSeen: Tips.all),
     league: league,
   );
   final container = ProviderContainer(
@@ -110,5 +111,31 @@ void main() {
     expect(find.text('Demo community player'), findsOneWidget);
     expect(find.text('Recent lessons'), findsOneWidget);
     expect(find.text(friend.division.label), findsOneWidget);
+  });
+
+  testWidgets('tapping a badge gives a sneak peek at that league', (
+    tester,
+  ) async {
+    await _pump(tester);
+    expect(find.text('Tap a badge to peek at a league'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('peek-olympic')));
+    await tester.pumpAndSettle();
+    expect(find.text('Olympic League'), findsOneWidget);
+    expect(find.textContaining('Locked'), findsOneWidget);
+    expect(find.text('The top league. Nowhere left to climb.'), findsOneWidget);
+    expect(
+      find.text('Move up 6 leagues from Rec League to get here.'),
+      findsOneWidget,
+    );
+    expect(find.text('Top of a typical week'), findsOneWidget);
+
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('peek-house')));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Finish in the top 10 of Rec League to get here.'),
+      findsOneWidget,
+    );
   });
 }

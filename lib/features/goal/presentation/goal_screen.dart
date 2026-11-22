@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
+import 'package:six_on_six/core/ui/ace.dart';
+import 'package:six_on_six/core/ui/ace_lines.dart';
 import 'package:six_on_six/core/ui/components.dart';
 
 /// Picks a daily goal (shown as minutes a day) and a streak to commit to.
@@ -55,14 +57,13 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
               children: [
                 Semantics(
                   header: true,
-                  child: Text(
-                    'How much time a day?',
-                    style: text.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                  child: const AceSays(
+                    text: aceGoalQuestion,
+                    aceHeight: 110,
+                    bubbleWidth: 210,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 12),
                 Text(
                   'A few minutes every day builds the habit. You can change '
                   'this any time in Settings.',
