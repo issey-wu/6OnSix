@@ -192,6 +192,9 @@ void main() {
     await old.customStatement(
       'ALTER TABLE user_extras DROP COLUMN league_json',
     );
+    await old.customStatement(
+      'ALTER TABLE user_settings DROP COLUMN tips_seen',
+    );
     await old.customStatement('PRAGMA user_version = 2');
     await old.close();
 
@@ -209,6 +212,15 @@ void main() {
     final reloaded = await after.load();
     expect(reloaded.avatar?.number, 9);
     expect(reloaded.league.division, Division.club);
+    expect(reloaded.settings.tipsSeen, isEmpty);
+  });
+
+  test('the tips already seen survive a restart', () async {
+    await repo().saveSettings(
+      const AppSettings(tipsSeen: {'lesson.answer', 'home.path'}),
+    );
+    final loaded = (await repo().load()).settings;
+    expect(loaded.tipsSeen, {'lesson.answer', 'home.path'});
   });
 
   test('the league survives a restart', () async {

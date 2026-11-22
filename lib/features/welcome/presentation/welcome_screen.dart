@@ -5,6 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
+import 'package:six_on_six/app/tips.dart';
+import 'package:six_on_six/core/domain/tips.dart';
+import 'package:six_on_six/core/ui/ace.dart';
+import 'package:six_on_six/core/ui/ace_lines.dart';
 import 'package:six_on_six/core/ui/motion.dart';
 
 /// The app icon artwork, a flaming volleyball by Yash Dubey.
@@ -28,54 +32,56 @@ class WelcomeScreen extends ConsumerWidget {
           child: Column(
             children: [
               const Spacer(),
-              PopIn(
+              const PopIn(
                 scale: true,
-                duration: const Duration(milliseconds: 600),
-                child: Bob(
-                  child: Semantics(
-                    image: true,
-                    label: '6 On Six logo, a flaming volleyball',
-                    child: Container(
-                      width: 148,
-                      height: 148,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(34),
-                        boxShadow: [
-                          BoxShadow(
-                            color: tokens.brandRed.withValues(alpha: 0.22),
-                            blurRadius: 30,
-                            offset: const Offset(0, 12),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(34),
-                        child: Image.asset(appLogoAsset, fit: BoxFit.cover),
-                      ),
-                    ),
-                  ),
+                duration: Duration(milliseconds: 600),
+                child: AceSays(
+                  text: aceHello,
+                  action: AceAction.wave,
+                  aceHeight: 200,
+                  bubbleWidth: 300,
+                  above: true,
                 ),
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: 24),
               PopIn(
                 delay: const Duration(milliseconds: 200),
-                child: Semantics(
-                  header: true,
-                  child: Text.rich(
-                    TextSpan(
-                      text: '6 On ',
-                      children: [
-                        TextSpan(
-                          text: 'Six',
-                          style: TextStyle(color: tokens.brandOrange),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Semantics(
+                      image: true,
+                      label: '6 On Six logo, a flaming volleyball',
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset(
+                          appLogoAsset,
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
                         ),
-                      ],
+                      ),
                     ),
-                    style: text.displaySmall?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      color: tokens.brandRed,
+                    const SizedBox(width: 12),
+                    Semantics(
+                      header: true,
+                      child: Text.rich(
+                        TextSpan(
+                          text: '6 On ',
+                          children: [
+                            TextSpan(
+                              text: 'Six',
+                              style: TextStyle(color: tokens.brandOrange),
+                            ),
+                          ],
+                        ),
+                        style: text.displaySmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: tokens.brandRed,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
               const SizedBox(height: 8),
@@ -116,6 +122,29 @@ class WelcomeScreen extends ConsumerWidget {
                         },
                   child: const Text('Get started'),
                 ),
+              ),
+              const SizedBox(height: 4),
+              TextButton(
+                key: const ValueKey('skip-tutorial'),
+                style: TextButton.styleFrom(
+                  minimumSize: const Size.fromHeight(44),
+                ),
+                onPressed: course == null
+                    ? null
+                    : () async {
+                        if (!await confirmSkipTutorial(context)) return;
+                        final settings = ref.read(settingsProvider);
+                        ref
+                            .read(settingsProvider.notifier)
+                            .update(
+                              settings.copyWith(
+                                welcomeSeen: true,
+                                tipsSeen: Tips.all,
+                              ),
+                            );
+                        if (context.mounted) context.go('/learn');
+                      },
+                child: const Text("I've played before. Skip the tutorial"),
               ),
             ],
           ),

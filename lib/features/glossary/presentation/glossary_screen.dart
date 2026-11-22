@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
+import 'package:six_on_six/app/tips.dart';
 import 'package:six_on_six/core/domain/course.dart';
+import 'package:six_on_six/core/domain/tips.dart';
 
 /// Filters terms by name or definition, ignoring case. Kept separate from
 /// the widget so it can be tested on its own.
@@ -22,6 +24,9 @@ List<GlossaryTerm> searchGlossary(List<GlossaryTerm> terms, String query) {
 
 /// The Glossary tab: search, then an A to Z list grouped by first letter.
 /// Every term is available from the start.
+/// What the first-run tip on this screen points at.
+final GlobalKey _searchTipKey = GlobalKey(debugLabel: 'glossary search');
+
 class GlossaryScreen extends ConsumerStatefulWidget {
   const new({super.key});
 
@@ -84,60 +89,71 @@ class _GlossaryScreenState extends ConsumerState<GlossaryScreen> {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Glossary')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-            child: TextField(
-              controller: _search,
-              onChanged: (value) => setState(() => _query = value),
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                hintText: 'Search terms',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _query.isEmpty
-                    ? null
-                    : IconButton(
-                        tooltip: 'Clear search',
-                        icon: const Icon(Icons.close),
-                        onPressed: () => setState(() {
-                          _search.clear();
-                          _query = '';
-                        }),
-                      ),
-                filled: true,
-                fillColor: Theme.of(context).colorScheme.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: tokens.surfaceMuted),
+    return TipsOnArrival(
+      path: '/glossary',
+      tips: [
+        Tip(
+          Tips.glossary,
+          _searchTipKey,
+          "Heard a word you don't know? Look up any volleyball term here.",
+        ),
+      ],
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Glossary')),
+        body: Column(
+          children: [
+            Padding(
+              key: _searchTipKey,
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              child: TextField(
+                controller: _search,
+                onChanged: (value) => setState(() => _query = value),
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  hintText: 'Search terms',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: _query.isEmpty
+                      ? null
+                      : IconButton(
+                          tooltip: 'Clear search',
+                          icon: const Icon(Icons.close),
+                          onPressed: () => setState(() {
+                            _search.clear();
+                            _query = '';
+                          }),
+                        ),
+                  filled: true,
+                  fillColor: Theme.of(context).colorScheme.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide(color: tokens.surfaceMuted),
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: course == null
-                ? const Center(child: CircularProgressIndicator())
-                : terms.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      'No terms match "${_query.trim()}". '
-                      'Try a different word.',
-                      textAlign: TextAlign.center,
-                      style: text.bodyLarge?.copyWith(
-                        color: tokens.textSecondary,
+            Expanded(
+              child: course == null
+                  ? const Center(child: CircularProgressIndicator())
+                  : terms.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        'No terms match "${_query.trim()}". '
+                        'Try a different word.',
+                        textAlign: TextAlign.center,
+                        style: text.bodyLarge?.copyWith(
+                          color: tokens.textSecondary,
+                        ),
                       ),
+                    )
+                  : ListView(
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      children: rows,
                     ),
-                  )
-                : ListView(
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    children: rows,
-                  ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

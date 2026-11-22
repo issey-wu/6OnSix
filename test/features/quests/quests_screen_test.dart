@@ -7,7 +7,9 @@ import 'package:six_on_six/app/router.dart';
 import 'package:six_on_six/core/data/in_memory_progress_repository.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
+import 'package:six_on_six/core/domain/tips.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
+import 'package:six_on_six/core/ui/ace_lines.dart';
 
 import '../../support/fake_clock.dart';
 
@@ -65,7 +67,7 @@ void main() {
     final container = await _pump(
       tester,
       StoredState(
-        settings: const AppSettings(welcomeSeen: true),
+        settings: const AppSettings(welcomeSeen: true, tipsSeen: Tips.all),
         progress: const Progress(xp: 100),
         motivation: busyDay,
       ),
@@ -92,7 +94,7 @@ void main() {
     await _pump(
       tester,
       const StoredState(
-        settings: AppSettings(welcomeSeen: true),
+        settings: AppSettings(welcomeSeen: true, tipsSeen: Tips.all),
         motivation: MotivationState(goalChosen: true),
       ),
     );
@@ -106,11 +108,13 @@ void main() {
   ) async {
     final container = await _pump(
       tester,
-      const StoredState(settings: AppSettings(welcomeSeen: true)),
+      const StoredState(
+        settings: AppSettings(welcomeSeen: true, tipsSeen: Tips.all),
+      ),
     );
     container.read(routerProvider).go('/goal');
     await tester.pumpAndSettle();
-    expect(find.text('How much time a day?'), findsOneWidget);
+    expect(find.text(aceGoalQuestion), findsOneWidget);
 
     await _tap(tester, find.byKey(const ValueKey('goal-serious')));
     await _tap(tester, find.text('30 days'));

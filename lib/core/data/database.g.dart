@@ -1595,6 +1595,18 @@ class $UserSettingsTable extends UserSettings
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _tipsSeenMeta = const VerificationMeta(
+    'tipsSeen',
+  );
+  @override
+  late final GeneratedColumn<String> tipsSeen = GeneratedColumn<String>(
+    'tips_seen',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -1613,6 +1625,7 @@ class $UserSettingsTable extends UserSettings
     soundOn,
     hapticsOn,
     welcomeSeen,
+    tipsSeen,
     updatedAt,
   ];
   @override
@@ -1662,6 +1675,12 @@ class $UserSettingsTable extends UserSettings
         ),
       );
     }
+    if (data.containsKey('tips_seen')) {
+      context.handle(
+        _tipsSeenMeta,
+        tipsSeen.isAcceptableOrUnknown(data['tips_seen']!, _tipsSeenMeta),
+      );
+    }
     if (data.containsKey('updated_at')) {
       context.handle(
         _updatedAtMeta,
@@ -1699,6 +1718,10 @@ class $UserSettingsTable extends UserSettings
         DriftSqlType.bool,
         data['${effectivePrefix}welcome_seen'],
       )!,
+      tipsSeen: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tips_seen'],
+      )!,
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
@@ -1718,6 +1741,10 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
   final bool soundOn;
   final bool hapticsOn;
   final bool welcomeSeen;
+
+  /// First-run tips already shown, as ids separated by commas (schema
+  /// version 5).
+  final String tipsSeen;
   final DateTime updatedAt;
   const UserSettingsRow({
     required this.userId,
@@ -1725,6 +1752,7 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
     required this.soundOn,
     required this.hapticsOn,
     required this.welcomeSeen,
+    required this.tipsSeen,
     required this.updatedAt,
   });
   @override
@@ -1735,6 +1763,7 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
     map['sound_on'] = Variable<bool>(soundOn);
     map['haptics_on'] = Variable<bool>(hapticsOn);
     map['welcome_seen'] = Variable<bool>(welcomeSeen);
+    map['tips_seen'] = Variable<String>(tipsSeen);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
@@ -1746,6 +1775,7 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
       soundOn: Value(soundOn),
       hapticsOn: Value(hapticsOn),
       welcomeSeen: Value(welcomeSeen),
+      tipsSeen: Value(tipsSeen),
       updatedAt: Value(updatedAt),
     );
   }
@@ -1761,6 +1791,7 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
       soundOn: serializer.fromJson<bool>(json['soundOn']),
       hapticsOn: serializer.fromJson<bool>(json['hapticsOn']),
       welcomeSeen: serializer.fromJson<bool>(json['welcomeSeen']),
+      tipsSeen: serializer.fromJson<String>(json['tipsSeen']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
@@ -1773,6 +1804,7 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
       'soundOn': serializer.toJson<bool>(soundOn),
       'hapticsOn': serializer.toJson<bool>(hapticsOn),
       'welcomeSeen': serializer.toJson<bool>(welcomeSeen),
+      'tipsSeen': serializer.toJson<String>(tipsSeen),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
@@ -1783,6 +1815,7 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
     bool? soundOn,
     bool? hapticsOn,
     bool? welcomeSeen,
+    String? tipsSeen,
     DateTime? updatedAt,
   }) => UserSettingsRow(
     userId: userId ?? this.userId,
@@ -1790,6 +1823,7 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
     soundOn: soundOn ?? this.soundOn,
     hapticsOn: hapticsOn ?? this.hapticsOn,
     welcomeSeen: welcomeSeen ?? this.welcomeSeen,
+    tipsSeen: tipsSeen ?? this.tipsSeen,
     updatedAt: updatedAt ?? this.updatedAt,
   );
   UserSettingsRow copyWithCompanion(UserSettingsCompanion data) {
@@ -1801,6 +1835,7 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
       welcomeSeen: data.welcomeSeen.present
           ? data.welcomeSeen.value
           : this.welcomeSeen,
+      tipsSeen: data.tipsSeen.present ? data.tipsSeen.value : this.tipsSeen,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
@@ -1813,14 +1848,22 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
           ..write('soundOn: $soundOn, ')
           ..write('hapticsOn: $hapticsOn, ')
           ..write('welcomeSeen: $welcomeSeen, ')
+          ..write('tipsSeen: $tipsSeen, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(userId, theme, soundOn, hapticsOn, welcomeSeen, updatedAt);
+  int get hashCode => Object.hash(
+    userId,
+    theme,
+    soundOn,
+    hapticsOn,
+    welcomeSeen,
+    tipsSeen,
+    updatedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1830,6 +1873,7 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
           other.soundOn == this.soundOn &&
           other.hapticsOn == this.hapticsOn &&
           other.welcomeSeen == this.welcomeSeen &&
+          other.tipsSeen == this.tipsSeen &&
           other.updatedAt == this.updatedAt);
 }
 
@@ -1839,6 +1883,7 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
   final Value<bool> soundOn;
   final Value<bool> hapticsOn;
   final Value<bool> welcomeSeen;
+  final Value<String> tipsSeen;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
   const UserSettingsCompanion({
@@ -1847,6 +1892,7 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
     this.soundOn = const Value.absent(),
     this.hapticsOn = const Value.absent(),
     this.welcomeSeen = const Value.absent(),
+    this.tipsSeen = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1856,6 +1902,7 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
     this.soundOn = const Value.absent(),
     this.hapticsOn = const Value.absent(),
     this.welcomeSeen = const Value.absent(),
+    this.tipsSeen = const Value.absent(),
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
   }) : userId = Value(userId),
@@ -1866,6 +1913,7 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
     Expression<bool>? soundOn,
     Expression<bool>? hapticsOn,
     Expression<bool>? welcomeSeen,
+    Expression<String>? tipsSeen,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
   }) {
@@ -1875,6 +1923,7 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
       if (soundOn != null) 'sound_on': soundOn,
       if (hapticsOn != null) 'haptics_on': hapticsOn,
       if (welcomeSeen != null) 'welcome_seen': welcomeSeen,
+      if (tipsSeen != null) 'tips_seen': tipsSeen,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1886,6 +1935,7 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
     Value<bool>? soundOn,
     Value<bool>? hapticsOn,
     Value<bool>? welcomeSeen,
+    Value<String>? tipsSeen,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
   }) {
@@ -1895,6 +1945,7 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
       soundOn: soundOn ?? this.soundOn,
       hapticsOn: hapticsOn ?? this.hapticsOn,
       welcomeSeen: welcomeSeen ?? this.welcomeSeen,
+      tipsSeen: tipsSeen ?? this.tipsSeen,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -1918,6 +1969,9 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
     if (welcomeSeen.present) {
       map['welcome_seen'] = Variable<bool>(welcomeSeen.value);
     }
+    if (tipsSeen.present) {
+      map['tips_seen'] = Variable<String>(tipsSeen.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -1935,6 +1989,7 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
           ..write('soundOn: $soundOn, ')
           ..write('hapticsOn: $hapticsOn, ')
           ..write('welcomeSeen: $welcomeSeen, ')
+          ..write('tipsSeen: $tipsSeen, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -4014,6 +4069,7 @@ typedef $$UserSettingsTableCreateCompanionBuilder =
       Value<bool> soundOn,
       Value<bool> hapticsOn,
       Value<bool> welcomeSeen,
+      Value<String> tipsSeen,
       required DateTime updatedAt,
       Value<int> rowid,
     });
@@ -4024,6 +4080,7 @@ typedef $$UserSettingsTableUpdateCompanionBuilder =
       Value<bool> soundOn,
       Value<bool> hapticsOn,
       Value<bool> welcomeSeen,
+      Value<String> tipsSeen,
       Value<DateTime> updatedAt,
       Value<int> rowid,
     });
@@ -4076,6 +4133,11 @@ class $$UserSettingsTableFilterComposer
 
   ColumnFilters<bool> get welcomeSeen => $composableBuilder(
     column: $table.welcomeSeen,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tipsSeen => $composableBuilder(
+    column: $table.tipsSeen,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4137,6 +4199,11 @@ class $$UserSettingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get tipsSeen => $composableBuilder(
+    column: $table.tipsSeen,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -4188,6 +4255,9 @@ class $$UserSettingsTableAnnotationComposer
     column: $table.welcomeSeen,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get tipsSeen =>
+      $composableBuilder(column: $table.tipsSeen, builder: (column) => column);
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
@@ -4249,6 +4319,7 @@ class $$UserSettingsTableTableManager
                 Value<bool> soundOn = const Value.absent(),
                 Value<bool> hapticsOn = const Value.absent(),
                 Value<bool> welcomeSeen = const Value.absent(),
+                Value<String> tipsSeen = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => UserSettingsCompanion(
@@ -4257,6 +4328,7 @@ class $$UserSettingsTableTableManager
                 soundOn: soundOn,
                 hapticsOn: hapticsOn,
                 welcomeSeen: welcomeSeen,
+                tipsSeen: tipsSeen,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),
@@ -4267,6 +4339,7 @@ class $$UserSettingsTableTableManager
                 Value<bool> soundOn = const Value.absent(),
                 Value<bool> hapticsOn = const Value.absent(),
                 Value<bool> welcomeSeen = const Value.absent(),
+                Value<String> tipsSeen = const Value.absent(),
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
               }) => UserSettingsCompanion.insert(
@@ -4275,6 +4348,7 @@ class $$UserSettingsTableTableManager
                 soundOn: soundOn,
                 hapticsOn: hapticsOn,
                 welcomeSeen: welcomeSeen,
+                tipsSeen: tipsSeen,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),

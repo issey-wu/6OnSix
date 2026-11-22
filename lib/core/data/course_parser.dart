@@ -44,6 +44,10 @@ Lesson _lesson(Map<String, Object?> json) => Lesson(
         title: _string(_map(c), 'title'),
         body: _string(_map(c), 'body'),
         diagram: _map(c)['diagram'] as String?,
+        check: [
+          for (final id in (_map(c)['check'] as List<Object?>?) ?? const [])
+            id! as String,
+        ],
       ),
   ],
   questions: [for (final q in _list(json, 'questions')) _question(_map(q))],

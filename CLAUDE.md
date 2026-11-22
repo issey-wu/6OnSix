@@ -101,7 +101,7 @@ These keep a future online sync cheap to add.
 ## Design principles
 
 - One control per action. For example, never show a Back button and an X button that do the same thing.
-- No tutorials or pop-over hints. The welcome screen leads straight into Lesson 1.1, and every interaction must be self-explanatory.
+- The welcome screen leads straight into Lesson 1.1, and every interaction must still be self-explanatory. The only guide is the first-run tips (`lib/core/ui/coach_mark.dart`): each shows once, darkens the screen around one part, can be skipped, and tapping the lit-up part uses it, so a tip never costs an extra tap.
 - All colours come from the theme tokens in `docs/design.md`. Never hard-code colours.
 - Light (Flame Court) and dark (Flame Court Night) themes. The app follows the system setting by default.
 

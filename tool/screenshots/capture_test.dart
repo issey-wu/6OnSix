@@ -19,7 +19,9 @@ import 'package:six_on_six/core/domain/course.dart';
 import 'package:six_on_six/core/domain/league.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
+import 'package:six_on_six/core/domain/tips.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
+import 'package:six_on_six/core/ui/ace.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
 import 'package:six_on_six/features/welcome/presentation/welcome_screen.dart';
 
@@ -44,7 +46,7 @@ Future<void> _loadFonts() async {
 
 final _returning = StoredState(
   name: 'Issey',
-  settings: const AppSettings(welcomeSeen: true),
+  settings: const AppSettings(welcomeSeen: true, tipsSeen: Tips.all),
   progress: const Progress()
       .complete(
         nodeId: 'u1.l1',
@@ -87,6 +89,13 @@ Future<ProviderContainer> _pumpApp(
     UncontrolledProviderScope(container: container, child: const SixOnSixApp()),
   );
   await tester.pumpAndSettle();
+  // Ace's parts decode outside the test's fake clock.
+  await tester.runAsync(() async {
+    final context = tester.element(find.byType(SixOnSixApp));
+    for (final asset in aceAssets) {
+      await precacheImage(AssetImage(asset), context);
+    }
+  });
   return container;
 }
 
@@ -113,9 +122,29 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 Future<void> _continue(WidgetTester tester) =>
     _tap(tester, find.text('Continue').last);
 
-/// Taps through every teaching card to the first question.
-Future<void> _throughCards(WidgetTester tester, Lesson lesson) async {
-  for (var i = 0; i < lesson.cards.length; i++) {
+/// The question of [lesson] on screen now, if any.
+Question? _shownQuestion(Lesson lesson) => lesson.questions
+    .where((q) => find.text(q.prompt).evaluate().isNotEmpty)
+    .firstOrNull;
+
+/// Plays on through [lesson]: Continue on each card, every question
+/// answered right (or by [onQuestion]), until [until] is on screen or the
+/// lesson is complete.
+Future<void> _play(
+  WidgetTester tester,
+  Lesson lesson, {
+  Finder? until,
+  Future<void> Function(Question q)? onQuestion,
+}) async {
+  for (var step = 0; step < 60; step++) {
+    if (until != null && until.evaluate().isNotEmpty) return;
+    if (find.text('Lesson complete!').evaluate().isNotEmpty) return;
+    final q = _shownQuestion(lesson);
+    if (q == null) {
+      await _continue(tester);
+      continue;
+    }
+    await (onQuestion ?? (q) => _answer(tester, q))(q);
     await _continue(tester);
   }
 }
@@ -167,6 +196,8 @@ void main() {
   testWidgets('learning path and node card', (tester) async {
     await _pumpApp(tester);
     await _shot(tester, '02_learning_path');
+    await _tap(tester, find.byKey(const ValueKey('path-ace')));
+    await _shot(tester, '39_ace_on_path');
     await _tap(tester, find.byIcon(Icons.play_arrow_rounded));
     await _shot(tester, '03_node_card');
   });
@@ -176,34 +207,49 @@ void main() {
     final lesson = _course().units.first.lessons.first;
     container.read(routerProvider).go('/lesson/${lesson.id}');
     await _shot(tester, '04_teaching_card');
-    await _throughCards(tester, lesson);
+    await _tap(tester, find.byTooltip('Quit lesson'));
+    await _shot(tester, '38_ace_quit');
+    await _tap(tester, find.text('Keep going'));
 
-    // An easy true or false first, then multiple choice.
-    await _answer(tester, lesson.questions[0]);
+    // One card, then straight into a multiple choice question.
     await _continue(tester);
-    final mc = lesson.questions[1];
+    final mc = _shownQuestion(lesson)!;
     await _tap(tester, find.text(mc.answer));
     await _shot(tester, '05_multiple_choice');
     await _tap(tester, find.text('Check'));
     await _shot(tester, '06_correct_feedback');
     await _continue(tester);
 
-    // Third question is tap the zone. The hint numbers one other zone;
-    // then answer it wrong on purpose.
+    // On to the first tap the zone. The hint numbers one other zone; then
+    // answer it wrong on purpose.
+    await _play(tester, lesson, until: find.text('Tap the correct zone'));
+    final zone = _shownQuestion(lesson)!;
     await _tap(tester, find.byKey(const ValueKey('hint')));
     await _shot(tester, '31_tap_zone_hint');
+    final wrong = int.parse(zone.answer) % 6 + 1;
     await _tap(
       tester,
-      find.bySemanticsLabel(RegExp('front left', caseSensitive: false)),
+      find.bySemanticsLabel(
+        RegExp(courtZoneNames[wrong]!, caseSensitive: false),
+      ),
     );
     await _tap(tester, find.text('Check'));
     await _shot(tester, '07_court_wrong_answer');
     await _continue(tester);
 
-    for (final q in [...lesson.questions.skip(3), lesson.questions[2]]) {
-      await _answer(tester, q);
-      await _continue(tester);
-    }
+    final combo = find.bySemanticsLabel(RegExp('^Ace says: (3|Three)'));
+    var comboShot = false;
+    await _play(
+      tester,
+      lesson,
+      onQuestion: (q) async {
+        await _answer(tester, q);
+        if (!comboShot && combo.evaluate().isNotEmpty) {
+          comboShot = true;
+          await _shot(tester, '37_ace_combo');
+        }
+      },
+    );
     await _shot(tester, '08_lesson_complete');
   });
 
@@ -224,9 +270,12 @@ void main() {
       await tester.pumpAndSettle();
       container.read(routerProvider).go('/lesson/$id');
       await tester.pumpAndSettle();
-      for (var i = 0; i < card; i++) {
-        await _continue(tester);
-      }
+      final lessonOf = course.units[unit].lessons[lesson];
+      await _play(
+        tester,
+        lessonOf,
+        until: find.text(lessonOf.cards[card].title),
+      );
       await _shot(tester, name);
     }
   });
@@ -236,19 +285,12 @@ void main() {
     final lesson = _course().units.last.lessons.first;
     container.read(routerProvider).go('/lesson/${lesson.id}');
     await tester.pumpAndSettle();
-    await _throughCards(tester, lesson);
-    final drag = lesson.questions.indexWhere(
-      (q) => q.type == QuestionType.dragDrop,
-    );
-    for (final q in lesson.questions.take(drag)) {
-      await _answer(tester, q);
-      await _continue(tester);
-    }
+    await _play(tester, lesson, until: find.byKey(const ValueKey('token-S')));
     await _tap(tester, find.byKey(const ValueKey('token-S')));
     await _shot(tester, '09_drag_and_drop');
 
     // Answer it wrong to show the correct arrangement in the panel.
-    final q = lesson.questions[drag];
+    final q = _shownQuestion(lesson)!;
     final zones = [for (final t in q.tokens) q.placements[t]!].reversed
         .toList();
     for (final (i, token) in q.tokens.indexed) {
@@ -264,13 +306,11 @@ void main() {
     final lesson = _course().units.first.lessons.first;
     container.read(routerProvider).go('/lesson/${lesson.id}');
     await tester.pumpAndSettle();
-    await _throughCards(tester, lesson);
-    await _answer(tester, lesson.questions[0]);
     await _continue(tester);
     await _tap(tester, find.byKey(const ValueKey('hint')));
     await _shot(tester, '16_hint');
 
-    final first = lesson.questions[1];
+    final first = _shownQuestion(lesson)!;
     final wrong = first.options.firstWhere(
       (o) => o != first.answer && find.text(o).evaluate().isNotEmpty,
     );
@@ -285,7 +325,11 @@ void main() {
     final lesson = _course().units.first.lessons[2];
     container.read(routerProvider).go('/lesson/${lesson.id}');
     await tester.pumpAndSettle();
-    await _throughCards(tester, lesson);
+    await _play(
+      tester,
+      lesson,
+      until: find.text(lesson.questions.first.prompt),
+    );
     await _answer(tester, lesson.questions.first);
     await _tap(tester, find.byKey(const ValueKey('show-me-how')));
     await _shot(tester, '32_show_me_how_rotation');
@@ -296,15 +340,8 @@ void main() {
     final lesson = _course().units.last.lessons.first;
     container.read(routerProvider).go('/lesson/${lesson.id}');
     await tester.pumpAndSettle();
-    await _throughCards(tester, lesson);
-    final drag = lesson.questions.indexWhere(
-      (q) => q.type == QuestionType.dragDrop,
-    );
-    for (final q in lesson.questions.take(drag)) {
-      await _answer(tester, q);
-      await _continue(tester);
-    }
-    await _answer(tester, lesson.questions[drag]);
+    await _play(tester, lesson, until: find.byKey(const ValueKey('token-S')));
+    await _answer(tester, _shownQuestion(lesson)!);
     await _tap(tester, find.byKey(const ValueKey('show-me-how')));
     await _shot(tester, '18_show_me_how_court');
   });
@@ -325,7 +362,7 @@ void main() {
       tester,
       state: StoredState(
         name: 'Issey',
-        settings: const AppSettings(welcomeSeen: true),
+        settings: const AppSettings(welcomeSeen: true, tipsSeen: Tips.all),
         progress: Progress(
           completed: allButFinal,
           xp: 400,
@@ -349,7 +386,7 @@ void main() {
     final local = DateTime.now();
     final state = StoredState(
       name: 'Issey',
-      settings: const AppSettings(welcomeSeen: true),
+      settings: const AppSettings(welcomeSeen: true, tipsSeen: Tips.all),
       progress: _returning.progress,
       motivation: MotivationState(
         goalChosen: true,
@@ -376,9 +413,8 @@ void main() {
     final lesson = _course().units.first.lessons[1];
     container.read(routerProvider).go('/lesson/${lesson.id}');
     await tester.pumpAndSettle();
-    await _continue(tester);
-    await _continue(tester);
     final pairs = lesson.questions.first.pairs;
+    await _play(tester, lesson, until: find.text(pairs[0].left));
     await _tap(tester, find.text(pairs[0].left));
     await _tap(tester, find.text(pairs[0].right));
     await _tap(tester, find.text(pairs[1].left));
@@ -413,7 +449,7 @@ void main() {
     final now = DateTime.now();
     final joined = StoredState(
       name: 'Issey',
-      settings: const AppSettings(welcomeSeen: true),
+      settings: const AppSettings(welcomeSeen: true, tipsSeen: Tips.all),
       avatar: avatarPresets[8],
       league: const LeagueState(division: Division.club).addXp(140, now),
     );
@@ -428,7 +464,7 @@ void main() {
 
     final finished = StoredState(
       name: 'Issey',
-      settings: const AppSettings(welcomeSeen: true),
+      settings: const AppSettings(welcomeSeen: true, tipsSeen: Tips.all),
       avatar: avatarPresets[8],
       league: const LeagueState(division: Division.club)
           .addXp(900, now)
@@ -448,5 +484,76 @@ void main() {
     await _shot(tester, '13_profile_dark');
     await _tap(tester, find.byTooltip('Settings'));
     await _shot(tester, '14_settings_dark');
+  });
+
+  testWidgets('first-run tips in the first lesson', (tester) async {
+    final container = await _pumpApp(tester, state: const StoredState());
+    final lesson = _course().units.first.lessons.first;
+    await _tap(tester, find.text('Get started'));
+    await _shot(tester, '40_first_card');
+    await _continue(tester);
+    await _shot(tester, '41_tip_answer');
+    final mc = _shownQuestion(lesson)!;
+    await tester.tap(find.text(mc.answer));
+    await tester.pumpAndSettle();
+    await _shot(tester, '42_tip_check');
+    await tester.tap(find.text('Check'));
+    await tester.pumpAndSettle();
+    await _shot(tester, '43_tip_show_me_how');
+    await _tap(tester, find.byKey(const ValueKey('tips-ok')));
+    await _continue(tester);
+    await _play(tester, lesson, until: find.byKey(const ValueKey('tips-ok')));
+    await _shot(tester, '44_tip_hint');
+    await _tap(tester, find.byKey(const ValueKey('tips-ok')));
+    // A wrong answer, to meet the mistake tip.
+    final q = _shownQuestion(lesson)!;
+    final wrong = q.type == QuestionType.trueFalse
+        ? (q.answer == 'true' ? 'False' : 'True')
+        : q.options.firstWhere((o) => o != q.answer);
+    await _tap(tester, find.text(wrong));
+    await _tap(tester, find.text('Check'));
+    await _shot(tester, '45_tip_mistake');
+    await _tap(tester, find.byKey(const ValueKey('tips-skip')));
+    await _shot(tester, '46_skip_tutorial');
+    expect(container, isNotNull);
+  });
+
+  testWidgets('first-run tips on the Learn and League tabs', (tester) async {
+    final container = await _pumpApp(
+      tester,
+      state: StoredState(
+        name: 'Issey',
+        settings: const AppSettings(welcomeSeen: true),
+        progress: _returning.progress,
+        motivation: const MotivationState(goalChosen: true),
+      ),
+    );
+    for (final name in [
+      '47_tip_path',
+      '48_tip_streak',
+      '49_tip_goal',
+      '50_tip_tabs',
+    ]) {
+      await _shot(tester, name);
+      await _tap(tester, find.byKey(const ValueKey('tips-ok')));
+    }
+    container.read(routerProvider).go('/league');
+    await _shot(tester, '51_tip_league');
+    await _tap(tester, find.byKey(const ValueKey('tips-ok')));
+    await _tap(tester, find.byKey(const ValueKey('peek-varsity')));
+    await _shot(tester, '52_league_peek');
+  });
+
+  testWidgets('developer menu and jump sheet', (tester) async {
+    final container = await _pumpApp(tester, state: _returning);
+    container.read(routerProvider).go('/profile/settings');
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Start over as a new learner'),
+      300,
+    );
+    await _shot(tester, '53_developer_menu');
+    await _tap(tester, find.text('Jump to any lesson'));
+    await _shot(tester, '54_jump_sheet');
   });
 }

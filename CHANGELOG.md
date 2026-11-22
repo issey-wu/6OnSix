@@ -7,6 +7,39 @@ All notable changes to this project are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added (Round 5: first-run guide and polish)
+- A first-run guide. Ace darkens the screen around one part at a time and
+  explains it: where to answer, Check, Show me how, what happens after a
+  mistake, the hint, then the path, streak, daily goal and tabs, the league
+  ladder, quests and glossary search. Tapping the lit-up part uses it, so the
+  guide never costs an extra tap. Each tip shows once.
+- "Skip tutorial", on every tip and on the welcome screen for returning
+  players, with a confirmation. Settings can replay the tutorial.
+- Lessons now alternate: a card, then the questions it sets up, then the
+  next card. A new learner reaches the first question in two taps.
+- League peek: tap any badge on the ladder to see that league's name, who
+  moves up and down, typical XP and the top of a typical week.
+- Developer menu: a styled sheet for jumping to any lesson, and streak
+  freezes can be taken back as well as given.
+
+### Added (Round 4: Ace the mascot)
+- Ace, an eagle mascot drawn by Yash Dubey, with both wings and three wing
+  shapes. He blinks, breathes and glances around, and waves, cheers, pumps
+  a fist, hops, shrugs or sighs depending on what the learner does. His
+  face changes too: smiling eyes and a grin, a wink, big surprised eyes, or
+  worried brows and a tear. His speech bubbles are short and a bit cheeky.
+- The welcome screen: Ace waves and says hello.
+- Lessons: Ace leans in from the edge of the screen at milestones only (a
+  run of right answers, the first mistake, a second miss in a row, and the
+  last question), then slides back out of sight.
+- Lesson complete: Ace cheers, with a line about the streak or a perfect
+  lesson.
+- The Learn tab: Ace stands beside the next lesson. Tap him for a line about
+  your day.
+- Ace asks the daily goal question, looks sad (with a tear) on the quit and
+  reset sheets, and reacts to league results.
+- With Reduce Motion on, Ace holds still.
+
 ### Added (Round 3: demo community)
 - A League tab. Earning XP joins this week's league with 29 simulated
   players, Monday to Monday. The top players move up a division and the

@@ -14,6 +14,7 @@ class AppSettings {
     this.soundOn = true,
     this.hapticsOn = true,
     this.welcomeSeen = false,
+    this.tipsSeen = const {},
   });
 
   final ThemePreference theme;
@@ -23,16 +24,21 @@ class AppSettings {
   /// False until the learner taps Get started on the welcome screen.
   final bool welcomeSeen;
 
+  /// The first-run tips (coach marks) already shown, by id.
+  final Set<String> tipsSeen;
+
   AppSettings copyWith({
     ThemePreference? theme,
     bool? soundOn,
     bool? hapticsOn,
     bool? welcomeSeen,
+    Set<String>? tipsSeen,
   }) => AppSettings(
     theme: theme ?? this.theme,
     soundOn: soundOn ?? this.soundOn,
     hapticsOn: hapticsOn ?? this.hapticsOn,
     welcomeSeen: welcomeSeen ?? this.welcomeSeen,
+    tipsSeen: tipsSeen ?? this.tipsSeen,
   );
 
   @override
@@ -41,10 +47,18 @@ class AppSettings {
       other.theme == theme &&
       other.soundOn == soundOn &&
       other.hapticsOn == hapticsOn &&
-      other.welcomeSeen == welcomeSeen;
+      other.welcomeSeen == welcomeSeen &&
+      other.tipsSeen.length == tipsSeen.length &&
+      other.tipsSeen.containsAll(tipsSeen);
 
   @override
-  int get hashCode => Object.hash(theme, soundOn, hapticsOn, welcomeSeen);
+  int get hashCode => Object.hash(
+    theme,
+    soundOn,
+    hapticsOn,
+    welcomeSeen,
+    Object.hashAllUnordered(tipsSeen),
+  );
 }
 
 /// One answer given during a lesson, kept for the answer log.

@@ -14,6 +14,7 @@ import 'package:six_on_six/core/domain/league.dart';
 import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
 import 'package:six_on_six/core/domain/progress_repository.dart';
+import 'package:six_on_six/core/domain/tips.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 
 const _logger = AppLogger('providers');
@@ -298,6 +299,9 @@ class MotivationController extends Notifier<MotivationState> {
   void giveFreeze() =>
       _set(state.copyWith(freezes: min(state.freezes + 1, maxStreakFreezes)));
 
+  /// Developer menu: takes a streak freeze back, down to none.
+  void takeFreeze() => _set(state.copyWith(freezes: max(state.freezes - 1, 0)));
+
   void resetStats() => _set(state.resetStats());
 }
 
@@ -397,6 +401,20 @@ class SettingsController extends Notifier<AppSettings> {
       'settings',
     );
   }
+
+  /// True when the first-run tip [id] should still be shown.
+  bool showTip(String id) => !state.tipsSeen.contains(id);
+
+  void tipSeen(String id) {
+    if (state.tipsSeen.contains(id)) return;
+    update(state.copyWith(tipsSeen: {...state.tipsSeen, id}));
+  }
+
+  /// "Skip tutorial": no more tips from now on.
+  void skipTips() => update(state.copyWith(tipsSeen: Tips.all));
+
+  /// Developer menu: shows every tip again.
+  void replayTips() => update(state.copyWith(tipsSeen: const {}));
 }
 
 final nameProvider = NotifierProvider<NameController, String?>(

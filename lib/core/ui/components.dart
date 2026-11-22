@@ -83,6 +83,7 @@ class FeedbackPanel extends StatelessWidget {
     this.note,
     this.extra,
     this.onShowMeHow,
+    this.showMeHowKey,
     super.key,
   });
 
@@ -97,6 +98,9 @@ class FeedbackPanel extends StatelessWidget {
 
   /// Opens the step-by-step explanation. The button is hidden when null.
   final VoidCallback? onShowMeHow;
+
+  /// Lets the first-run guide point at the Show me how button.
+  final GlobalKey? showMeHowKey;
 
   @override
   Widget build(BuildContext context) {
@@ -165,16 +169,19 @@ class FeedbackPanel extends StatelessWidget {
             ],
             const SizedBox(height: 12),
             if (onShowMeHow != null) ...[
-              OutlinedButton.icon(
-                key: const ValueKey('show-me-how'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: fg,
-                  side: BorderSide(color: fg, width: 1.5),
-                  minimumSize: const Size.fromHeight(48),
+              KeyedSubtree(
+                key: showMeHowKey,
+                child: OutlinedButton.icon(
+                  key: const ValueKey('show-me-how'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: fg,
+                    side: BorderSide(color: fg, width: 1.5),
+                    minimumSize: const Size.fromHeight(48),
+                  ),
+                  onPressed: onShowMeHow,
+                  icon: const Icon(Icons.school_outlined),
+                  label: const Text('Show me how'),
                 ),
-                onPressed: onShowMeHow,
-                icon: const Icon(Icons.school_outlined),
-                label: const Text('Show me how'),
               ),
               const SizedBox(height: 8),
             ],
@@ -331,6 +338,10 @@ const List<IconData> _unitSymbols = [
   Icons.groups_rounded,
 ];
 
+/// The symbol for unit [number], counting from 1.
+IconData unitSymbol(int number) =>
+    _unitSymbols[(number - 1) % _unitSymbols.length];
+
 /// A chunky round badge for a unit header, like the path's lesson circles:
 /// the unit's symbol in maroon on volleyball yellow. The final review shows
 /// the app's own logo instead.
@@ -366,11 +377,7 @@ class _UnitBadge extends StatelessWidget {
                 excludeFromSemantics: true,
               ),
             )
-          : Icon(
-              _unitSymbols[(number - 1) % _unitSymbols.length],
-              size: 32,
-              color: tokens.brandRed,
-            ),
+          : Icon(unitSymbol(number), size: 32, color: tokens.brandRed),
     );
   }
 }

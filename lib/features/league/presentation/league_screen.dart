@@ -5,7 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
+import 'package:six_on_six/app/tips.dart';
 import 'package:six_on_six/core/domain/league.dart';
+import 'package:six_on_six/core/domain/tips.dart';
+import 'package:six_on_six/core/ui/ace.dart';
+import 'package:six_on_six/core/ui/ace_lines.dart';
 import 'package:six_on_six/core/ui/avatar_view.dart';
 import 'package:six_on_six/core/ui/components.dart';
 import 'package:six_on_six/core/ui/motion.dart';
@@ -42,6 +46,8 @@ class _LeagueScreenState extends ConsumerState<LeagueScreen> {
 
   /// Closes a finished week, shows its results once, then scrolls the
   /// learner's row into view.
+  final GlobalKey _ladderKey = GlobalKey();
+
   Future<void> _arrive() async {
     if (!mounted) return;
     ref.read(leagueProvider.notifier).settle();
@@ -54,6 +60,22 @@ class _LeagueScreenState extends ConsumerState<LeagueScreen> {
         builder: (context) => _ResultSheet(result: result),
       );
     }
+    if (!mounted) return;
+    await showTips(
+      context,
+      ref,
+      path: '/league',
+      tips: [
+        Tip(
+          Tips.league,
+          _ladderKey,
+          'Finish near the top each week to move up a league. Tap a badge to '
+          'peek at one.',
+          action: AceAction.fistPump,
+          mood: AceMood.cheeky,
+        ),
+      ],
+    );
     if (!mounted) return;
     final duration = motion(context, const Duration(milliseconds: 400));
     final you = _youKey.currentContext;
@@ -84,7 +106,10 @@ class _LeagueScreenState extends ConsumerState<LeagueScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
         children: [
-          _DivisionLadder(current: league.division),
+          KeyedSubtree(
+            key: _ladderKey,
+            child: _DivisionLadder(current: league.division),
+          ),
           const SizedBox(height: 12),
           if (league.joined) ...[
             Text(
@@ -204,27 +229,221 @@ class _DivisionLadder extends StatelessWidget {
   final Division current;
 
   @override
-  Widget build(BuildContext context) => Semantics(
-    label: 'Division ${current.index + 1} of 7: ${current.label}',
-    excludeSemantics: true,
-    child: SizedBox(
-      height: 76,
+  Widget build(BuildContext context) {
+    final tokens = AppTokens.of(context);
+    final text = Theme.of(context).textTheme;
+    return Column(
+      children: [
+        SizedBox(
+          height: 76,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              for (final division in Division.values)
+                Semantics(
+                  button: true,
+                  label:
+                      '${division.title}'
+                      '${division == current ? ', your league' : ''}'
+                      '${division.index > current.index ? ', locked' : ''}. '
+                      'Tap to take a peek.',
+                  excludeSemantics: true,
+                  child: GestureDetector(
+                    key: ValueKey('peek-${division.name}'),
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => unawaited(
+                      showDivisionPeek(context, division, current: current),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      child: DivisionBadge(
+                        division: division,
+                        size: division == current ? 64 : 34,
+                        locked: division.index > current.index,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        ExcludeSemantics(
+          child: Text(
+            'Tap a badge to peek at a league',
+            style: text.bodySmall?.copyWith(color: tokens.textSecondary),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// A sneak peek at [division]: its name and colour, how players move in
+/// and out of it, and the top of a typical week there.
+Future<void> showDivisionPeek(
+  BuildContext context,
+  Division division, {
+  required Division current,
+}) => showModalBottomSheet<void>(
+  context: context,
+  useSafeArea: true,
+  isScrollControlled: true,
+  showDragHandle: true,
+  builder: (context) => _DivisionPeek(division: division, current: current),
+);
+
+class _DivisionPeek extends StatelessWidget {
+  const new({required this.division, required this.current});
+
+  final Division division;
+  final Division current;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = AppTokens.of(context);
+    final text = Theme.of(context).textTheme;
+    final locked = division.index > current.index;
+    final status = division == current
+        ? "You're here"
+        : locked
+        ? 'Locked'
+        : 'Passed';
+    // The same made-up players a league here would start the week with.
+    final top = [...leagueRivals(1, division)]
+      ..sort((a, b) => b.weekXp.compareTo(a.weekXp));
+    Widget fact(IconData icon, String line) => Padding(
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          for (final division in Division.values)
+          Icon(icon, size: 20, color: tokens.textSecondary),
+          const SizedBox(width: 10),
+          Expanded(child: Text(line, style: text.bodyMedium)),
+        ],
+      ),
+    );
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  DivisionBadge(division: division, size: 64),
+                  if (locked)
+                    Positioned(
+                      right: -4,
+                      bottom: -2,
+                      child: CircleAvatar(
+                        radius: 12,
+                        backgroundColor: tokens.surfaceMuted,
+                        child: Icon(
+                          Icons.lock,
+                          size: 14,
+                          color: tokens.textSecondary,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        division.title,
+                        style: text.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      'League ${division.index + 1} of '
+                      '${Division.values.length} · $status',
+                      style: text.bodyMedium?.copyWith(
+                        color: tokens.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          fact(
+            Icons.arrow_upward_rounded,
+            division.promoted == 0
+                ? 'The top league. Nowhere left to climb.'
+                : 'Top ${division.promoted} move up each week.',
+          ),
+          fact(
+            Icons.arrow_downward_rounded,
+            division.demoted == 0
+                ? 'No one moves down from here.'
+                : 'Bottom ${division.demoted} move down.',
+          ),
+          fact(
+            Icons.bolt,
+            'Players here earn about ${division.typicalWeekXp} XP a week.',
+          ),
+          if (locked)
+            fact(
+              Icons.flag_outlined,
+              division.down == current
+                  ? 'Finish in the top ${current.promoted} of '
+                        '${current.title} to get here.'
+                  : 'Move up ${division.index - current.index} leagues from '
+                        '${current.title} to get here.',
+            ),
+          const SizedBox(height: 12),
+          Text(
+            'Top of a typical week',
+            style: text.titleSmall?.copyWith(fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 8),
+          for (final (i, player) in top.take(3).indexed)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: DivisionBadge(
-                division: division,
-                size: division == current ? 64 : 34,
-                locked: division.index > current.index,
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 22,
+                    child: Text(
+                      '${i + 1}',
+                      style: text.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        color: tokens.textSecondary,
+                      ),
+                    ),
+                  ),
+                  AvatarView(avatar: player.avatar, size: 36),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      player.name,
+                      style: text.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '${player.weekXp} XP',
+                    style: text.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
               ),
             ),
         ],
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// A division's shield badge in its colour; grey when not yet reached.
@@ -546,19 +765,43 @@ class _ResultSheet extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Center(
-                child: PopIn(
-                  scale: true,
-                  offset: 0,
-                  child: DivisionBadge(division: result.newDivision, size: 88),
+                child: AceSays(
+                  text: aceLeague(
+                    promoted: result.promoted,
+                    demoted: result.demoted,
+                  ),
+                  action: result.promoted
+                      ? AceAction.cheer
+                      : result.demoted
+                      ? AceAction.sad
+                      : AceAction.hop,
+                  mood: result.promoted
+                      ? AceMood.joyful
+                      : result.demoted
+                      ? AceMood.sad
+                      : AceMood.happy,
+                  bubbleWidth: 190,
                 ),
               ),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: text.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w900,
-                ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  PopIn(
+                    scale: true,
+                    offset: 0,
+                    child: DivisionBadge(division: result.newDivision),
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: Text(
+                      title,
+                      style: text.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               Text(

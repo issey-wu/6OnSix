@@ -51,6 +51,15 @@ void main(List<String> args) {
       }
     }
   }
+  // Questions asked straight after a card must be in that card's lesson.
+  final questionLessons = {for (final q in questions) q['id']: q['lesson']};
+  for (final c in cards) {
+    for (final id in _checks(c)) {
+      if (questionLessons[id] != c['lesson']) {
+        errors.add('Card "${c['title']}" checks $id, not in its lesson');
+      }
+    }
+  }
 
   final questionIds = <String>{};
   for (final q in questions) {
@@ -152,6 +161,7 @@ void main(List<String> args) {
                       'title': c['title'],
                       'body': c['body'],
                       if (c['diagram']!.isNotEmpty) 'diagram': c['diagram'],
+                      if (_checks(c).isNotEmpty) 'check': _checks(c),
                     },
                 ],
                 'questions': [
@@ -285,6 +295,12 @@ List<String> _split(String value, [String separator = '|']) => value.isEmpty
     : value.split(separator).map((s) => s.trim()).toList();
 
 /// Reads a CSV file (with a header row) into a list of maps.
+/// The questions a card asks straight after it, from its `check` column.
+List<String> _checks(Map<String, String> card) => [
+  for (final id in (card['check'] ?? '').split('|'))
+    if (id.trim().isNotEmpty) id.trim(),
+];
+
 List<Map<String, String>> _readCsv(String path) {
   var text = File(path).readAsStringSync();
   // Excel can add a byte-order mark at the start of the file.

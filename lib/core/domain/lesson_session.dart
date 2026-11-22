@@ -22,6 +22,9 @@ class LessonSession {
 
   bool get isComplete => _queue.isEmpty;
 
+  /// Questions still to answer, counting the current one.
+  int get remaining => _queue.length;
+
   /// Share of questions answered correctly so far, from 0 to 1.
   double get progress => total == 0 ? 1 : _correct / total;
 

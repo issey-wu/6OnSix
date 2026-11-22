@@ -79,3 +79,19 @@ A short list of the current stack and architecture choices. Update an entry when
 - **League model:** 30 players per league, Monday to Monday in local time, joined by earning XP. Seven divisions (Rec, House League, Club, Varsity, Provincial, National, Olympic); top 10 move up from Rec, top 7 elsewhere; bottom 5 move down except in Rec. Each simulated player has XP for each day and a usual practice time, so their totals grow through the week. Higher divisions have stronger players.
 - **Storage:** `user_extras.league_json` (schema version 4). Friends need no storage: their streaks and XP are worked out from the date.
 
+## Ace the mascot (Round 4)
+
+- **Artwork:** Yash Dubey's eagle, in separate parts under `assets/images/ace/`: three wing shapes (resting, open hand, fist), body, head, eyes, brows and two beaks, plus a side view of him leaning in from an edge. The parts were taken from his SVG animations and sprite sheet, so the app moves each part itself with plain Flutter transforms. No animation package (Rive, Lottie) is needed. The second wing is the first one mirrored.
+- **Moves:** idle (breathing, blinking, glancing aside, a slow sway), wave, cheer (both wings up), fist pump, hop, shrug and sad (wings droop, a sigh and a tear). He can turn his face a little towards his speech bubble.
+- **Faces:** happy (a smile), joyful (smiling eyes, a grin, rosy cheeks), cheeky (a wink and one brow up), surprised (big eyes) and sad (worried brows and a tear). The smiling eyes, blush and tear are drawn in code, in colours taken from the artwork. His beak opens and shuts while a speech bubble is up. With Reduce Motion on he holds one still pose, and nothing loops.
+- **Mid-lesson pop-ups** use the side view, sliding in from the right edge; a sad moment uses the full front view so his face can show it.
+- **Where, following Duolingo:** waving hello on the welcome screen; asking the daily goal question; beside the next lesson on the Learn tab (tap him for a line about the learner's day); popping up mid-lesson only at milestones (3, 5, then every 4 right in a row, the first mistake, a second miss in a row, and one question to go); sad on the quit and reset sheets; cheering on lesson complete with a streak line; and reacting to league results.
+- **Voice:** playful and a bit cheeky, volleyball talk, short enough to read at a glance. The lines live in `lib/core/ui/ace_lines.dart`. His pop-up lines never give instructions; the first-run tips (Round 5) are where he explains things.
+
+## First-run guide and polish (Round 5)
+
+- **Guide (user feedback, Nov 22):** coach marks in `lib/core/ui/coach_mark.dart`, driven from `lib/app/tips.dart`. Each darkens the screen around one part and Ace explains it. Taps in the lit-up part go through to that part and close the tip, so tips never add taps; taps elsewhere do nothing. Tip ids live in `lib/core/domain/tips.dart`; the ones seen are saved in the settings table (`tips_seen`, schema version 5). This replaces the earlier "no tutorials" rule in CLAUDE.md.
+- **Skipping:** "Skip tutorial" on every tip, and "I've played before" on the welcome screen, both ask for confirmation. Settings has "Replay the tutorial".
+- **Alternating lessons:** `cards.csv` has a `check` column naming the questions asked straight after each card. `Lesson.interleaved()` builds the order; cards with no checks show with the next card, so content without checks behaves as before. A new learner now reaches the first question in two taps: Get started, then Continue.
+- **League peek:** the ladder badges open a sheet about that league. Its "top of a typical week" uses the same made-up players a league there would start with.
+

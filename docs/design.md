@@ -56,7 +56,7 @@ A complete loop in airplane mode:
 
 Accounts and login, cloud sync, leaderboards, asynchronous duel mode, certificates, hearts or lives, streak freezes, placement tests, onboarding questionnaires, push notifications, paywalls or in-app purchases, and mascot animations.
 
-Added later, still fully offline: streak freezes (Round 2), and a weekly League with friends, played against simulated "Demo community" players (Round 3). See `docs/decisions.md`.
+Added later, still fully offline: streak freezes (Round 2), a weekly League with friends, played against simulated "Demo community" players (Round 3), and Ace the eagle mascot with short animations (Round 4). See `docs/decisions.md`.
 
 ## 2. Game rules
 
@@ -107,7 +107,7 @@ Added later, still fully offline: streak freezes (Round 2), and a weekly League 
 
 ## 3. App structure and navigation
 
-**First launch:** Splash → Welcome → Lesson 1.1 (teaching card, then questions) → Lesson complete → Home
+**First launch:** Splash → Welcome → Lesson 1.1 (one teaching card, then a question, alternating, with first-run tips) → Lesson complete → Daily goal → Home (a short tour). A returning player can skip the tutorial from the welcome screen after a confirmation, and replay it from Settings.
 
 **Main app (bottom navigation bar, 5 tabs):**
 
@@ -164,7 +164,7 @@ App logo centered on the background color. Shown only while the app loads; no bu
 
 ### Lesson player
 
-A lesson has two stages: teaching, then questions.
+A lesson has two stages: teaching, then questions. Since Round 5 they alternate: each card can name the questions it sets up (the `check` column in `cards.csv`), and those come straight after it.
 
 **Stage 1: teaching cards**
 - Every lesson opens with 1 to 2 short teaching cards that introduce what the questions will cover.
@@ -443,5 +443,4 @@ Sound and haptics have separate on/off toggles. Sound respects the phone's silen
 ## 11. Still to decide
 
 - Final lesson titles and content.
-- Whether to have a mascot.
 - Final feedback colors (success and error).

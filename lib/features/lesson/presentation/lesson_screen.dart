@@ -7,9 +7,14 @@ import 'package:go_router/go_router.dart';
 import 'package:six_on_six/app/feedback.dart';
 import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
+import 'package:six_on_six/app/tips.dart';
 import 'package:six_on_six/core/domain/course.dart';
 import 'package:six_on_six/core/domain/lesson_session.dart';
+import 'package:six_on_six/core/domain/tips.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
+import 'package:six_on_six/core/ui/ace.dart';
+import 'package:six_on_six/core/ui/ace_lines.dart';
+import 'package:six_on_six/core/ui/coach_mark.dart';
 import 'package:six_on_six/core/ui/components.dart';
 import 'package:six_on_six/core/ui/court_lineup.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
@@ -41,7 +46,15 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   LessonSession? _session;
   List<TeachingCard> _cards = const [];
   _Stage _stage = _Stage.teaching;
-  int _cardIndex = 0;
+
+  // Cards come in small groups between questions (see Lesson.interleaved):
+  // the cards to show before each question, the group on screen now, and
+  // the cards already seen.
+  Map<String, List<int>> _cardsBefore = const {};
+  List<int> _cardGroup = const [];
+  int _cardPos = 0;
+  final Set<int> _cardsSeen = {};
+  int get _cardIndex => _cardGroup[_cardPos];
   int _attempt = 0;
   List<String> _options = const [];
   String? _response;
@@ -70,6 +83,31 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   final List<AnswerAttempt> _answers = [];
   final _random = Random();
 
+  // Ace pops up at milestones: a run of right answers, the first mistake,
+  // a second miss in a row, and the last question.
+  int _combo = 0;
+  int _missRun = 0;
+  int _mistakes = 0;
+  bool _saidLastOne = false;
+  String? _aceLine;
+  AceAction _aceAction = AceAction.cheer;
+  AceMood _aceMood = AceMood.happy;
+  int _aceKey = 0;
+
+  /// What Ace says on the lesson complete screen.
+  String _doneLine = '';
+
+  // First-run tips point at these. The answer area gets a new key for each
+  // question, because the old question is still on screen while it slides
+  // out.
+  GlobalKey _answerKey = GlobalKey();
+  GlobalKey _feedbackKey = GlobalKey();
+  GlobalKey _showMeHowKey = GlobalKey();
+  final GlobalKey _checkKey = GlobalKey();
+  final GlobalKey _hintKey = GlobalKey();
+  bool _tipShowing = false;
+  bool _tipQueued = false;
+
   void _start(Course course) {
     final rules = ref.read(gameRulesProvider);
     final PathNode? node;
@@ -95,7 +133,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           ? course.finalReviewQuestions(count: rules.finalReviewQuestionCount)
           : nodeLesson == null
           ? course.reviewQuestions(node.unit, count: rules.reviewQuestionCount)
-          : nodeLesson.questions;
+          : nodeLesson.interleaved().questions;
     }
     if (node == null) return;
     final lesson = node.lesson;
@@ -103,8 +141,25 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     _session = LessonSession(questions);
     _types = {for (final q in questions) q.id: q.type};
     _cards = lesson?.cards ?? const [];
-    _stage = _cards.isEmpty ? _Stage.question : _Stage.teaching;
+    _cardsBefore = lesson?.interleaved().cardsBefore ?? const {};
     _prepareQuestion();
+  }
+
+  /// Shows any cards due before the current question, or else the
+  /// question itself.
+  void _showCardsOrQuestion() {
+    final q = _session?.current;
+    final due = [
+      for (final i in _cardsBefore[q?.id] ?? const <int>[])
+        if (!_cardsSeen.contains(i)) i,
+    ];
+    if (due.isEmpty) {
+      _stage = _Stage.question;
+      return;
+    }
+    _cardGroup = due;
+    _cardPos = 0;
+    _stage = _Stage.teaching;
   }
 
   void _prepareQuestion() {
@@ -117,7 +172,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     _hintText = null;
     _removedOptions.clear();
     _hintZones = const {};
+    _aceLine = null;
     _attempt++;
+    _answerKey = GlobalKey();
+    _feedbackKey = GlobalKey();
+    _showMeHowKey = GlobalKey();
+    _showCardsOrQuestion();
     _options = q == null ? const [] : ([...q.options]..shuffle(_random));
   }
 
@@ -139,7 +199,51 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     setState(() {
       _lastCorrect = correct;
       _praiseLine = _praise[_random.nextInt(_praise.length)];
+      _react(correct: correct);
     });
+  }
+
+  /// Decides whether Ace pops up after this answer, and with what.
+  void _react({required bool correct}) {
+    String? line;
+    var action = AceAction.cheer;
+    var mood = AceMood.happy;
+    if (correct) {
+      _combo++;
+      _missRun = 0;
+      line = aceCombo(_random, _combo);
+      if (line != null) {
+        // A cheeky fist pump at 3, a full cheer after that.
+        action = _combo == 3 ? AceAction.fistPump : AceAction.cheer;
+        mood = _combo == 3 ? AceMood.cheeky : AceMood.joyful;
+      }
+      // This answer leaves one question to go.
+      if (line == null && !_saidLastOne && _session!.remaining == 2) {
+        _saidLastOne = true;
+        line = aceLastOne(_random);
+        action = AceAction.hop;
+      }
+    } else {
+      _combo = 0;
+      _missRun++;
+      _mistakes++;
+      if (_mistakes == 1 &&
+          !ref.read(settingsProvider.notifier).showTip(Tips.mistake)) {
+        line = aceFirstMistake(_random);
+        action = AceAction.shrug;
+        mood = AceMood.surprised;
+      } else if (_missRun == 2) {
+        line = aceToughRally(_random);
+        action = AceAction.sad;
+        mood = AceMood.sad;
+      }
+    }
+    _aceLine = line;
+    if (line != null) {
+      _aceAction = action;
+      _aceMood = mood;
+      _aceKey++;
+    }
   }
 
   void _matchingDone(bool hadMistake) {
@@ -149,6 +253,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       _matchingMistake = hadMistake;
       _lastCorrect = true;
       _praiseLine = _praise[_random.nextInt(_praise.length)];
+      _react(correct: true);
     });
   }
 
@@ -262,6 +367,14 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         );
     final feedback = ref.read(feedbackProvider)..play(FeedbackEvent.complete);
     final streakNow = ref.read(progressProvider).streakOn(localNow);
+    _doneLine = aceLessonDone(
+      _random,
+      perfect: _session!.isPerfect,
+      review: _node.isReview,
+      streak: streakNow,
+      streakGrew: streakNow > _streakBefore,
+      milestone: _outcome?.milestone != null,
+    );
     if (streakNow > _streakBefore) {
       // After the lesson complete fanfare, not over it.
       feedback.play(
@@ -287,7 +400,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       message: "If you quit now, your progress in this lesson won't be saved.",
       stay: 'Keep going',
       action: 'Quit lesson',
-      icon: Icons.sports_volleyball_rounded,
+      art: const Ace(
+        height: 120,
+        action: AceAction.sad,
+        mood: AceMood.sad,
+        semanticLabel: 'Ace the eagle, looking sad',
+      ),
     );
     if (quit && mounted) _leave();
   }
@@ -303,6 +421,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     if (session == null) {
       return const Scaffold(body: Center(child: Text('Lesson not found.')));
     }
+    if (_stage == _Stage.question) _queueTip();
     return PopScope(
       canPop: _stage == _Stage.complete,
       onPopInvokedWithResult: (didPop, result) {
@@ -325,6 +444,92 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         ),
       ),
     );
+  }
+
+  /// Looks for a first-run tip to show once this frame is drawn.
+  void _queueTip() {
+    if (_tipShowing || _tipQueued) return;
+    _tipQueued = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _tipQueued = false;
+      unawaited(_showTip());
+    });
+  }
+
+  /// The guide for a new learner: where to answer, Check, Show me how,
+  /// what happens after a mistake, and the hint. Each tip shows once.
+  Future<void> _showTip() async {
+    if (!mounted || _tipShowing || _stage != _Stage.question || _finishing) {
+      return;
+    }
+    final tips = ref.read(settingsProvider.notifier);
+    final q = _shown;
+    if (q == null) return;
+    final answered = _lastCorrect != null;
+    final tip = switch ((answered, _lastCorrect)) {
+      (true, false) when tips.showTip(Tips.mistake) => (
+        Tips.mistake,
+        _feedbackKey,
+        'Missed one? No stress. It comes back at the end of the lesson for '
+            'another go.',
+        AceAction.shrug,
+      ),
+      (true, _) when tips.showTip(Tips.showMeHow) => (
+        Tips.showMeHow,
+        _showMeHowKey,
+        'Want the why? Show me how walks you through any answer.',
+        AceAction.hop,
+      ),
+      (false, _) when _response == null && tips.showTip(Tips.answer) => (
+        Tips.answer,
+        _answerKey,
+        'Your turn! Tap an answer.',
+        AceAction.wave,
+      ),
+      (false, _)
+          when _response != null &&
+              q.type != QuestionType.matching &&
+              tips.showTip(Tips.check) =>
+        (
+          Tips.check,
+          _checkKey,
+          "Now tap Check to see if you're right.",
+          AceAction.hop,
+        ),
+      // From the second question on, once the first ones are done.
+      (false, _)
+          when _response == null &&
+              !tips.showTip(Tips.showMeHow) &&
+              !_hintUsed &&
+              tips.showTip(Tips.hint) =>
+        (
+          Tips.hint,
+          _hintKey,
+          "Stuck? The lightbulb gives you a hint. You just won't get a "
+              'perfect lesson.',
+          AceAction.fistPump,
+        ),
+      _ => null,
+    };
+    if (tip == null) return;
+    final (id, target, text, action) = tip;
+    if (target.currentContext == null) return;
+    _tipShowing = true;
+    final keepGoing = await showCoachMark(
+      context,
+      target: target,
+      text: text,
+      action: action,
+      mood: action == AceAction.fistPump ? AceMood.cheeky : AceMood.joyful,
+    );
+    if (keepGoing) {
+      tips.tipSeen(id);
+    } else if (mounted && await confirmSkipTutorial(context)) {
+      tips.skipTips();
+    }
+    // When they decide to keep the tips, the same one shows again.
+    _tipShowing = false;
+    if (mounted && _stage == _Stage.question) _queueTip();
   }
 
   /// The quit button, the progress bar and, on questions, the hint button.
@@ -361,12 +566,15 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     ),
   );
 
-  Widget _hintButton(Course course, {required bool available}) => IconButton(
-    key: const ValueKey('hint'),
-    tooltip: _hintUsed ? 'Hint used' : 'Hint',
-    icon: Icon(_hintUsed ? Icons.lightbulb : Icons.lightbulb_outline),
-    color: AppTokens.of(context).brandOrange,
-    onPressed: available ? () => _useHint(course) : null,
+  Widget _hintButton(Course course, {required bool available}) => KeyedSubtree(
+    key: _hintKey,
+    child: IconButton(
+      key: const ValueKey('hint'),
+      tooltip: _hintUsed ? 'Hint used' : 'Hint',
+      icon: Icon(_hintUsed ? Icons.lightbulb : Icons.lightbulb_outline),
+      color: AppTokens.of(context).brandOrange,
+      onPressed: available ? () => _useHint(course) : null,
+    ),
   );
 
   Widget _bottomButton({required String label, VoidCallback? onPressed}) =>
@@ -421,14 +629,19 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         ),
         if (isReplay)
           TextButton(
-            onPressed: () => setState(() => _stage = _Stage.question),
+            // Skips every card left in the lesson, not just this group.
+            onPressed: () => setState(() {
+              _cardsSeen.addAll(List.generate(_cards.length, (i) => i));
+              _stage = _Stage.question;
+            }),
             child: const Text('Skip'),
           ),
         _bottomButton(
           label: 'Continue',
           onPressed: () => setState(() {
-            if (_cardIndex < _cards.length - 1) {
-              _cardIndex++;
+            _cardsSeen.add(_cardIndex);
+            if (_cardPos < _cardGroup.length - 1) {
+              _cardPos++;
             } else {
               _stage = _Stage.question;
             }
@@ -440,8 +653,6 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 
   Widget _question(BuildContext context, LessonSession session, Course course) {
     final q = _shown!;
-    final text = Theme.of(context).textTheme;
-    final tokens = AppTokens.of(context);
     final answered = _lastCorrect != null;
     final instruction = switch (q.type) {
       QuestionType.multipleChoice => 'Select the correct answer',
@@ -456,7 +667,6 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         : showLineup
         ? 'Correct arrangement:'
         : 'Correct answer: ${q.answerLabel}';
-    final hintText = _hintText;
     return Column(
       children: [
         _topBar(
@@ -467,38 +677,26 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
           ),
         ),
         Expanded(
-          child: AnimatedSwitcher(
-            duration: motion(context, const Duration(milliseconds: 320)),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
-            transitionBuilder: _slideQuestion,
-            child: ListView(
-              key: ValueKey('${q.id}-$_attempt'),
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-              children: [
-                Text(
-                  instruction,
-                  style: text.labelLarge?.copyWith(color: tokens.textSecondary),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  q.prompt,
-                  style: text.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 20),
-                // Always present, so the answer area below keeps its place in
-                // the list and its state (placed players, matched pairs) when
-                // a hint appears.
-                if (hintText == null)
-                  const SizedBox.shrink()
-                else
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: _HintBox(text: hintText),
+          child: Stack(
+            children: [
+              Positioned.fill(child: _questionList(q, instruction, answered)),
+              // Ace rises from behind the answer panel at milestones.
+              if (answered && _aceLine != null)
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  left: 0,
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: AcePeek(
+                      key: ValueKey('ace-$_aceKey'),
+                      text: _aceLine!,
+                      action: _aceAction,
+                      mood: _aceMood,
+                    ),
                   ),
-                _answerArea(q, locked: answered),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
         AnimatedSwitcher(
@@ -514,34 +712,84 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
             child: child,
           ),
           child: answered
-              ? FeedbackPanel(
+              ? KeyedSubtree(
                   key: const ValueKey('feedback'),
-                  correct: _lastCorrect!,
-                  title: title,
-                  explanation: q.explanation,
-                  note: q.leagueNote,
-                  extra: showLineup
-                      ? SizedBox(
-                          width: 168,
-                          child: CourtLineup(placements: q.placements),
-                        )
-                      : null,
-                  onShowMeHow: () => unawaited(
-                    showMeHow(context, question: q, course: course),
+                  child: FeedbackPanel(
+                    key: _feedbackKey,
+                    showMeHowKey: _showMeHowKey,
+                    correct: _lastCorrect!,
+                    title: title,
+                    explanation: q.explanation,
+                    note: q.leagueNote,
+                    extra: showLineup
+                        ? SizedBox(
+                            width: 168,
+                            child: CourtLineup(placements: q.placements),
+                          )
+                        : null,
+                    onShowMeHow: () => unawaited(
+                      showMeHow(context, question: q, course: course),
+                    ),
+                    onContinue: _continue,
                   ),
-                  onContinue: _continue,
                 )
               : q.type == QuestionType.matching
               ? const SizedBox.shrink()
               : KeyedSubtree(
                   key: const ValueKey('check'),
-                  child: _bottomButton(
-                    label: 'Check',
-                    onPressed: _response == null ? null : _check,
+                  child: KeyedSubtree(
+                    key: _checkKey,
+                    child: _bottomButton(
+                      label: 'Check',
+                      onPressed: _response == null ? null : _check,
+                    ),
                   ),
                 ),
         ),
       ],
+    );
+  }
+
+  /// The prompt, any hint and the answers, sliding in for each question.
+  Widget _questionList(Question q, String instruction, bool answered) {
+    final text = Theme.of(context).textTheme;
+    final tokens = AppTokens.of(context);
+    final hintText = _hintText;
+    return AnimatedSwitcher(
+      duration: motion(context, const Duration(milliseconds: 320)),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: _slideQuestion,
+      child: ListView(
+        key: ValueKey('${q.id}-$_attempt'),
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+        children: [
+          Text(
+            instruction,
+            style: text.labelLarge?.copyWith(color: tokens.textSecondary),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            q.prompt,
+            style: text.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 20),
+          // Always present, so the answer area below keeps its place in
+          // the list and its state (placed players, matched pairs) when
+          // a hint appears.
+          if (hintText == null)
+            const SizedBox.shrink()
+          else
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _HintBox(text: hintText),
+            ),
+          KeyedSubtree(
+            key: _answerKey,
+            child: _answerArea(q, locked: answered),
+          ),
+        ],
+      ),
     );
   }
 
@@ -654,16 +902,14 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                       PopIn(
                         scale: true,
                         duration: const Duration(milliseconds: 600),
-                        child: Icon(
-                          Icons.emoji_events,
-                          size: 96,
-                          color: tokens.brandYellow,
-                          shadows: [
-                            Shadow(
-                              color: tokens.brandOrange.withValues(alpha: 0.6),
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
+                        child: AceSays(
+                          text: _doneLine,
+                          action: AceAction.cheer,
+                          mood: session.isPerfect
+                              ? AceMood.joyful
+                              : AceMood.happy,
+                          aceHeight: 150,
+                          bubbleWidth: 200,
                         ),
                       ),
                       const SizedBox(height: 12),

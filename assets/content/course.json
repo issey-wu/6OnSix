@@ -13,17 +13,26 @@
             {
               "title": "Welcome to the court",
               "body": "This is a volleyball court seen from above. It is 18 m long and 9 m wide.",
-              "diagram": "court"
+              "diagram": "court",
+              "check": [
+                "u1.l1.q01"
+              ]
             },
             {
               "title": "The net",
               "body": "The net runs across the middle and splits the court into two halves, one for each team. Each half is a 9 m by 9 m square.",
-              "diagram": "court:net"
+              "diagram": "court:net",
+              "check": [
+                "u1.l1.q07"
+              ]
             },
             {
               "title": "The attack line",
               "body": "On each side, a line runs across the court 3 m from the net. It is called the attack line.",
-              "diagram": "court:attack"
+              "diagram": "court:attack",
+              "check": [
+                "u1.l1.q02"
+              ]
             },
             {
               "title": "Six numbered zones",
@@ -33,17 +42,27 @@
             {
               "title": "The front row",
               "body": "The three zones next to the net are the front row. From left to right, they are 4, 3 and 2.",
-              "diagram": "zones:front"
+              "diagram": "zones:front",
+              "check": [
+                "u1.l1.q04",
+                "u1.l1.q05"
+              ]
             },
             {
               "title": "The back row",
               "body": "The three zones behind them are the back row. From left to right, they are 5, 6 and 1.",
-              "diagram": "zones:back"
+              "diagram": "zones:back",
+              "check": [
+                "u1.l1.q06"
+              ]
             },
             {
               "title": "Zone 1 serves",
               "body": "Zone 1 is the right back. The player standing there is the one who serves.",
-              "diagram": "zones:1"
+              "diagram": "zones:1",
+              "check": [
+                "u1.l1.q03"
+              ]
             }
           ],
           "questions": [
@@ -141,12 +160,19 @@
             {
               "title": "Five roles",
               "body": "The setter takes the second contact and sets up the attack. Outside hitters attack from the left and pass the serve. Middle blockers block at the centre of the net. The opposite attacks from the right.",
-              "diagram": "roles"
+              "diagram": "roles",
+              "check": [
+                "u1.l2.q03",
+                "u1.l2.q04"
+              ]
             },
             {
               "title": "The libero",
               "body": "The libero is a back-row defensive specialist. They wear a different coloured jersey so officials can spot them, and they usually replace a middle blocker in the back row.",
-              "diagram": "libero"
+              "diagram": "libero",
+              "check": [
+                "u1.l2.q02"
+              ]
             }
           ],
           "questions": [
@@ -243,12 +269,19 @@
             {
               "title": "The lineup",
               "body": "Before each set, the coach records the starting order of the six players. That order stays the same for the whole set, even as players move around.",
-              "diagram": "roles"
+              "diagram": "roles",
+              "check": [
+                "u1.l3.q05"
+              ]
             },
             {
               "title": "Rotating",
               "body": "When your team wins the serve back from the other team, everyone moves one zone clockwise. The player who moves from zone 2 to zone 1 serves next.",
-              "diagram": "rotation"
+              "diagram": "rotation",
+              "check": [
+                "u1.l3.q01",
+                "u1.l3.q02"
+              ]
             }
           ],
           "questions": [
@@ -368,11 +401,19 @@
           "cards": [
             {
               "title": "Three contacts",
-              "body": "A team can touch the ball up to three times before sending it over. A block does not count as one of those three, and the same player cannot touch the ball twice in a row."
+              "body": "A team can touch the ball up to three times before sending it over. A block does not count as one of those three, and the same player cannot touch the ball twice in a row.",
+              "check": [
+                "u2.l1.q01",
+                "u2.l1.q02"
+              ]
             },
             {
               "title": "Rally scoring",
-              "body": "Every rally scores a point, no matter which team served. A set is won at 25 points with a two-point lead. A deciding fifth set goes to 15."
+              "body": "Every rally scores a point, no matter which team served. A set is won at 25 points with a two-point lead. A deciding fifth set goes to 15.",
+              "check": [
+                "u2.l1.q03",
+                "u2.l1.q04"
+              ]
             }
           ],
           "questions": [
@@ -457,11 +498,19 @@
           "cards": [
             {
               "title": "The net",
-              "body": "Touching the net between the antennae while playing the ball is a fault. The ball must cross the net between the antennae."
+              "body": "Touching the net between the antennae while playing the ball is a fault. The ball must cross the net between the antennae.",
+              "check": [
+                "u2.l2.q01",
+                "u2.l2.q03"
+              ]
             },
             {
               "title": "Lines and the centre line",
-              "body": "A ball that lands on a boundary line is in. A foot may cross the centre line under the net as long as part of it stays on or above the line."
+              "body": "A ball that lands on a boundary line is in. A foot may cross the centre line under the net as long as part of it stays on or above the line.",
+              "check": [
+                "u2.l2.q04",
+                "u2.l2.q02"
+              ]
             }
           ],
           "questions": [
@@ -544,7 +593,11 @@
             },
             {
               "title": "Words for the flow of play",
-              "body": "A side-out is winning the rally while receiving. A free ball is an easy ball sent over without an attack. An overpass is a pass that goes straight over the net."
+              "body": "A side-out is winning the rally while receiving. A free ball is an easy ball sent over without an attack. An overpass is a pass that goes straight over the net.",
+              "check": [
+                "u2.l3.q02",
+                "u2.l3.q04"
+              ]
             }
           ],
           "questions": [
@@ -643,11 +696,17 @@
           "cards": [
             {
               "title": "Order at the serve",
-              "body": "When the ball is served, the receiving team must stand in its rotation order. Under the current FIVB rules, the serving team does not have to."
+              "body": "When the ball is served, the receiving team must stand in its rotation order. Under the current FIVB rules, the serving team does not have to.",
+              "check": [
+                "u3.l1.q01"
+              ]
             },
             {
               "title": "What overlap means",
-              "body": "Each front-row player must be closer to the net than the back-row player behind them (4 ahead of 5, 3 ahead of 6, 2 ahead of 1). In each row, players must also keep their left-to-right order. Feet on the floor decide position."
+              "body": "Each front-row player must be closer to the net than the back-row player behind them (4 ahead of 5, 3 ahead of 6, 2 ahead of 1). In each row, players must also keep their left-to-right order. Feet on the floor decide position.",
+              "check": [
+                "u3.l1.q02"
+              ]
             }
           ],
           "questions": [
@@ -730,11 +789,19 @@
           "cards": [
             {
               "title": "The serve",
-              "body": "The server stands behind the end line and has 8 seconds after the whistle to serve. They may not touch the court or the end line when they hit the ball."
+              "body": "The server stands behind the end line and has 8 seconds after the whistle to serve. They may not touch the court or the end line when they hit the ball.",
+              "check": [
+                "u3.l2.q01",
+                "u3.l2.q02"
+              ]
             },
             {
               "title": "Serving order",
-              "body": "The serve follows the rotation order. A serve that touches the net and still goes over is in play."
+              "body": "The serve follows the rotation order. A serve that touches the net and still goes over is in play.",
+              "check": [
+                "u3.l2.q03",
+                "u3.l2.q04"
+              ]
             }
           ],
           "questions": [
@@ -812,11 +879,19 @@
           "cards": [
             {
               "title": "A back-row specialist",
-              "body": "The libero may only play in the back row, zones 5, 6 and 1. They may not block or attempt to block."
+              "body": "The libero may only play in the back row, zones 5, 6 and 1. They may not block or attempt to block.",
+              "check": [
+                "u3.l3.q01",
+                "u3.l3.q02"
+              ]
             },
             {
               "title": "Replacements",
-              "body": "The libero usually comes in for a middle blocker who has rotated to the back row. These swaps are called replacements, and they do not count as substitutions."
+              "body": "The libero usually comes in for a middle blocker who has rotated to the back row. These swaps are called replacements, and they do not count as substitutions.",
+              "check": [
+                "u3.l3.q03",
+                "u3.l3.q04"
+              ]
             }
           ],
           "questions": [
@@ -935,11 +1010,18 @@
           "cards": [
             {
               "title": "One setter, five hitters",
-              "body": "A 5-1 uses one setter in all six rotations and five hitters: two outside hitters, two middle blockers and one opposite."
+              "body": "A 5-1 uses one setter in all six rotations and five hitters: two outside hitters, two middle blockers and one opposite.",
+              "check": [
+                "u4.l1.q01",
+                "u4.l1.q02"
+              ]
             },
             {
               "title": "Across from each other",
-              "body": "In the lineup, the setter is across from the opposite, the two outside hitters are across from each other, and the two middle blockers are across from each other. Across means three zones apart."
+              "body": "In the lineup, the setter is across from the opposite, the two outside hitters are across from each other, and the two middle blockers are across from each other. Across means three zones apart.",
+              "check": [
+                "u4.l1.q04"
+              ]
             }
           ],
           "questions": [
@@ -1049,11 +1131,17 @@
           "cards": [
             {
               "title": "Setter in the back row",
-              "body": "When the setter is in the back row, all three front-row players can attack. The setter moves forward to set from the right front."
+              "body": "When the setter is in the back row, all three front-row players can attack. The setter moves forward to set from the right front.",
+              "check": [
+                "u4.l2.q01"
+              ]
             },
             {
               "title": "Setter in the front row",
-              "body": "When the setter is in the front row, only two front-row players are hitters. The setter can still attack, but usually sets."
+              "body": "When the setter is in the front row, only two front-row players are hitters. The setter can still attack, but usually sets.",
+              "check": [
+                "u4.l2.q02"
+              ]
             }
           ],
           "questions": [
@@ -1145,11 +1233,17 @@
           "cards": [
             {
               "title": "Naming rotations",
-              "body": "Many teams name each rotation by the setter's zone. In rotation 1 the setter is in zone 1."
+              "body": "Many teams name each rotation by the setter's zone. In rotation 1 the setter is in zone 1.",
+              "check": [
+                "u4.l3.q01"
+              ]
             },
             {
               "title": "The cycle",
-              "body": "Each rotation moves the setter one zone clockwise: from zone 1 to 6, then 5, 4, 3 and 2, and back to 1."
+              "body": "Each rotation moves the setter one zone clockwise: from zone 1 to 6, then 5, 4, 3 and 2, and back to 1.",
+              "check": [
+                "u4.l3.q02"
+              ]
             }
           ],
           "questions": [

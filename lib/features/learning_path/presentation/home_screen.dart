@@ -1,16 +1,27 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:six_on_six/app/app_shell.dart';
 import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
+import 'package:six_on_six/app/tips.dart';
 import 'package:six_on_six/core/domain/course.dart';
+import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/progress.dart';
+import 'package:six_on_six/core/domain/tips.dart';
+import 'package:six_on_six/core/ui/ace.dart';
+import 'package:six_on_six/core/ui/ace_lines.dart';
 import 'package:six_on_six/core/ui/components.dart';
 import 'package:six_on_six/core/ui/motion.dart';
 
 /// The Learn tab: one vertical path of lessons and unit reviews.
+/// What the first-run tips on this screen point at.
+final GlobalKey _streakTipKey = GlobalKey(debugLabel: 'streak');
+final GlobalKey _goalTipKey = GlobalKey(debugLabel: 'goal ring');
+
 class HomeScreen extends ConsumerWidget {
   const new({super.key});
 
@@ -24,15 +35,23 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: Center(child: StreakBadge(streak: streak)),
+        leading: Center(
+          child: KeyedSubtree(
+            key: _streakTipKey,
+            child: StreakBadge(streak: streak),
+          ),
+        ),
         leadingWidth: 72,
         centerTitle: true,
         title: const Text('6 On Six'),
         actions: [
-          GoalRing(
-            xp: motivation.statsOn(local).xp,
-            goal: motivation.goal,
-            onTap: () => context.go('/quests'),
+          KeyedSubtree(
+            key: _goalTipKey,
+            child: GoalRing(
+              xp: motivation.statsOn(local).xp,
+              goal: motivation.goal,
+              onTap: () => context.go('/quests'),
+            ),
           ),
           const SizedBox(width: 10),
           Semantics(
@@ -76,11 +95,77 @@ class _Path extends ConsumerStatefulWidget {
 
 class _PathState extends ConsumerState<_Path> {
   final GlobalKey _currentKey = GlobalKey();
+  GoRouter? _router;
+  bool _tipsRunning = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToCurrent());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Check for tips whenever the learner comes back to this screen, such
+    // as after their first lesson and goal.
+    final router = GoRouter.of(context);
+    if (router != _router) {
+      _router?.routerDelegate.removeListener(_queueTips);
+      _router = router..routerDelegate.addListener(_queueTips);
+    }
+  }
+
+  @override
+  void dispose() {
+    _router?.routerDelegate.removeListener(_queueTips);
+    super.dispose();
+  }
+
+  void _queueTips() =>
+      WidgetsBinding.instance.addPostFrameCallback((_) => _showTips());
+
+  /// After the first lesson and goal, a short tour of this screen: the next
+  /// lesson, the streak, the daily goal and the tabs.
+  Future<void> _showTips() async {
+    if (!mounted || _tipsRunning) return;
+    if (ref.read(progressProvider).completed.isEmpty ||
+        !ref.read(motivationProvider).goalChosen) {
+      return;
+    }
+    _tipsRunning = true;
+    await showTips(
+      context,
+      ref,
+      path: '/learn',
+      tips: [
+        Tip(
+          Tips.path,
+          _currentKey,
+          'This is your next lesson. The path unlocks one step at a time.',
+          action: AceAction.wave,
+        ),
+        Tip(
+          Tips.streak,
+          _streakTipKey,
+          'Your streak! Do a lesson every day to keep the flame going.',
+          action: AceAction.fistPump,
+          mood: AceMood.cheeky,
+        ),
+        Tip(
+          Tips.goal,
+          _goalTipKey,
+          'Your daily goal. Fill this ring every day. Tap it for your quests.',
+        ),
+        Tip(
+          Tips.tabs,
+          navBarKey,
+          'Quests, leagues, a glossary and your profile live down here.',
+          action: AceAction.cheer,
+        ),
+      ],
+    );
+    _tipsRunning = false;
   }
 
   void _scrollToCurrent() {
@@ -103,6 +188,7 @@ class _PathState extends ConsumerState<_Path> {
 
   @override
   Widget build(BuildContext context) {
+    _queueTips();
     final course = widget.course;
     final progress = widget.progress;
     final path = course.path;
@@ -157,21 +243,37 @@ class _PathState extends ConsumerState<_Path> {
       }
       final state = progress.stateOf(path, i);
       const offsets = [-0.45, 0.0, 0.45, 0.0];
-      children.add(
-        Align(
-          alignment: Alignment(offsets[i % offsets.length], 0),
-          child: _NodeButton(
-            key: state == NodeState.current ? _currentKey : null,
-            node: node,
-            state: state,
-            label: node.isFinal
-                ? 'Final review'
-                : node.isReview
-                ? 'Unit review'
-                : 'Lesson $lessonNumber',
-            onOpen: () => _openNode(node, state),
-          ),
+      final offset = offsets[i % offsets.length];
+      final button = Align(
+        alignment: Alignment(offset, 0),
+        child: _NodeButton(
+          key: state == NodeState.current ? _currentKey : null,
+          node: node,
+          state: state,
+          label: node.isFinal
+              ? 'Final review'
+              : node.isReview
+              ? 'Unit review'
+              : 'Lesson $lessonNumber',
+          onOpen: () => _openNode(node, state),
         ),
+      );
+      // Ace stands beside the next lesson, on the side with more room.
+      children.add(
+        state == NodeState.current
+            ? Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  button,
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment(offset > 0 ? -0.95 : 0.95, 0.6),
+                      child: _PathAce(onLeft: offset > 0),
+                    ),
+                  ),
+                ],
+              )
+            : button,
       );
     }
     return ListView(
@@ -517,4 +619,150 @@ class _StartTag extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// Ace beside the next lesson. He waves when the path opens, and tapping
+/// him gets a hop and a line about the learner's day.
+class _PathAce extends ConsumerStatefulWidget {
+  const new({required this.onLeft});
+
+  /// True when Ace stands to the left of the path, so his bubble leans
+  /// right.
+  final bool onLeft;
+
+  @override
+  ConsumerState<_PathAce> createState() => _PathAceState();
+}
+
+class _PathAceState extends ConsumerState<_PathAce>
+    with SingleTickerProviderStateMixin {
+  static const _aceHeight = 104.0;
+  final _random = Random();
+  String? _line;
+  int _taps = 0;
+  AceAction _action = AceAction.wave;
+  AceMood _mood = AceMood.happy;
+
+  // The bubble shows for a few seconds after a tap, then fades.
+  late final AnimationController _bubble = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 4200),
+  );
+
+  @override
+  void dispose() {
+    _bubble.dispose();
+    super.dispose();
+  }
+
+  bool get _lostStreak {
+    final local = ref.read(clockProvider).now().toLocal();
+    return ref.read(progressProvider).streakOn(local) == 0 &&
+        ref.read(progressProvider).completed.isNotEmpty;
+  }
+
+  void _tap() {
+    final local = ref.read(clockProvider).now().toLocal();
+    final streak = ref.read(progressProvider).streakOn(local);
+    final motivation = ref.read(motivationProvider);
+    final today = motivation.statsOn(local).xp;
+    final goalMet = today >= motivation.goal.xp;
+    final waiting = streak > 0 && today == 0;
+    setState(() {
+      _taps++;
+      _line = aceOnPath(
+        _random,
+        streak: streak,
+        practisedToday: today > 0,
+        goalMet: goalMet,
+        lostStreak: _lostStreak,
+      );
+      // His move and face follow what he says.
+      final (action, mood) = _lostStreak
+          ? (AceAction.sad, AceMood.sad)
+          : goalMet
+          ? (AceAction.cheer, AceMood.joyful)
+          : waiting
+          ? (AceAction.hop, AceMood.cheeky)
+          : const [
+              (AceAction.hop, AceMood.joyful),
+              (AceAction.fistPump, AceMood.cheeky),
+              (AceAction.wave, AceMood.happy),
+              (AceAction.shrug, AceMood.happy),
+            ][_random.nextInt(4)];
+      _action = action;
+      _mood = mood;
+    });
+    final still = MediaQuery.disableAnimationsOf(context);
+    if (still) {
+      _bubble.value = 0.5;
+    } else {
+      _bubble.forward(from: 0);
+    }
+    // Leave room above Ace for his bubble.
+    Scrollable.ensureVisible(
+      context,
+      alignment: 0.5,
+      duration: still ? Duration.zero : const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref
+      ..watch(progressProvider)
+      ..watch(motivationProvider);
+    final line = _line;
+    final ace = Ace(
+      height: _aceHeight,
+      action: _action,
+      actionKey: _taps,
+      mood: _taps == 0 && _lostStreak ? AceMood.sad : _mood,
+      talkFor: line == null ? Duration.zero : AceSays.talkTime(line),
+      facing: widget.onLeft ? 0.5 : -0.5,
+    );
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        GestureDetector(
+          key: const ValueKey('path-ace'),
+          behavior: HitTestBehavior.opaque,
+          onTap: _tap,
+          child: Semantics(
+            button: true,
+            label: 'Ace the eagle. Tap to hear from him.',
+            excludeSemantics: true,
+            child: ace,
+          ),
+        ),
+        // The bubble floats above Ace without moving him.
+        if (line != null)
+          Positioned(
+            bottom: _aceHeight - 4,
+            left: widget.onLeft ? 0 : null,
+            right: widget.onLeft ? null : 0,
+            child: IgnorePointer(
+              child: AnimatedBuilder(
+                animation: _bubble,
+                builder: (context, child) {
+                  final t = _bubble.value;
+                  if (t >= 1 || t == 0) return const SizedBox.shrink();
+                  final opacity = t > 0.85 ? (1 - t) / 0.15 : 1.0;
+                  return Opacity(opacity: opacity.clamp(0, 1), child: child);
+                },
+                child: SpeechBubble(
+                  key: ValueKey('path-ace-$_taps'),
+                  text: line,
+                  tail: BubbleTail.bottom,
+                  tailAt: widget.onLeft ? 0.2 : 0.8,
+                  maxWidth: 165,
+                  delay: Duration.zero,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
 }
