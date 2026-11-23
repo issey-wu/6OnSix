@@ -158,17 +158,25 @@
           "title": "Positions and roles",
           "cards": [
             {
-              "title": "Five roles",
-              "body": "The setter takes the second contact and sets up the attack. Outside hitters attack from the left and pass the serve. Middle blockers block at the centre of the net. The opposite attacks from the right.",
+              "title": "The setter",
+              "body": "The setter takes the team's second touch. They \"set\" the ball: a soft, high pass that a teammate can attack.",
+              "diagram": "roles:S",
+              "check": [
+                "u1.l2.q03"
+              ]
+            },
+            {
+              "title": "The hitters and blockers",
+              "body": "Outside hitters attack from the left. The opposite attacks from the right. Middle blockers jump to block in the middle of the net.",
               "diagram": "roles",
               "check": [
-                "u1.l2.q03",
-                "u1.l2.q04"
+                "u1.l2.q04",
+                "u1.l2.q05"
               ]
             },
             {
               "title": "The libero",
-              "body": "The libero is a back-row defensive specialist. They wear a different coloured jersey so officials can spot them, and they usually replace a middle blocker in the back row.",
+              "body": "The libero only plays in the back row, mostly on defence. They wear a different colour so they are easy to spot.",
               "diagram": "libero",
               "check": [
                 "u1.l2.q02"
@@ -226,10 +234,16 @@
             },
             {
               "id": "u1.l2.q03",
-              "type": "tf",
-              "prompt": "The setter usually takes the team's second contact.",
-              "answer": "true",
-              "explanation": "The setter takes the second ball and sets it up for a hitter.",
+              "type": "mc",
+              "prompt": "The other team serves and your teammate passes it. Who usually takes the next touch?",
+              "options": [
+                "The setter",
+                "The libero",
+                "The middle blocker",
+                "The server"
+              ],
+              "answer": "The setter",
+              "explanation": "The second touch belongs to the setter, who sets the ball up for a hitter.",
               "concepts": [
                 "roles"
               ]
@@ -267,20 +281,30 @@
           "title": "Lineups and rotating",
           "cards": [
             {
-              "title": "The lineup",
-              "body": "Before each set, the coach records the starting order of the six players. That order stays the same for the whole set, even as players move around.",
-              "diagram": "roles",
-              "check": [
-                "u1.l3.q05"
-              ]
-            },
-            {
               "title": "Rotating",
-              "body": "When your team wins the serve back from the other team, everyone moves one zone clockwise. The player who moves from zone 2 to zone 1 serves next.",
-              "diagram": "rotation",
+              "body": "When your team wins the serve back from the other team, everyone moves one zone clockwise. Winning the serve back is called a side out.",
+              "diagram": "rotation:play",
               "check": [
                 "u1.l3.q01",
                 "u1.l3.q02"
+              ]
+            },
+            {
+              "title": "Who serves",
+              "body": "After you rotate, the player who moved into zone 1 serves.",
+              "diagram": "zones:1",
+              "check": [
+                "u1.l3.q04",
+                "u1.l3.q03"
+              ]
+            },
+            {
+              "title": "The lineup",
+              "body": "A match is played in sets (games to 25 points). Before each set, the coach picks the order players start in. That order stays the same all set: you always follow the same teammate.",
+              "diagram": "roles",
+              "check": [
+                "u1.l3.q05",
+                "u1.l3.q06"
               ]
             }
           ],
@@ -290,7 +314,7 @@
               "type": "tf",
               "prompt": "A team rotates every time it wins a rally.",
               "answer": "false",
-              "explanation": "A team only rotates when it wins the serve back from the other team.",
+              "explanation": "Your team only rotates after a side out: winning a rally while the other team served.",
               "concepts": [
                 "rotating"
               ],
@@ -299,15 +323,15 @@
             {
               "id": "u1.l3.q02",
               "type": "mc",
-              "prompt": "When your team rotates, the player in zone 2 moves to which zone?",
+              "prompt": "Your team rotates. Where does the player in zone 5 go?",
               "options": [
-                "Zone 1",
-                "Zone 3",
+                "Zone 4",
                 "Zone 6",
-                "Zone 4"
+                "Zone 1",
+                "Zone 3"
               ],
-              "answer": "Zone 1",
-              "explanation": "Rotation is clockwise, so zone 2 moves back to zone 1.",
+              "answer": "Zone 4",
+              "explanation": "Everyone moves one zone clockwise, so zone 5 moves up to zone 4.",
               "concepts": [
                 "rotating"
               ]
@@ -315,9 +339,9 @@
             {
               "id": "u1.l3.q03",
               "type": "zone",
-              "prompt": "A player in zone 4 rotates once. Tap the zone they move to.",
-              "answer": "3",
-              "explanation": "Clockwise, zone 4 moves to zone 3.",
+              "prompt": "A player in zone 3 rotates once. Tap the zone they move to.",
+              "answer": "2",
+              "explanation": "Clockwise, zone 3 moves to zone 2.",
               "concepts": [
                 "rotating"
               ]
@@ -341,9 +365,9 @@
             {
               "id": "u1.l3.q05",
               "type": "tf",
-              "prompt": "The starting order can change in the middle of a set.",
+              "prompt": "During a set, the teammate you follow around the court can change.",
               "answer": "false",
-              "explanation": "The rotation order is set at the start of each set and stays the same.",
+              "explanation": "The lineup stays the same all set, so you always follow the same teammate when you rotate.",
               "concepts": [
                 "lineup"
               ],
@@ -400,8 +424,8 @@
           "title": "Contacts and scoring",
           "cards": [
             {
-              "title": "Three contacts",
-              "body": "A team can touch the ball up to three times before sending it over. A block does not count as one of those three, and the same player cannot touch the ball twice in a row.",
+              "title": "Three touches",
+              "body": "Each team gets up to three touches to send the ball back over. A block does not count as one. No player can touch the ball twice in a row.",
               "check": [
                 "u2.l1.q01",
                 "u2.l1.q02"
@@ -409,10 +433,17 @@
             },
             {
               "title": "Rally scoring",
-              "body": "Every rally scores a point, no matter which team served. A set is won at 25 points with a two-point lead. A deciding fifth set goes to 15.",
+              "body": "Every rally wins a point for someone, no matter who served. A set is won at 25 points, by at least two.",
               "check": [
                 "u2.l1.q03",
                 "u2.l1.q04"
+              ]
+            },
+            {
+              "title": "Winning the match",
+              "body": "A match is best of five sets: the first team to win three sets wins. If it is two sets each, the fifth set is played to 15.",
+              "check": [
+                "u2.l1.q05"
               ]
             }
           ],
@@ -436,10 +467,16 @@
             },
             {
               "id": "u2.l1.q02",
-              "type": "tf",
-              "prompt": "A block counts as one of the team's three contacts.",
-              "answer": "false",
-              "explanation": "A block does not count, so a team still has three contacts after it.",
+              "type": "mc",
+              "prompt": "Your blocker gets a hand on the ball. How many more touches does your team get?",
+              "options": [
+                "3",
+                "2",
+                "1",
+                "None"
+              ],
+              "answer": "3",
+              "explanation": "A block does not count as a touch, so your team still has all three.",
               "concepts": [
                 "contacts"
               ],
@@ -476,7 +513,7 @@
             {
               "id": "u2.l1.q05",
               "type": "mc",
-              "prompt": "A deciding fifth set is played to how many points?",
+              "prompt": "It is two sets each. What is the fifth set played to?",
               "options": [
                 "15",
                 "25",
@@ -484,7 +521,7 @@
                 "11"
               ],
               "answer": "15",
-              "explanation": "The fifth set is shorter: 15 points with a two-point lead.",
+              "explanation": "The deciding fifth set is shorter: 15 points, still won by two.",
               "concepts": [
                 "scoring"
               ],
@@ -497,29 +534,43 @@
           "title": "Net and line rules",
           "cards": [
             {
-              "title": "The net",
-              "body": "Touching the net between the antennae while playing the ball is a fault. The ball must cross the net between the antennae.",
+              "title": "The net and the antennae",
+              "body": "The ball must cross the net between the two antennae. Touching the net between them while playing the ball is a fault.",
+              "diagram": "net",
               "check": [
                 "u2.l2.q01",
                 "u2.l2.q03"
               ]
             },
             {
-              "title": "Lines and the centre line",
-              "body": "A ball that lands on a boundary line is in. A foot may cross the centre line under the net as long as part of it stays on or above the line.",
+              "title": "The centre line",
+              "body": "The centre line runs along the floor under the net. Your foot can cross it, as long as part of the foot is still on or above the line.",
+              "diagram": "centre",
               "check": [
-                "u2.l2.q04",
                 "u2.l2.q02"
+              ]
+            },
+            {
+              "title": "Lines are in",
+              "body": "A ball that lands on a boundary line is in.",
+              "check": [
+                "u2.l2.q04"
               ]
             }
           ],
           "questions": [
             {
               "id": "u2.l2.q01",
-              "type": "tf",
-              "prompt": "Touching the net between the antennae while playing the ball is a fault.",
-              "answer": "true",
-              "explanation": "Contact with the net while playing the ball is a fault.",
+              "type": "mc",
+              "prompt": "While blocking, a player brushes the net between the antennae. What happens?",
+              "options": [
+                "It is a fault",
+                "Play goes on",
+                "The point is replayed",
+                "Only a fault if the ball goes out"
+              ],
+              "answer": "It is a fault",
+              "explanation": "Touching the net between the antennae while playing the ball is a fault.",
               "concepts": [
                 "net"
               ],
@@ -527,10 +578,16 @@
             },
             {
               "id": "u2.l2.q02",
-              "type": "tf",
-              "prompt": "A foot may touch the other team's court if part of it stays on or above the centre line.",
-              "answer": "true",
-              "explanation": "Part of the foot must stay on or directly above the centre line.",
+              "type": "mc",
+              "prompt": "A player lands with their foot across the centre line, but part of it is still on the line. Is that a fault?",
+              "options": [
+                "No, it is allowed",
+                "Yes, it is a fault",
+                "Only if it is their left foot",
+                "Only during a serve"
+              ],
+              "answer": "No, it is allowed",
+              "explanation": "Part of the foot is still on the line, so it is allowed. A foot fully over the line would be a fault.",
               "concepts": [
                 "centre-line"
               ],
@@ -593,10 +650,18 @@
             },
             {
               "title": "Words for the flow of play",
-              "body": "A side-out is winning the rally while receiving. A free ball is an easy ball sent over without an attack. An overpass is a pass that goes straight over the net.",
+              "body": "A free ball is an easy ball sent over without an attack. An overpass is a pass that goes straight over the net.",
               "check": [
                 "u2.l3.q02",
-                "u2.l3.q04"
+                "u2.l3.q03"
+              ]
+            },
+            {
+              "title": "Attacking from the back row",
+              "body": "Back-row players can attack too. They just have to jump from behind the attack line.",
+              "diagram": "backrow",
+              "check": [
+                "u2.l3.q05"
               ]
             }
           ],
@@ -665,7 +730,7 @@
               "type": "tf",
               "prompt": "A side-out happens when the receiving team wins the rally.",
               "answer": "true",
-              "explanation": "Winning the rally while receiving earns a point and the serve.",
+              "explanation": "A side out wins the receiving team a point and the serve.",
               "concepts": [
                 "terms"
               ]
@@ -696,16 +761,26 @@
           "cards": [
             {
               "title": "Order at the serve",
-              "body": "When the ball is served, the receiving team must stand in its rotation order. Under the current FIVB rules, the serving team does not have to.",
+              "body": "When the ball is served, the receiving team must stand in its rotation order. Under FIVB rules, the serving team does not have to.",
               "check": [
                 "u3.l1.q01"
               ]
             },
             {
-              "title": "What overlap means",
-              "body": "Each front-row player must be closer to the net than the back-row player behind them (4 ahead of 5, 3 ahead of 6, 2 ahead of 1). In each row, players must also keep their left-to-right order. Feet on the floor decide position.",
+              "title": "Front stays in front",
+              "body": "Each front-row player must be closer to the net than the back-row player behind them: 4 ahead of 5, 3 ahead of 6, and 2 ahead of 1.",
+              "diagram": "zones",
               "check": [
                 "u3.l1.q02"
+              ]
+            },
+            {
+              "title": "Left stays left",
+              "body": "Players in the same row must also keep their left-to-right order. Where your feet touch the floor decides where you are.",
+              "diagram": "zones:back",
+              "check": [
+                "u3.l1.q03",
+                "u3.l1.q04"
               ]
             }
           ],
@@ -789,7 +864,8 @@
           "cards": [
             {
               "title": "The serve",
-              "body": "The server stands behind the end line and has 8 seconds after the whistle to serve. They may not touch the court or the end line when they hit the ball.",
+              "body": "The server stands behind the end line and has 8 seconds after the whistle. They cannot touch the end line or the court while serving.",
+              "diagram": "serve",
               "check": [
                 "u3.l2.q01",
                 "u3.l2.q02"
@@ -797,7 +873,7 @@
             },
             {
               "title": "Serving order",
-              "body": "The serve follows the rotation order. A serve that touches the net and still goes over is in play.",
+              "body": "Players serve in rotation order. A serve that clips the net and still goes over is fine.",
               "check": [
                 "u3.l2.q03",
                 "u3.l2.q04"
@@ -879,7 +955,8 @@
           "cards": [
             {
               "title": "A back-row specialist",
-              "body": "The libero may only play in the back row, zones 5, 6 and 1. They may not block or attempt to block.",
+              "body": "The libero can only play in the back row: zones 5, 6 and 1. They cannot block.",
+              "diagram": "libero",
               "check": [
                 "u3.l3.q01",
                 "u3.l3.q02"
@@ -887,7 +964,7 @@
             },
             {
               "title": "Replacements",
-              "body": "The libero usually comes in for a middle blocker who has rotated to the back row. These swaps are called replacements, and they do not count as substitutions.",
+              "body": "The libero usually comes in for a middle blocker once that middle rotates to the back row. These swaps do not count as substitutions.",
               "check": [
                 "u3.l3.q03",
                 "u3.l3.q04"
@@ -1266,15 +1343,15 @@
             {
               "id": "u4.l3.q02",
               "type": "mc",
-              "prompt": "From rotation 1, the team rotates once. Which zone is the setter in now?",
+              "prompt": "The team is in rotation 4 and rotates once. Which zone is the setter in now?",
               "options": [
-                "Zone 6",
-                "Zone 2",
+                "Zone 3",
                 "Zone 5",
-                "Zone 1"
+                "Zone 4",
+                "Zone 2"
               ],
-              "answer": "Zone 6",
-              "explanation": "Clockwise, zone 1 moves to zone 6.",
+              "answer": "Zone 3",
+              "explanation": "Clockwise, zone 4 moves to zone 3, so this is rotation 3.",
               "concepts": [
                 "rotations"
               ]
@@ -1292,9 +1369,9 @@
             {
               "id": "u4.l3.q04",
               "type": "zone",
-              "prompt": "An outside hitter is in zone 2. The team rotates once. Tap their new zone.",
-              "answer": "1",
-              "explanation": "Clockwise, zone 2 moves to zone 1.",
+              "prompt": "An outside hitter is in zone 3. The team rotates once. Tap their new zone.",
+              "answer": "2",
+              "explanation": "Clockwise, zone 3 moves to zone 2.",
               "concepts": [
                 "rotations"
               ]
@@ -2179,7 +2256,7 @@
     {
       "id": "rotation",
       "term": "Rotation",
-      "definition": "Moving one zone clockwise when your team wins the serve back. The player who moves from zone 2 to zone 1 serves next.",
+      "definition": "Moving one zone clockwise when your team wins the serve back (a side out). The player who moves into zone 1 serves next.",
       "example": "After a side-out, everyone rotates before the next serve.",
       "related": [
         "rotational-order",
@@ -2315,26 +2392,26 @@
     {
       "id": "set",
       "term": "Set (contact)",
-      "definition": "The contact that places the ball for a teammate to attack, usually the second contact.",
+      "definition": "A soft, high pass that sets the ball up for a teammate to attack, usually the second touch.",
       "example": "A high set to the outside gives the hitter time to approach.",
       "related": [
         "setter",
         "overhead-pass",
         "attack-hit"
       ],
-      "unit": "u2"
+      "unit": "u1"
     },
     {
       "id": "set-game",
       "term": "Set (game)",
-      "definition": "A game within a match, won by the first team to 25 points with a two-point lead.",
+      "definition": "One game within a match, won by the first team to 25 points with a two-point lead.",
       "example": "The team won the first set 25 to 22.",
       "related": [
         "match",
         "deciding-set",
         "rally-scoring"
       ],
-      "unit": "u2"
+      "unit": "u1"
     },
     {
       "id": "setter",
@@ -2385,14 +2462,14 @@
     {
       "id": "side-out",
       "term": "Side-out",
-      "definition": "Winning the rally while receiving. The receiving team scores and earns the serve.",
+      "definition": "Winning a rally while the other team served. Your team scores, gets the serve and rotates.",
       "example": "A side-out means your team rotates before serving.",
       "related": [
         "rotation",
         "serve-receive",
         "rally"
       ],
-      "unit": "u2"
+      "unit": "u1"
     },
     {
       "id": "spike",

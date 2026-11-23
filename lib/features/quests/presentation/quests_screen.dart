@@ -339,9 +339,11 @@ class _QuestCard extends ConsumerWidget {
     final reward = ref.read(motivationProvider.notifier).openChest(index);
     if (reward == null) return;
     ref.read(feedbackProvider).play(FeedbackEvent.chestOpened);
-    await showDialog<void>(
+    await showModalBottomSheet<void>(
       context: context,
-      builder: (context) => _RewardDialog(reward: reward),
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (context) => _RewardSheet(reward: reward),
     );
   }
 }
@@ -382,7 +384,9 @@ class _ChestButton extends StatelessWidget {
   }
 }
 
-class _RewardDialog extends StatelessWidget {
+/// What came out of a chest, in a sheet that rises from the bottom: Ace
+/// cheering, the reward on a chunky badge, and a burst of confetti.
+class _RewardSheet extends StatelessWidget {
   const new({required this.reward});
 
   final ChestReward reward;
@@ -409,34 +413,81 @@ class _RewardDialog extends StatelessWidget {
             'minutes.',
       ),
     };
-    final reduceMotion = MediaQuery.of(context).disableAnimations;
-    return AlertDialog(
-      title: const Text('Chest opened!', textAlign: TextAlign.center),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: reduceMotion ? 1 : 0.3, end: 1),
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeOutBack,
-            builder: (context, scale, child) =>
-                Transform.scale(scale: scale, child: child),
-            child: Icon(icon, size: 64, color: tokens.brandOrange),
+    return Stack(
+      children: [
+        const Positioned.fill(child: IgnorePointer(child: ConfettiBurst())),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Chest opened!',
+                textAlign: TextAlign.center,
+                style: text.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Ace(
+                    height: 120,
+                    action: AceAction.cheer,
+                    mood: AceMood.joyful,
+                  ),
+                  const SizedBox(width: 12),
+                  PopIn(
+                    scale: true,
+                    offset: 0,
+                    duration: const Duration(milliseconds: 500),
+                    child: Container(
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        color: tokens.brandYellow,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color.lerp(
+                              tokens.brandYellow,
+                              Colors.black,
+                              0.25,
+                            )!,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Icon(icon, size: 56, color: tokens.brandRed),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: text.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  color: tokens.brandOrange,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                detail,
+                textAlign: TextAlign.center,
+                style: text.bodyLarge?.copyWith(color: tokens.textSecondary),
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Nice!'),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: text.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 4),
-          Text(detail, textAlign: TextAlign.center),
-        ],
-      ),
-      actions: [
-        FilledButton(
-          style: FilledButton.styleFrom(minimumSize: const Size(120, 48)),
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Nice!'),
         ),
       ],
     );

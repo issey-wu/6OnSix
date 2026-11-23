@@ -138,6 +138,12 @@ class _CoachMarkState extends State<_CoachMark> {
       mood: widget.mood,
       action: widget.action,
       onDone: _done,
+    );
+    // "Skip tutorial" always sits in a top corner, or in a bottom corner
+    // when the lit-up part is at the top, such as the hint button.
+    const skipRoom = 56.0;
+    final skipAtTop = hole == null || hole.top > padding.top + skipRoom + 8;
+    final skip = _SkipButton(
       onSkip: () {
         if (_closing) return;
         _closing = true;
@@ -169,31 +175,64 @@ class _CoachMarkState extends State<_CoachMark> {
             Positioned(
               left: 12,
               right: 12,
-              top: below ? hole.bottom + 12 : padding.top + 12,
-              bottom: below ? padding.bottom + 12 : size.height - hole.top + 12,
+              top: below
+                  ? hole.bottom + 12
+                  : padding.top + 12 + (skipAtTop ? skipRoom : 0),
+              bottom: below
+                  ? padding.bottom + 12 + (skipAtTop ? 0 : skipRoom)
+                  : size.height - hole.top + 12,
               child: Center(child: SingleChildScrollView(child: card)),
             ),
+          Positioned(
+            right: 12,
+            top: skipAtTop ? padding.top + 10 : null,
+            bottom: skipAtTop ? null : padding.bottom + 10,
+            child: skip,
+          ),
         ],
       ),
     );
   }
 }
 
-/// Ace, his bubble, and the two buttons.
+/// "Skip tutorial", in the same place on every tip.
+class _SkipButton extends StatelessWidget {
+  const new({required this.onSkip});
+
+  final VoidCallback onSkip;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    type: MaterialType.transparency,
+    child: OutlinedButton.icon(
+      key: const ValueKey('tips-skip'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: const BorderSide(color: Colors.white70, width: 2),
+        minimumSize: const Size(0, 40),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        shape: const StadiumBorder(),
+      ),
+      onPressed: onSkip,
+      icon: const Icon(Icons.skip_next_rounded, size: 20),
+      label: const Text('Skip tutorial'),
+    ),
+  );
+}
+
+/// Ace, his bubble, and the Got it button.
 class _GuideCard extends StatelessWidget {
   const new({
     required this.text,
     required this.mood,
     required this.action,
     required this.onDone,
-    required this.onSkip,
   });
 
   final String text;
   final AceMood mood;
   final AceAction action;
   final VoidCallback onDone;
-  final VoidCallback onSkip;
 
   @override
   Widget build(BuildContext context) => Material(
@@ -213,12 +252,6 @@ class _GuideCard extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           children: [
-            TextButton(
-              key: const ValueKey('tips-skip'),
-              style: TextButton.styleFrom(foregroundColor: Colors.white),
-              onPressed: onSkip,
-              child: const Text('Skip tutorial'),
-            ),
             const Spacer(),
             FilledButton(
               key: const ValueKey('tips-ok'),

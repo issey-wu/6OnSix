@@ -7,6 +7,22 @@ All notable changes to this project are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed (Round 6: feedback from testing, Nov 23)
+- Clearer lesson order: rotating comes before the starting lineup, "side
+  out" is taught with rotating, and "set" (the touch) and "set" (the game)
+  are both explained in Unit 1.
+- Shorter, plainer card text, with a short check question after each card.
+  Questions straight after a card no longer repeat its example (zone 4
+  instead of zone 2, for instance).
+- New diagrams: the net between the antennae, the centre line and foot
+  faults, back-row attackers behind the attack line, and the server behind
+  the end line. The court diagram now uses drawing-style dimension lines.
+- Words on cards and in Show me how are tappable and open their meaning.
+  Only words from the current unit or earlier are linked or listed.
+- "Skip tutorial" is now its own button in a corner of every tip.
+- The quest chest reward is a themed sheet with Ace instead of a plain
+  dialog.
+
 ### Added (Round 5: first-run guide and polish)
 - A first-run guide. Ace darkens the screen around one part at a time and
   explains it: where to answer, Check, Show me how, what happens after a

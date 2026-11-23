@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
 import 'package:six_on_six/core/ui/player_token.dart';
+import 'package:six_on_six/features/lesson/presentation/diagram_paint.dart';
+import 'package:six_on_six/features/lesson/presentation/rule_diagrams.dart';
 
 /// A 5-1 starting lineup: the setter across from the opposite, the outside
 /// hitters across from each other, and the middles across from each other.
@@ -27,7 +29,17 @@ class CardDiagram extends StatelessWidget {
     final picture = switch (kind) {
       'court' => _FullCourt(highlight: detail),
       'zones' => _NumberedZones(highlight: _zonesFor(detail)),
-      'roles' => const _Lineup(tokens: _lineup),
+      'roles' => _Lineup(
+        tokens: _lineup,
+        highlight: {
+          for (final MapEntry(key: zone, value: token) in _lineup.entries)
+            if (token == detail) zone,
+        },
+      ),
+      'net' => const NetDiagram(),
+      'centre' => const CentreLineDiagram(),
+      'backrow' => const BackRowAttackDiagram(),
+      'serve' => const ServeDiagram(),
       'libero' => const _Lineup(tokens: _liberoLineup, highlight: {6}),
       'rotation' when detail == 'play' => const _RotationPlay(),
       'rotation' => const _Rotation(),
@@ -280,8 +292,9 @@ class _RotationPlayState extends State<_RotationPlay>
   Widget build(BuildContext context) => Semantics(
     image: true,
     label:
-        'The lineup rotates one zone clockwise: the setter moves from zone 1 '
-        'to zone 6 and the player in zone 2 moves to zone 1 to serve',
+        'Zones numbered 1 to 6, with zone 1 highlighted. The lineup rotates '
+        'one zone clockwise: the setter moves from zone 1 to zone 6 and the '
+        'player in zone 2 moves to zone 1 to serve',
     excludeSemantics: true,
     child: Column(
       mainAxisSize: MainAxisSize.min,
@@ -289,7 +302,26 @@ class _RotationPlayState extends State<_RotationPlay>
         const _NetLabel(),
         Stack(
           children: [
-            const CourtView(),
+            // Zone numbers in the corners, and zone 1 lit up: whoever
+            // moves into it serves next.
+            CourtView(
+              hintZones: const {1},
+              cellBuilder: (context, zone) => Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 6, top: 4),
+                  child: Text(
+                    '$zone',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: zone == 1
+                          ? AppTokens.of(context).brandRed
+                          : AppTokens.of(context).textSecondary,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ),
+            ),
             Positioned.fill(
               child: LayoutBuilder(
                 builder: (context, box) => AnimatedBuilder(
@@ -328,6 +360,14 @@ class _RotationPlayState extends State<_RotationPlay>
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'Zone 1 serves',
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: AppTokens.of(context).brandRed,
+            fontWeight: FontWeight.w900,
+          ),
         ),
         TextButton.icon(
           onPressed: _play,
@@ -391,8 +431,10 @@ class _ArrowsPainter extends CustomPainter {
   bool shouldRepaint(_ArrowsPainter oldDelegate) => oldDelegate.color != color;
 }
 
-/// A whole court from above (net across the middle), with its size and the
-/// attack lines labelled. [highlight] is `net`, `attack` or `half`.
+/// A whole court from above (net across the middle), measured like a
+/// technical drawing: each size sits on a dimension line outside the court,
+/// with arrows to the two edges it measures. [highlight] is `net`, `attack`
+/// or `half`.
 class _FullCourt extends StatelessWidget {
   const new({this.highlight = ''});
 
@@ -401,10 +443,11 @@ class _FullCourt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = switch (highlight) {
-      'net' => 'Full court, 18 m by 9 m, with the net across the middle',
+      'net' =>
+        'Full court, 18 m long and 9 m wide. The net across the middle '
+            'splits it into two halves, each 9 m by 9 m',
       'attack' =>
-        'Full court with an attack line 3 m from the net on each '
-            'side',
+        'Full court with an attack line 3 m from the net on each side',
       'half' => 'Full court with one 9 m by 9 m half shaded',
       _ => 'Full volleyball court, 18 m long and 9 m wide',
     };
@@ -416,7 +459,7 @@ class _FullCourt extends StatelessWidget {
       label: label,
       excludeSemantics: true,
       child: AspectRatio(
-        aspectRatio: 0.72,
+        aspectRatio: 0.8,
         child: CustomPaint(
           painter: _FullCourtPainter(
             highlight: highlight,
@@ -452,37 +495,19 @@ class _FullCourtPainter extends CustomPainter {
   final TextStyle style;
   final Color muted;
 
-  void _text(
-    Canvas canvas,
-    String text,
-    Offset centre, {
-    Color? color,
-    double angle = 0,
-  }) {
-    final painter = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: style.copyWith(color: color ?? muted),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    canvas
-      ..save()
-      ..translate(centre.dx, centre.dy)
-      ..rotate(angle);
-    painter.paint(canvas, Offset(-painter.width / 2, -painter.height / 2));
-    canvas.restore();
-    painter.dispose();
-  }
-
   @override
   void paint(Canvas canvas, Size size) {
-    // The court is 9 wide and 18 long; leave room for labels around it.
-    const left = 40.0;
-    const right = 56.0;
-    const top = 30.0;
-    final courtHeight = size.height - top - 6;
-    final courtWidth = courtHeight / 2;
+    // The court is 9 wide and 18 long. Room on the left for the length,
+    // above for the width, and on the right for the halves and the net.
+    const left = 44.0;
+    const right = 92.0;
+    const top = 34.0;
+    const bottom = 8.0;
+    final courtWidth = min(
+      size.width - left - right,
+      (size.height - top - bottom) / 2,
+    );
+    final courtHeight = courtWidth * 2;
     final x0 = left + (size.width - left - right - courtWidth) / 2;
     final court = Rect.fromLTWH(x0, top, courtWidth, courtHeight);
     final midY = court.center.dy;
@@ -511,48 +536,83 @@ class _FullCourtPainter extends CustomPainter {
     }
 
     // The net, a little wider than the court so it reads as a net.
-    final netPaint = Paint()
-      ..color = highlight == 'net' ? accent : net
-      ..strokeWidth = highlight == 'net' ? 8 : 5
-      ..strokeCap = StrokeCap.round;
+    final netColour = highlight == 'net' ? accent : net;
     canvas.drawLine(
       Offset(court.left - 8, midY),
       Offset(court.right + 8, midY),
-      netPaint,
+      Paint()
+        ..color = netColour
+        ..strokeWidth = highlight == 'net' ? 8 : 5
+        ..strokeCap = StrokeCap.round,
     );
 
-    // Labels.
-    _text(canvas, '9 m', Offset(court.center.dx, top - 15));
-    _text(canvas, '18 m', Offset(x0 - 18, court.center.dy), angle: -pi / 2);
-    _text(
+    // Dimensions: the width above, the length on the left.
+    paintDimension(
+      canvas,
+      a: court.topLeft,
+      b: court.topRight,
+      offset: const Offset(0, -18),
+      label: '9 m',
+      style: style,
+      color: muted,
+    );
+    paintDimension(
+      canvas,
+      a: court.bottomLeft,
+      b: court.topLeft,
+      offset: const Offset(-22, 0),
+      label: '18 m',
+      style: style,
+      color: muted,
+    );
+
+    // On the right: each half, or each attack zone, measured from the net.
+    const rightOffset = Offset(22, 0);
+    switch (highlight) {
+      case 'net' || 'half':
+        for (final (from, to) in [
+          (court.topRight, Offset(court.right, midY)),
+          (Offset(court.right, midY), court.bottomRight),
+        ]) {
+          paintDimension(
+            canvas,
+            a: from,
+            b: to,
+            offset: rightOffset,
+            label: '9 m',
+            style: style,
+            color: accent,
+          );
+        }
+      case 'attack':
+        for (final (from, to) in [
+          (Offset(court.right, midY - 3 * metre), Offset(court.right, midY)),
+          (Offset(court.right, midY), Offset(court.right, midY + 3 * metre)),
+        ]) {
+          paintDimension(
+            canvas,
+            a: from,
+            b: to,
+            offset: rightOffset,
+            label: '3 m',
+            style: style,
+            color: accent,
+          );
+        }
+        paintLabel(
+          canvas,
+          'attack line',
+          Offset(court.center.dx, midY + 3 * metre + 11),
+          style.copyWith(color: accent, fontSize: (style.fontSize ?? 14) - 2),
+          background: floor,
+        );
+    }
+    paintLabel(
       canvas,
       'NET',
-      Offset(court.right + 32, midY),
-      color: highlight == 'net' ? accent : net,
+      Offset(court.right + 66, midY),
+      style.copyWith(color: netColour),
     );
-    if (highlight == 'attack') {
-      _text(
-        canvas,
-        '3 m',
-        Offset(court.center.dx, midY - 1.5 * metre),
-        color: accent,
-      );
-      _text(
-        canvas,
-        '3 m',
-        Offset(court.center.dx, midY + 1.5 * metre),
-        color: accent,
-      );
-    }
-    if (highlight == 'net' || highlight == 'half') {
-      _text(
-        canvas,
-        '9 m × 9 m',
-        Offset(court.center.dx, midY + 4.5 * metre),
-        color: highlight == 'half' ? accent : muted,
-      );
-      _text(canvas, '9 m × 9 m', Offset(court.center.dx, midY - 4.5 * metre));
-    }
   }
 
   @override

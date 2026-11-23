@@ -4,6 +4,7 @@ import 'package:six_on_six/core/domain/course.dart';
 import 'package:six_on_six/core/ui/court_lineup.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
 import 'package:six_on_six/core/ui/player_token.dart';
+import 'package:six_on_six/features/glossary/presentation/glossary_text.dart';
 import 'package:six_on_six/features/lesson/presentation/card_diagram.dart';
 
 /// The picture shown in "Show me how" for a multiple choice, true or false
@@ -16,9 +17,12 @@ String? howToDiagram(Question question) {
   for (final concept in question.concepts) {
     final spec = switch (concept) {
       'court-size' => 'court:net',
-      'court-lines' || 'back-row-attack' => 'court:attack',
+      'court-lines' => 'court:attack',
+      'back-row-attack' => 'backrow',
+      'net' => 'net',
+      'centre-line' => 'centre',
       'zones' || 'overlap' => 'zones',
-      'serving' => 'zones:1',
+      'serving' => 'serve',
       'lineup' => 'roles',
       'rotating' || 'rotations' || 'setter-position' => 'rotation:play',
       _ => null,
@@ -96,6 +100,10 @@ class _ShowMeHowSheetState extends State<ShowMeHowSheet> {
     final steps = howToSteps(q);
     final terms = widget.course.termsFor(q, '${q.prompt} ${q.explanation}');
     final ruleRef = q.ruleRef;
+    // Glossary links go up to this question's unit, never beyond.
+    final unitIndex = widget.course.units.indexWhere(
+      (u) => q.id.startsWith('${u.id}.'),
+    );
     final note = q.leagueNote;
 
     Widget heading(String label) => Padding(
@@ -195,7 +203,13 @@ class _ShowMeHowSheetState extends State<ShowMeHowSheet> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(child: Text(step, style: text.bodyLarge)),
+                  Expanded(
+                    child: GlossaryText(
+                      step,
+                      unitIndex: unitIndex,
+                      style: text.bodyLarge,
+                    ),
+                  ),
                 ],
               ),
             ),

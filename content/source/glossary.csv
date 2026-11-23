@@ -23,7 +23,7 @@ libero,Libero,"A back-row defensive specialist in a different coloured jersey. T
 defensive-specialist,Defensive specialist,"A substitute who comes in to pass and defend. Unlike the libero, they follow normal substitution rules.",A coach may sub in a defensive specialist for a front-row hitter who rotates to the back.,"substitution,libero",u1
 captain,Captain,The player who speaks for the team with the referees.,Only the game captain may ask the referee to explain a call during play.,first-referee,u2
 lineup,Lineup,"The starting order of the six players, recorded on the line-up sheet before each set. It stays the same for the whole set.","A lineup of S, OH1, MB1, OPP, OH2, MB2 puts the setter in zone 1.","rotation,rotational-order,substitution",u1
-rotation,Rotation,Moving one zone clockwise when your team wins the serve back. The player who moves from zone 2 to zone 1 serves next.,"After a side-out, everyone rotates before the next serve.","rotational-order,side-out,zones",u1
+rotation,Rotation,Moving one zone clockwise when your team wins the serve back (a side out). The player who moves into zone 1 serves next.,"After a side-out, everyone rotates before the next serve.","rotational-order,side-out,zones",u1
 rotational-order,Rotational order,"The order set by the lineup, which players must keep at the moment of the serve (receiving team).","Under FIVB rules, only the receiving team must be in rotational order at the serve.","lineup,overlap,positional-fault",u3
 overlap,Overlap,"Being out of place relative to a neighbour at the serve, such as a back-row player standing ahead of the front-row player in front of them.",The player in zone 6 must be behind the player in zone 3 when the ball is served.,"positional-fault,rotational-order",u3
 positional-fault,Positional fault,A player is not in their correct position when the ball is served. The other team gets the point and the serve.,Standing ahead of your front-row teammate at the serve is a positional fault.,"overlap,rotational-order",u3
@@ -53,7 +53,7 @@ assisted-hit,Assisted hit,A player using a teammate or any object to reach the b
 pass,Pass,"Usually the first contact, sending the ball to the setter.",A good pass lets the setter choose any hitter.,"forearm-pass,overhead-pass,serve-receive",u2
 forearm-pass,Forearm pass,Playing the ball off the forearms held together. Often called a bump.,Most serves are received with a forearm pass.,"pass,dig",u2
 overhead-pass,Overhead pass,Playing the ball above the head with the fingers of both hands.,Setters use an overhead pass to set the ball.,"set,pass",u2
-set,Set (contact),"The contact that places the ball for a teammate to attack, usually the second contact.",A high set to the outside gives the hitter time to approach.,"setter,overhead-pass,attack-hit",u2
+set,Set (contact),"A soft, high pass that sets the ball up for a teammate to attack, usually the second touch.",A high set to the outside gives the hitter time to approach.,"setter,overhead-pass,attack-hit",u1
 attack-hit,Attack hit,"Any action that sends the ball toward the opponent, except a serve or a block.","A spike, a tip and a roll shot are all attack hits.","spike,tip,back-row-attack",u2
 spike,Spike,A powerful attack hit from above the net.,The outside hitter spiked the ball cross-court for a kill.,"attack-hit,kill,block",u2
 tip,Tip,A soft attack pushed over or around the block with the fingertips. It must not be caught or thrown.,A tip into the middle of the court can catch the defence off guard.,"attack-hit,roll-shot,catch",u2
@@ -76,8 +76,8 @@ quick-set,Quick set,"A fast, low set to the middle blocker, who is already in th
 setter-dump,Setter dump,The setter attacks the second ball instead of setting it. A back-row setter may not complete this attack from in front of the attack line with the ball fully above the net.,A front-row setter can dump the ball over when the block is not ready.,"setter,back-row-attack",u4
 rally,Rally,The play from the serve until the ball is out of play.,The rally ended when the ball landed in.,"rally-scoring,side-out",u2
 rally-scoring,Rally scoring,"Every rally scores a point, whichever team served.","With rally scoring, a mistake on your own serve still gives the other team a point.","rally,set-game",u2
-side-out,Side-out,Winning the rally while receiving. The receiving team scores and earns the serve.,A side-out means your team rotates before serving.,"rotation,serve-receive,rally",u2
-set-game,Set (game),"A game within a match, won by the first team to 25 points with a two-point lead.",The team won the first set 25 to 22.,"match,deciding-set,rally-scoring",u2
+side-out,Side-out,"Winning a rally while the other team served. Your team scores, gets the serve and rotates.",A side-out means your team rotates before serving.,"rotation,serve-receive,rally",u1
+set-game,Set (game),"One game within a match, won by the first team to 25 points with a two-point lead.",The team won the first set 25 to 22.,"match,deciding-set,rally-scoring",u1
 match,Match,A contest of up to five sets. The first team to win three sets wins the match.,The match went to five sets.,"set-game,deciding-set",u2
 deciding-set,Deciding set,"The fifth set, played to 15 points with a two-point lead.","In the deciding set, teams switch sides at 8 points.","match,set-game",u2
 timeout,Timeout,A 30-second break requested by a team. Each team may take up to two per set.,The coach called a timeout to reset after three straight points.,substitution,u2

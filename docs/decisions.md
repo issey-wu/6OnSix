@@ -95,3 +95,11 @@ A short list of the current stack and architecture choices. Update an entry when
 - **Alternating lessons:** `cards.csv` has a `check` column naming the questions asked straight after each card. `Lesson.interleaved()` builds the order; cards with no checks show with the next card, so content without checks behaves as before. A new learner now reaches the first question in two taps: Get started, then Continue.
 - **League peek:** the ladder badges open a sheet about that league. Its "top of a typical week" uses the same made-up players a league there would start with.
 
+## Feedback round (Round 6)
+
+- **Lesson order (tester feedback, Nov 23):** Unit 1 lesson 3 teaches rotating first, then who serves, then the lineup, so "the order never changes" makes sense. "Side out" is taught with rotating. Both meanings of "set" (the touch and the game to 25) are in Unit 1.
+- **Check questions:** a question asked straight after a card must not repeat the card's example; it uses a different zone or case.
+- **Diagrams:** shared drawing helpers in `diagram_paint.dart` (dimension lines with arrowheads and a label gap, stick figures, tick and cross icons). Rule diagrams live in `rule_diagrams.dart`: `net`, `centre`, `backrow`, `serve`.
+- **Gatekeeping:** tappable words (`GlossaryText`) and Show me how's "Words to know" only use glossary terms from the current unit or earlier. Single everyday words (court, net, pass) are not linked; at most 4 links per text.
+- **Skip tutorial:** a separate pill button, top-right (bottom-right when the lit-up part is near the top), not part of Ace's card.
+- **Reward popups:** sheets in the app's style with Ace, not plain Material dialogs.
