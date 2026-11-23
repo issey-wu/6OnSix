@@ -179,7 +179,7 @@ class FeedbackPanel extends StatelessWidget {
                     minimumSize: const Size.fromHeight(48),
                   ),
                   onPressed: onShowMeHow,
-                  icon: const Icon(Icons.school_outlined),
+                  icon: const Icon(Icons.school_rounded),
                   label: const Text('Show me how'),
                 ),
               ),
@@ -333,7 +333,7 @@ class UnitHeader extends StatelessWidget {
 /// arrows, and a team of six. Units past the fourth reuse them in order.
 const List<IconData> _unitSymbols = [
   Icons.grid_view_rounded,
-  Icons.sports,
+  Icons.sports_rounded,
   Icons.autorenew_rounded,
   Icons.groups_rounded,
 ];
@@ -398,7 +398,7 @@ class StreakBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.local_fire_department,
+            Icons.local_fire_department_rounded,
             color: streak > 0 ? tokens.brandOrange : tokens.textSecondary,
           ),
           const SizedBox(width: 2),
@@ -483,7 +483,7 @@ class GoalRing extends StatelessWidget {
                 backgroundColor: tokens.surfaceMuted,
               ),
               Icon(
-                met ? Icons.check : Icons.flag,
+                met ? Icons.check_rounded : Icons.flag_rounded,
                 size: 16,
                 color: met ? tokens.success : tokens.textSecondary,
               ),
@@ -540,6 +540,7 @@ class ShineBar extends StatelessWidget {
     required this.track,
     this.height = 14,
     this.semanticsLabel,
+    this.note,
     super.key,
   });
 
@@ -548,6 +549,10 @@ class ShineBar extends StatelessWidget {
   final Color track;
   final double height;
   final String? semanticsLabel;
+
+  /// A few words shown at the right end of the empty part of the bar, such
+  /// as "2 to go". Fades in and out as it changes.
+  final String? note;
 
   @override
   Widget build(BuildContext context) => ClipRRect(
@@ -574,6 +579,33 @@ class ShineBar extends StatelessWidget {
                 color: Colors.white.withValues(alpha: 0.35),
                 borderRadius: BorderRadius.circular(height),
               ),
+            ),
+          ),
+        ),
+        Positioned.fill(
+          right: height * 0.6,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: AnimatedSwitcher(
+              duration: motion(context, const Duration(milliseconds: 250)),
+              reverseDuration: motion(
+                context,
+                const Duration(milliseconds: 200),
+              ),
+              child: note == null
+                  ? const SizedBox.shrink()
+                  : ExcludeSemantics(
+                      key: ValueKey(note),
+                      child: Text(
+                        note!,
+                        style: TextStyle(
+                          fontSize: height * 0.7,
+                          height: 1,
+                          fontWeight: FontWeight.w900,
+                          color: AppTokens.of(context).textSecondary,
+                        ),
+                      ),
+                    ),
             ),
           ),
         ),

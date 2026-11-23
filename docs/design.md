@@ -428,7 +428,8 @@ Sound and haptics have separate on/off toggles. Sound respects the phone's silen
 | Lesson complete | Short arcade fanfare | Success pattern |
 | Streak extended | Rising fanfare, after the lesson complete sound | Success pattern |
 | Chest opened | Thunk, shimmer and bell | Success pattern |
-| Regular button taps | None | None |
+| Main buttons (Check, Continue) | None | Light impact |
+| Other taps (tabs, rows, choices, zones, picking up a player) | None | Selection click |
 
 ## 10. Accessibility
 

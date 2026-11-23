@@ -207,6 +207,21 @@ void main() {
     expect(find.byKey(const ValueKey('token-S')), findsNothing);
   });
 
+  testWidgets('the bar starts with a small head start, not empty', (
+    tester,
+  ) async {
+    await _pump(tester, location: '/lesson/u1.l2');
+    await _toQuestions(tester);
+    final bar = tester.widget<LinearProgressIndicator>(
+      find.byWidgetPredicate(
+        (w) =>
+            w is LinearProgressIndicator &&
+            w.semanticsLabel == 'Lesson progress',
+      ),
+    );
+    expect(bar.value, closeTo(0.06, 0.001));
+  });
+
   testWidgets('the bar fills before the complete screen, and a hint skips '
       'the perfect bonus', (tester) async {
     await _pump(tester, location: '/lesson/u1.l2');

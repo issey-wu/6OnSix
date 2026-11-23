@@ -118,7 +118,9 @@ class _UnitLabel extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                number == null ? Icons.workspace_premium : unitSymbol(number),
+                number == null
+                    ? Icons.workspace_premium_rounded
+                    : unitSymbol(number),
                 size: 20,
                 color: tokens.brandYellow,
               ),
@@ -167,7 +169,7 @@ class _JumpTile extends StatelessWidget {
       NodeState.locked => (
         tokens.surfaceMuted,
         tokens.textSecondary,
-        Icons.lock,
+        Icons.lock_rounded,
         'Locked',
       ),
       NodeState.current => (
@@ -184,9 +186,9 @@ class _JumpTile extends StatelessWidget {
       ),
     };
     final nodeIcon = node.isFinal
-        ? Icons.workspace_premium
+        ? Icons.workspace_premium_rounded
         : node.isReview
-        ? Icons.emoji_events
+        ? Icons.emoji_events_rounded
         : icon;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -238,7 +240,7 @@ class _JumpTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right, color: tokens.textSecondary),
+                Icon(Icons.chevron_right_rounded, color: tokens.textSecondary),
               ],
             ),
           ),

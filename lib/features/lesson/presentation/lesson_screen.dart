@@ -28,6 +28,9 @@ import 'package:six_on_six/features/lesson/presentation/show_me_how.dart';
 
 enum _Stage { teaching, question, complete }
 
+/// How full the lesson bar is before the first answer.
+const _barHeadStart = 0.06;
+
 /// Plays one lesson, unit review, final review or weak spots practice:
 /// teaching cards, then questions under the complete-until-correct rule,
 /// then the lesson complete screen.
@@ -542,12 +545,17 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
       children: [
         IconButton(
           tooltip: 'Quit lesson',
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close_rounded),
           onPressed: _confirmQuit,
         ),
         Expanded(
           child: TweenAnimationBuilder<double>(
-            tween: Tween(end: session.progress),
+            // The bar starts with a small head start rather than empty, as
+            // people push harder towards a finish they already feel closer
+            // to (the endowed progress effect, Nunes and Dreze 2006).
+            tween: Tween(
+              end: _barHeadStart + (1 - _barHeadStart) * session.progress,
+            ),
             duration: Duration(milliseconds: _finishing ? 900 : 350),
             curve: _finishing
                 ? const Interval(0, 0.5, curve: Curves.easeOut)
@@ -559,6 +567,8 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
               track: AppTokens.of(context).surfaceMuted,
               height: 16,
               semanticsLabel: 'Lesson progress',
+              // Near the end, show what's left rather than what's done.
+              note: _toGo(session),
             ),
           ),
         ),
@@ -567,12 +577,20 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
     ),
   );
 
+  /// "2 to go" or "1 to go" over the last stretch of a lesson, once it's
+  /// past the start.
+  String? _toGo(LessonSession session) {
+    final left = session.remaining;
+    if (_finishing || left < 1 || left > 2 || session.total <= 2) return null;
+    return '$left to go';
+  }
+
   Widget _hintButton(Course course, {required bool available}) => KeyedSubtree(
     key: _hintKey,
     child: IconButton(
       key: const ValueKey('hint'),
       tooltip: _hintUsed ? 'Hint used' : 'Hint',
-      icon: Icon(_hintUsed ? Icons.lightbulb : Icons.lightbulb_outline),
+      icon: const Icon(Icons.lightbulb_rounded),
       color: AppTokens.of(context).brandOrange,
       onPressed: available ? () => _useHint(course) : null,
     ),
@@ -963,19 +981,19 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                             value: '+${outcome?.xp ?? 0}',
                             countTo: outcome?.xp ?? 0,
                             prefix: '+',
-                            icon: Icons.bolt,
+                            icon: Icons.bolt_rounded,
                             iconColor: tokens.brandYellow,
                           ),
                           StatCard(
                             label: 'Accuracy',
                             value: '${(session.accuracy * 100).round()}%',
-                            icon: Icons.track_changes,
+                            icon: Icons.track_changes_rounded,
                             iconColor: tokens.choice,
                           ),
                           StatCard(
                             label: 'Streak',
                             value: '$streak',
-                            icon: Icons.local_fire_department,
+                            icon: Icons.local_fire_department_rounded,
                             iconColor: tokens.brandOrange,
                           ),
                         ],
@@ -1024,7 +1042,7 @@ class _QuestDoneChip extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.redeem, color: tokens.brandOrange),
+            Icon(Icons.redeem_rounded, color: tokens.brandOrange),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -1066,7 +1084,7 @@ class _StreakCelebration extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.local_fire_department,
+              Icons.local_fire_department_rounded,
               color: tokens.brandOrange,
               size: milestone ? 56 : 36,
             ),
@@ -1105,7 +1123,7 @@ class _HintBox extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.lightbulb, color: tokens.brandOrange),
+            Icon(Icons.lightbulb_rounded, color: tokens.brandOrange),
             const SizedBox(width: 8),
             Expanded(
               child: Text(text, style: Theme.of(context).textTheme.bodyMedium),

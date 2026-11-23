@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/domain/course.dart';
+import 'package:six_on_six/core/ui/tap_haptics.dart';
 
 /// Single words worth a link. Everyday words such as "court", "net", "in"
 /// or "pass" stay plain, so a card isn't covered in underlines.
@@ -113,7 +116,10 @@ class _GlossaryTextState extends ConsumerState<GlossaryText> {
     for (final (start, end, term) in matches) {
       if (start > at) spans.add(TextSpan(text: text.substring(at, start)));
       final recognizer = TapGestureRecognizer()
-        ..onTap = () => showTermSheet(context, term);
+        ..onTap = () {
+          TapHaptics.play();
+          unawaited(showTermSheet(context, term));
+        };
       _recognizers.add(recognizer);
       spans.add(
         TextSpan(
@@ -158,7 +164,10 @@ Future<void> showTermSheet(BuildContext context, GlossaryTerm term) =>
                   CircleAvatar(
                     radius: 20,
                     backgroundColor: tokens.brandYellow,
-                    child: Icon(Icons.menu_book, color: tokens.brandRed),
+                    child: Icon(
+                      Icons.menu_book_rounded,
+                      color: tokens.brandRed,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(

@@ -378,7 +378,10 @@ void main() {
         answerStats: const AnswerStats().withResults(missed),
       ),
     );
-    await tester.scrollUntilVisible(find.byIcon(Icons.workspace_premium), 300);
+    await tester.scrollUntilVisible(
+      find.byIcon(Icons.workspace_premium_rounded),
+      300,
+    );
     await _shot(tester, '19_final_review');
     await tester.scrollUntilVisible(find.text('Practice weak spots'), -300);
     await _shot(tester, '20_weak_spots');

@@ -7,6 +7,21 @@ All notable changes to this project are recorded here. The format follows
 
 ## [Unreleased]
 
+### Changed (Round 7: design polish, Nov 23)
+- The lesson bar starts with a small head start instead of empty, and shows
+  "2 to go" and "1 to go" over the last stretch.
+- Light haptic taps on every tab, button, row, answer choice and court
+  zone, and when picking up a player; main buttons tap a little firmer.
+  The Haptics setting turns them all off.
+- All icons use one rounded style that matches the app's font.
+- Softer diagrams: rounded court corners, lighter lines, the net as a
+  rounded band, and highlights as rounded tiles. The serve card has a new,
+  friendlier server in the team's colours, and the centre line card shows
+  shoes instead of plain shapes.
+- Matching tiles have the same raised edge as the other answer choices.
+- Settings: "Reset progress" moved to the bottom, on its own, in red.
+- Tutorial highlight rings have corners that follow what they surround.
+
 ### Changed (Round 6: feedback from testing, Nov 23)
 - Clearer lesson order: rotating comes before the starting lineup, "side
   out" is taught with rotating, and "set" (the touch) and "set" (the game)

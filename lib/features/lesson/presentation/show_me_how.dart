@@ -155,7 +155,7 @@ class _ShowMeHowSheetState extends State<ShowMeHowSheet> {
             Center(
               child: TextButton.icon(
                 onPressed: () => setState(() => _runId++),
-                icon: const Icon(Icons.replay),
+                icon: const Icon(Icons.replay_rounded),
                 label: const Text('Play again'),
               ),
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:six_on_six/app/theme.dart';
+import 'package:six_on_six/core/ui/diagram_paint.dart';
 import 'package:six_on_six/core/ui/player_token.dart';
 
 /// Zones in screen order: front row left to right, then back row.
@@ -64,6 +65,7 @@ class CourtView extends StatelessWidget {
               painter: _CourtPainter(
                 floor: tokensTheme.selectedBg,
                 line: line,
+                net: tokensTheme.brandRed,
                 selectedFill: tokensTheme.brandOrange,
                 selectedZone: selectedZone,
                 hintFill: tokensTheme.brandYellow,
@@ -141,6 +143,7 @@ class _CourtPainter extends CustomPainter {
   new({
     required this.floor,
     required this.line,
+    required this.net,
     required this.selectedFill,
     required this.selectedZone,
     required this.hintFill,
@@ -149,6 +152,7 @@ class _CourtPainter extends CustomPainter {
 
   final Color floor;
   final Color line;
+  final Color net;
   final Color selectedFill;
   final int? selectedZone;
   final Color hintFill;
@@ -172,37 +176,49 @@ class _CourtPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final attackY = h / 3;
-    final court = Offset.zero & size;
-    canvas.drawRect(court, Paint()..color = floor);
+    // The net band sits along the top edge, so the court starts just below
+    // its middle.
+    final court = Rect.fromLTRB(0, 3, w, h);
+    paintSoftHalfCourt(
+      canvas,
+      court,
+      floor: floor,
+      line: line,
+      net: net,
+      netOverhang: 0,
+    );
 
     for (final hinted in hintZones) {
-      canvas.drawRect(
+      paintSoftCell(
+        canvas,
         _zoneRect(hinted, size),
-        Paint()..color = hintFill.withValues(alpha: 0.45),
+        hintFill.withValues(alpha: 0.45),
       );
     }
     final zone = selectedZone;
     if (zone != null) {
-      canvas.drawRect(
+      paintSoftCell(
+        canvas,
         _zoneRect(zone, size),
-        Paint()..color = selectedFill.withValues(alpha: 0.75),
+        selectedFill.withValues(alpha: 0.75),
       );
     }
 
     final thin = Paint()
-      ..color = line.withValues(alpha: 0.35)
+      ..color = line.withValues(alpha: 0.2)
       ..strokeWidth = 1;
     for (var i = 1; i < 3; i++) {
-      canvas.drawLine(Offset(i * w / 3, 0), Offset(i * w / 3, h), thin);
+      canvas.drawLine(Offset(i * w / 3, 6), Offset(i * w / 3, h - 2), thin);
     }
-    final lines = Paint()
-      ..color = line
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-    canvas
-      ..drawRect(court.deflate(1), lines)
-      ..drawLine(Offset(0, attackY), Offset(w, attackY), lines)
-      ..drawLine(Offset.zero, Offset(w, 0), lines..strokeWidth = 6);
+    canvas.drawLine(
+      Offset(1, attackY),
+      Offset(w - 1, attackY),
+      Paint()
+        ..color = line.withValues(alpha: 0.7)
+        ..strokeWidth = 2,
+    );
+    // Drawn again on top, so a lit-up tile never covers the net.
+    paintNetBand(canvas, Offset(0, court.top), Offset(w, court.top), net);
   }
 
   @override
@@ -211,5 +227,6 @@ class _CourtPainter extends CustomPainter {
       oldDelegate.hintZones.length != hintZones.length ||
       !oldDelegate.hintZones.containsAll(hintZones) ||
       oldDelegate.floor != floor ||
-      oldDelegate.line != line;
+      oldDelegate.line != line ||
+      oldDelegate.net != net;
 }

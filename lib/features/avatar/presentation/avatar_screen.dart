@@ -238,7 +238,7 @@ class _Builder extends StatelessWidget {
               onPressed: avatar.number > AvatarOptions.minNumber
                   ? () => onChange(avatar.copyWith(number: avatar.number - 1))
                   : null,
-              icon: const Icon(Icons.remove),
+              icon: const Icon(Icons.remove_rounded),
             ),
             SizedBox(
               width: 64,
@@ -256,7 +256,7 @@ class _Builder extends StatelessWidget {
               onPressed: avatar.number < AvatarOptions.maxNumber
                   ? () => onChange(avatar.copyWith(number: avatar.number + 1))
                   : null,
-              icon: const Icon(Icons.add),
+              icon: const Icon(Icons.add_rounded),
             ),
           ],
         ),

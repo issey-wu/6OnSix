@@ -116,7 +116,7 @@ class QuestsScreen extends ConsumerWidget {
             if (boostUntil != null && motivation.boostActive(now)) ...[
               const SizedBox(height: 12),
               _Banner(
-                icon: Icons.flash_on,
+                icon: Icons.flash_on_rounded,
                 text: 'Double XP until ${_clockTime(context, boostUntil)}',
               ),
             ],
@@ -251,7 +251,7 @@ class _FreezeRow extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 4),
                 child: Icon(
-                  Icons.ac_unit,
+                  Icons.ac_unit_rounded,
                   size: 28,
                   color: i < count ? Colors.lightBlue : tokens.surfaceMuted,
                 ),
@@ -363,7 +363,7 @@ class _ChestButton extends StatelessWidget {
       _ChestState.locked => Semantics(
         label: 'Chest, locked until the quest is done',
         excludeSemantics: true,
-        child: Icon(Icons.redeem, size: 36, color: tokens.surfaceMuted),
+        child: Icon(Icons.redeem_rounded, size: 36, color: tokens.surfaceMuted),
       ),
       _ChestState.ready => Wiggle(
         child: FilledButton.icon(
@@ -371,14 +371,18 @@ class _ChestButton extends StatelessWidget {
           // row, so it needs its own size.
           style: FilledButton.styleFrom(minimumSize: const Size(96, 44)),
           onPressed: onOpen,
-          icon: const Icon(Icons.redeem),
+          icon: const Icon(Icons.redeem_rounded),
           label: const Text('Open'),
         ),
       ),
       _ChestState.opened => Semantics(
         label: 'Chest opened',
         excludeSemantics: true,
-        child: Icon(Icons.check_circle, size: 36, color: tokens.success),
+        child: Icon(
+          Icons.check_circle_rounded,
+          size: 36,
+          color: tokens.success,
+        ),
       ),
     };
   }
@@ -397,17 +401,17 @@ class _RewardSheet extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final (icon, title, detail) = switch (reward) {
       BonusXpReward(:final xp) => (
-        Icons.bolt,
+        Icons.bolt_rounded,
         '+$xp XP',
         'Bonus XP, added to today and your total.',
       ),
       StreakFreezeReward() => (
-        Icons.ac_unit,
+        Icons.ac_unit_rounded,
         'Streak freeze',
         'If you miss a day, it keeps your streak alive automatically.',
       ),
       XpBoostReward(:final length) => (
-        Icons.flash_on,
+        Icons.flash_on_rounded,
         'Double XP',
         'Every lesson earns double XP for the next ${length.inMinutes} '
             'minutes.',

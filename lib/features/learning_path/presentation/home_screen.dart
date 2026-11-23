@@ -358,7 +358,7 @@ class _WeakSpotsCard extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(Icons.fitness_center, color: tokens.brandOrange),
+                Icon(Icons.fitness_center_rounded, color: tokens.brandOrange),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -379,7 +379,7 @@ class _WeakSpotsCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right, color: tokens.textSecondary),
+                Icon(Icons.chevron_right_rounded, color: tokens.textSecondary),
               ],
             ),
           ),
@@ -438,9 +438,9 @@ class _NodeCard extends StatelessWidget {
 /// The final review gets a medal, unit reviews a trophy, and lessons
 /// [lessonIcon].
 IconData _icon(PathNode node, IconData lessonIcon) => node.isFinal
-    ? Icons.workspace_premium
+    ? Icons.workspace_premium_rounded
     : node.isReview
-    ? Icons.emoji_events
+    ? Icons.emoji_events_rounded
     : lessonIcon;
 
 class _NodeButton extends StatefulWidget {
@@ -479,7 +479,7 @@ class _NodeButtonState extends State<_NodeButton> {
       NodeState.locked => (
         tokens.surfaceMuted,
         tokens.textSecondary,
-        _icon(node, Icons.lock),
+        _icon(node, Icons.lock_rounded),
         'locked',
       ),
       NodeState.current => (

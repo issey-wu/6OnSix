@@ -21,7 +21,8 @@ enum FeedbackEvent {
 }
 
 /// Plays sounds and haptics for key moments, following the learner's
-/// sound and haptics settings. Regular button taps get neither.
+/// sound and haptics settings. Regular taps get a light haptic only, from
+/// the theme (see `TapHaptics`), and never a sound.
 class FeedbackService {
   new(this._ref, {this.playSounds = true});
 
