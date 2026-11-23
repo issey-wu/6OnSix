@@ -20,6 +20,7 @@ import 'package:six_on_six/core/ui/court_lineup.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
 import 'package:six_on_six/core/ui/dialogs.dart';
 import 'package:six_on_six/core/ui/motion.dart';
+import 'package:six_on_six/features/glossary/presentation/glossary_text.dart';
 import 'package:six_on_six/features/lesson/presentation/card_diagram.dart';
 import 'package:six_on_six/features/lesson/presentation/drag_drop_view.dart';
 import 'package:six_on_six/features/lesson/presentation/matching_view.dart';
@@ -586,6 +587,12 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         ),
       );
 
+  /// The lesson's unit, counting from 0, for linking glossary words.
+  int get _unitIndex {
+    final course = ref.read(courseProvider).value;
+    return course == null ? 0 : course.units.indexOf(_node.unit);
+  }
+
   Widget _teaching(BuildContext context, LessonSession session) {
     final card = _cards[_cardIndex];
     final text = Theme.of(context).textTheme;
@@ -623,7 +630,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                 ),
               ],
               const SizedBox(height: 20),
-              Text(card.body, style: text.bodyLarge?.copyWith(height: 1.5)),
+              GlossaryText(
+                card.body,
+                unitIndex: _unitIndex,
+                style: text.bodyLarge?.copyWith(height: 1.5),
+              ),
             ],
           ),
         ),

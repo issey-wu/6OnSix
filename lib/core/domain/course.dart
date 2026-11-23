@@ -31,12 +31,23 @@ class TeachingCard {
 /// The diagrams a teaching card can show, with the highlights each allows.
 /// The content exporter checks cards against this list.
 const cardDiagrams = <String, Set<String>>{
-  // A whole court from above, with its measurements.
+  // A whole court from above, with its measurements drawn like a technical
+  // drawing: dimension lines outside the court.
   'court': {'', 'net', 'attack', 'half'},
   // One half with the six zone numbers drawn in.
   'zones': {'', 'front', 'back', '1', '2', '3', '4', '5', '6'},
-  // A starting lineup with each role in its zone.
-  'roles': {''},
+  // A starting lineup with each role in its zone; a role highlights it.
+  'roles': {'', 'S', 'OH1', 'MB1', 'OPP', 'OH2', 'MB2'},
+  // The net seen from the side of the court: the antennae and where the
+  // ball may cross.
+  'net': {''},
+  // The centre line under the net, with a foot that is allowed and one
+  // that is a fault.
+  'centre': {''},
+  // A back-row player taking off behind the attack line.
+  'backrow': {''},
+  // The server behind the end line, ready to serve from zone 1.
+  'serve': {''},
   // The same lineup with the libero in for the back-row middle blocker.
   'libero': {''},
   // Zone numbers with arrows showing the clockwise rotation; `play` instead
@@ -320,12 +331,21 @@ class Course {
       final term = termById(concept);
       if (term != null && !found.contains(term)) found.add(term);
     }
+    // Words met only in a later unit stay hidden, so a hint never gives
+    // away something the learner hasn't reached yet.
+    final ids = [for (final u in units) u.id];
+    final unit = ids.indexWhere((id) => question.id.startsWith('$id.'));
+    bool reached(GlossaryTerm term) {
+      final at = ids.indexOf(term.unitId ?? '');
+      return unit < 0 || at < 0 || at <= unit;
+    }
+
     final lower = text.toLowerCase();
     final byLength = [...glossary]
       ..sort((a, b) => b.term.length.compareTo(a.term.length));
     for (final term in byLength) {
       if (found.length >= limit) break;
-      if (found.contains(term)) continue;
+      if (found.contains(term) || !reached(term)) continue;
       final name = RegExp.escape(term.term.toLowerCase());
       if (!RegExp('\\b$name\\b').hasMatch(lower)) continue;
       // Skip a short term inside a longer one already found, such as

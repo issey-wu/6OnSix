@@ -260,8 +260,14 @@ void main() {
       (0, 0, 2): '26_card_attack_line',
       (0, 0, 3): '27_card_zones',
       (0, 0, 6): '28_card_zone_1',
+      (0, 0, 1): '55_card_net_dimensions',
       (0, 1, 0): '29_card_roles',
-      (0, 2, 1): '30_card_rotation',
+      (0, 2, 0): '30_card_rotation',
+      (0, 2, 2): '56_card_lineup',
+      (1, 1, 0): '57_card_antennae',
+      (1, 1, 1): '58_card_centre_line',
+      (1, 2, 2): '59_card_back_row_attack',
+      (2, 1, 0): '60_card_serve',
     };
     for (final MapEntry(key: (unit, lesson, card), value: name)
         in shots.entries) {
@@ -406,6 +412,35 @@ void main() {
     final second = await _pumpApp(tester, state: state);
     second.read(routerProvider).go('/quests');
     await _shot(tester, '22_quests');
+  });
+
+  testWidgets('chest reward', (tester) async {
+    final local = DateTime.now();
+    final container = await _pumpApp(
+      tester,
+      state: StoredState(
+        settings: const AppSettings(welcomeSeen: true, tipsSeen: Tips.all),
+        progress: _returning.progress,
+        motivation: MotivationState(
+          goalChosen: true,
+          days: {
+            dayKey(local): const DayStats(
+              xp: 100,
+              lessons: 5,
+              perfectLessons: 2,
+              bestCombo: 10,
+              glossaryViews: 5,
+              courtCorrect: 5,
+              reviews: 2,
+            ),
+          },
+        ),
+      ),
+    );
+    container.read(routerProvider).go('/quests');
+    await tester.pumpAndSettle();
+    await _tap(tester, find.text('Open').last);
+    await _shot(tester, '62_chest_reward');
   });
 
   testWidgets('matching', (tester) async {
@@ -555,5 +590,16 @@ void main() {
     await _shot(tester, '53_developer_menu');
     await _tap(tester, find.text('Jump to any lesson'));
     await _shot(tester, '54_jump_sheet');
+  });
+
+  testWidgets('a glossary link', (tester) async {
+    final container = await _pumpApp(tester);
+    container.read(routerProvider).go('/lesson/u1.l3');
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView).first, const Offset(0, -400));
+    await tester.pumpAndSettle();
+    await tester.tapOnText(find.textRange.ofSubstring('side out'));
+    await tester.pumpAndSettle();
+    await _shot(tester, '61_glossary_link');
   });
 }

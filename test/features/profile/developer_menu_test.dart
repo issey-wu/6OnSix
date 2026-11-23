@@ -58,7 +58,7 @@ void main() {
     expect(find.text('UNIT 1'), findsOneWidget);
     expect(find.text('Lesson 1 · Up next'), findsOneWidget);
     await _tap(tester, find.byKey(const ValueKey('jump-u2.l1')));
-    expect(find.text('Three contacts'), findsOneWidget);
+    expect(find.text('Three touches'), findsOneWidget);
   });
 
   testWidgets('Settings can replay the tutorial', (tester) async {
