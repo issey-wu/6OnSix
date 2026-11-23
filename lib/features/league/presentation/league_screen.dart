@@ -208,7 +208,7 @@ class _DemoTag extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.science_outlined, size: 16, color: tokens.choice),
+            Icon(Icons.science_rounded, size: 16, color: tokens.choice),
             const SizedBox(width: 4),
             Text(
               'Demo community',
@@ -340,7 +340,7 @@ class _DivisionPeek extends StatelessWidget {
                         radius: 12,
                         backgroundColor: tokens.surfaceMuted,
                         child: Icon(
-                          Icons.lock,
+                          Icons.lock_rounded,
                           size: 14,
                           color: tokens.textSecondary,
                         ),
@@ -388,12 +388,12 @@ class _DivisionPeek extends StatelessWidget {
                 : 'Bottom ${division.demoted} move down.',
           ),
           fact(
-            Icons.bolt,
+            Icons.bolt_rounded,
             'Players here earn about ${division.typicalWeekXp} XP a week.',
           ),
           if (locked)
             fact(
-              Icons.flag_outlined,
+              Icons.flag_rounded,
               division.down == current
                   ? 'Finish in the top ${current.promoted} of '
                         '${current.title} to get here.'
@@ -478,7 +478,7 @@ class DivisionBadge extends StatelessWidget {
         ],
       ),
       child: Icon(
-        locked ? Icons.lock : Icons.shield_rounded,
+        locked ? Icons.lock_rounded : Icons.shield_rounded,
         size: size * 0.55,
         color: locked ? tokens.textSecondary : Colors.white,
       ),
@@ -718,7 +718,7 @@ class _FriendRow extends StatelessWidget {
               ),
               StreakBadge(streak: friend.streakOn(now)),
               const SizedBox(width: 4),
-              Icon(Icons.chevron_right, color: tokens.textSecondary),
+              Icon(Icons.chevron_right_rounded, color: tokens.textSecondary),
             ],
           ),
         ),

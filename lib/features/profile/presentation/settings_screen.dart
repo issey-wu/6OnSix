@@ -10,6 +10,7 @@ import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 import 'package:six_on_six/core/ui/ace.dart';
 import 'package:six_on_six/core/ui/dialogs.dart';
+import 'package:six_on_six/core/ui/tap_haptics.dart';
 import 'package:six_on_six/features/profile/presentation/jump_sheet.dart';
 
 /// App version shown under About. Keep in step with pubspec.yaml.
@@ -67,26 +68,32 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text('Sound effects'),
             subtitle: const Text('Follows the silent switch'),
             value: settings.soundOn,
-            onChanged: (on) =>
-                controller.update(settings.copyWith(soundOn: on)),
+            onChanged: (on) {
+              TapHaptics.play();
+              controller.update(settings.copyWith(soundOn: on));
+            },
           ),
           SwitchListTile(
             title: const Text('Haptics'),
             value: settings.hapticsOn,
-            onChanged: (on) =>
-                controller.update(settings.copyWith(hapticsOn: on)),
+            onChanged: (on) {
+              // Turning haptics on gives a tap, so it's clear it worked.
+              TapHaptics.enabled = on;
+              TapHaptics.play();
+              controller.update(settings.copyWith(hapticsOn: on));
+            },
           ),
           section('Progress'),
           ListTile(
-            leading: const Icon(Icons.flag_outlined),
+            leading: const Icon(Icons.flag_rounded),
             title: const Text('Daily goal'),
             subtitle: Text('${goal.label}: ${goal.minutes} min a day'),
-            trailing: const Icon(Icons.chevron_right),
+            trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => unawaited(context.push('/goal')),
           ),
           ListTile(
             key: const ValueKey('replay-tips'),
-            leading: const Icon(Icons.tips_and_updates_outlined),
+            leading: const Icon(Icons.tips_and_updates_rounded),
             title: const Text('Replay the tutorial'),
             subtitle: const Text("Ace's tips show again on each screen"),
             onTap: () {
@@ -94,7 +101,25 @@ class SettingsScreen extends ConsumerWidget {
               context.go('/learn');
             },
           ),
+          section('About'),
+          const ListTile(
+            title: Text('6 On Six'),
+            subtitle: Text(
+              'Version $appVersion\n'
+              'Yash Dubey and Issey Wu\n'
+              'PROCTECH 4TR3 Capstone, McMaster University',
+            ),
+            isThreeLine: true,
+          ),
+          // Shown in every build, release included: the app is only used for
+          // demos, and the menu is how a demo jumps around.
+          section('Developer menu'),
+          const _DeveloperMenu(),
+          // Risky, so it sits last, on its own, in red.
+          const Divider(height: 32),
           ListTile(
+            key: const ValueKey('reset-progress'),
+            leading: Icon(Icons.delete_forever_rounded, color: tokens.error),
             title: Text(
               'Reset progress',
               style: TextStyle(
@@ -123,20 +148,7 @@ class SettingsScreen extends ConsumerWidget {
               }
             },
           ),
-          section('About'),
-          const ListTile(
-            title: Text('6 On Six'),
-            subtitle: Text(
-              'Version $appVersion\n'
-              'Yash Dubey and Issey Wu\n'
-              'PROCTECH 4TR3 Capstone, McMaster University',
-            ),
-            isThreeLine: true,
-          ),
-          // Shown in every build, release included: the app is only used for
-          // demos, and the menu is how a demo jumps around.
-          section('Developer menu'),
-          const _DeveloperMenu(),
+          const SizedBox(height: 24),
         ],
       ),
     );
@@ -169,7 +181,7 @@ class _DeveloperMenu extends ConsumerWidget {
           ),
         ),
         ListTile(
-          leading: const Icon(Icons.today_outlined),
+          leading: const Icon(Icons.today_rounded),
           title: const Text('Simulate next day'),
           onTap: () {
             shiftController.addDays(1);
@@ -179,19 +191,19 @@ class _DeveloperMenu extends ConsumerWidget {
           },
         ),
         ListTile(
-          leading: const Icon(Icons.update),
+          leading: const Icon(Icons.update_rounded),
           title: const Text('Reset clock to today'),
           onTap: shiftController.reset,
         ),
         ListTile(
-          leading: const Icon(Icons.skip_next_outlined),
+          leading: const Icon(Icons.skip_next_rounded),
           title: const Text('Jump to any lesson'),
           onTap: () => unawaited(_jump(context, ref)),
         ),
         _FreezeTile(freezes: ref.watch(motivationProvider).freezes),
         ListTile(
           key: const ValueKey('end-league-week'),
-          leading: const Icon(Icons.leaderboard_outlined),
+          leading: const Icon(Icons.leaderboard_rounded),
           title: const Text('End this league week now'),
           subtitle: Text(_leagueStatus(ref.watch(leagueProvider))),
           onTap: () {
@@ -200,7 +212,7 @@ class _DeveloperMenu extends ConsumerWidget {
           },
         ),
         ListTile(
-          leading: const Icon(Icons.restart_alt),
+          leading: const Icon(Icons.restart_alt_rounded),
           title: const Text('Start over as a new learner'),
           subtitle: const Text('Clears everything and shows the welcome'),
           onTap: () => _startOver(context, ref),
@@ -246,7 +258,7 @@ class _FreezeTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.read(motivationProvider.notifier);
     return ListTile(
-      leading: const Icon(Icons.ac_unit),
+      leading: const Icon(Icons.ac_unit_rounded),
       title: const Text('Streak freezes'),
       subtitle: Text('Holding $freezes of $maxStreakFreezes'),
       trailing: Row(
@@ -256,7 +268,7 @@ class _FreezeTile extends ConsumerWidget {
             key: const ValueKey('take-freeze'),
             tooltip: 'Take a streak freeze back',
             onPressed: freezes > 0 ? controller.takeFreeze : null,
-            icon: const Icon(Icons.remove),
+            icon: const Icon(Icons.remove_rounded),
           ),
           const SizedBox(width: 4),
           IconButton.outlined(
@@ -265,7 +277,7 @@ class _FreezeTile extends ConsumerWidget {
             onPressed: freezes < maxStreakFreezes
                 ? controller.giveFreeze
                 : null,
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_rounded),
           ),
         ],
       ),

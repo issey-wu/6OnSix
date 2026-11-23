@@ -116,12 +116,13 @@ class _MatchingViewState extends State<MatchingView> {
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Material(
           color: color,
-          shape: RoundedRectangleBorder(
+          // The same raised edge as the other answer choices.
+          shape: LedgeBorder(
+            radius: 14,
             side: BorderSide(color: border, width: 2),
-            borderRadius: BorderRadius.circular(12),
           ),
           child: InkWell(
-            borderRadius: BorderRadius.circular(12),
+            customBorder: const LedgeBorder(radius: 14),
             onTap: matched
                 ? null
                 : () => left
@@ -131,14 +132,20 @@ class _MatchingViewState extends State<MatchingView> {
                         })
                       : _tapRight(pair),
             child: Container(
-              constraints: const BoxConstraints(minHeight: 56),
-              padding: const EdgeInsets.all(10),
+              constraints: const BoxConstraints(minHeight: 58),
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 14),
               alignment: Alignment.centerLeft,
               child: Row(
                 children: [
-                  if (matched) Icon(Icons.check, color: tokens.onSuccess),
-                  if (wrong) Icon(Icons.close, color: tokens.onError),
-                  Expanded(child: Text(text)),
+                  if (matched)
+                    Icon(Icons.check_rounded, color: tokens.onSuccess),
+                  if (wrong) Icon(Icons.close_rounded, color: tokens.onError),
+                  Expanded(
+                    child: Text(
+                      text,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
                 ],
               ),
             ),

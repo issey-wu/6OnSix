@@ -78,7 +78,7 @@ class FriendScreen extends ConsumerWidget {
               StatCard(
                 label: 'Day streak',
                 value: '$streak',
-                icon: Icons.local_fire_department,
+                icon: Icons.local_fire_department_rounded,
                 iconColor: streak > 0
                     ? tokens.brandOrange
                     : tokens.textSecondary,
@@ -86,7 +86,7 @@ class FriendScreen extends ConsumerWidget {
               StatCard(
                 label: 'Total XP',
                 value: '${friend.totalXpOn(now)}',
-                icon: Icons.bolt,
+                icon: Icons.bolt_rounded,
                 iconColor: tokens.brandOrange,
               ),
             ],
@@ -96,7 +96,7 @@ class FriendScreen extends ConsumerWidget {
               StatCard(
                 label: 'This week',
                 value: '${friend.weekXpOn(now)} XP',
-                icon: Icons.calendar_today_outlined,
+                icon: Icons.calendar_today_rounded,
                 iconColor: tokens.choice,
               ),
               Expanded(

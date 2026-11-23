@@ -5,6 +5,7 @@ import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/domain/course.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
 import 'package:six_on_six/core/ui/player_token.dart';
+import 'package:six_on_six/core/ui/tap_haptics.dart';
 
 /// A drag-and-drop court question: the court with a tray of player tokens
 /// below it.
@@ -276,7 +277,10 @@ class _DragDropViewState extends State<DragDropView> {
       child: Draggable<String>(
         key: ValueKey('token-$token'),
         data: token,
-        onDragStarted: () => setState(() => _picked = null),
+        onDragStarted: () {
+          TapHaptics.play();
+          setState(() => _picked = null);
+        },
         feedback: Material(
           type: MaterialType.transparency,
           child: PlayerToken(label: token, lifted: true),

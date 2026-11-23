@@ -103,3 +103,13 @@ A short list of the current stack and architecture choices. Update an entry when
 - **Gatekeeping:** tappable words (`GlossaryText`) and Show me how's "Words to know" only use glossary terms from the current unit or earlier. Single everyday words (court, net, pass) are not linked; at most 4 links per text.
 - **Skip tutorial:** a separate pill button, top-right (bottom-right when the lit-up part is near the top), not part of Ace's card.
 - **Reward popups:** sheets in the app's style with Ace, not plain Material dialogs.
+
+## Design polish (Round 7)
+
+- **Lesson bar head start:** the bar starts 6% full and shows "2 to go" / "1 to go" near the end. Based on the endowed progress effect (Nunes and Drèze, 2006): people finish more often when they start with some progress, and "what's left" motivates more than "what's done" near the end.
+- **Tap haptics:** every ripple in the app also gives a haptic tap, through the theme's splash factory (`HapticSplashFactory`), so new buttons get it for free. Main buttons use a light impact, everything else a selection click. Taps in the same frame count once. Sounds stay for key moments only. This replaces the earlier rule that regular taps get no haptics, after comparing with Duolingo.
+- **Icons:** Material's rounded set only. Thin outlined icons looked weak next to Nunito's heavy weights.
+- **Diagram style:** shared helpers in `core/ui/diagram_paint.dart` (`paintSoftHalfCourt`, `paintNetBand`, `paintSoftCell`, `paintVolleyball`, `paintServer`). Rounded court corners, lines at 70% strength, the net as a rounded red band, highlights as rounded tiles inset from the zone edges.
+- **People in diagrams:** a chunky, rounded figure in the team's colours, seen from behind, instead of a stick figure.
+- **Nested corners:** a shape around another shape uses the inner radius plus the gap (for example, the tutorial ring is 16 + 6).
+- **Settings:** risky actions (Reset progress) go last, on their own, in red.

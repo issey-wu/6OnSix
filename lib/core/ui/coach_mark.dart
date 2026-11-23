@@ -22,7 +22,10 @@ Future<bool> showCoachMark(
   AceMood mood = AceMood.happy,
   AceAction action = AceAction.hop,
   double padding = 6,
-  double radius = 18,
+  // The ring sits [padding] outside the target, so its corners are the
+  // target's (16, the app's usual card and button corner) plus [padding].
+  // Matching radii would look pinched at the corners.
+  double radius = 16 + 6,
 }) {
   final overlay = Overlay.of(context, rootOverlay: true);
   final done = Completer<bool>();

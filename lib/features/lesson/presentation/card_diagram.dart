@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
+import 'package:six_on_six/core/ui/diagram_paint.dart';
 import 'package:six_on_six/core/ui/player_token.dart';
-import 'package:six_on_six/features/lesson/presentation/diagram_paint.dart';
 import 'package:six_on_six/features/lesson/presentation/rule_diagrams.dart';
 
 /// A 5-1 starting lineup: the setter across from the opposite, the outside
@@ -371,7 +371,7 @@ class _RotationPlayState extends State<_RotationPlay>
         ),
         TextButton.icon(
           onPressed: _play,
-          icon: const Icon(Icons.replay),
+          icon: const Icon(Icons.replay_rounded),
           label: const Text('Play again'),
         ),
       ],
@@ -513,37 +513,47 @@ class _FullCourtPainter extends CustomPainter {
     final midY = court.center.dy;
     final metre = courtHeight / 18;
 
-    canvas.drawRect(court, Paint()..color = floor);
+    final shape = RRect.fromRectAndRadius(
+      court,
+      const Radius.circular(courtCorner),
+    );
+    canvas.drawRRect(shape, Paint()..color = floor);
     if (highlight == 'half') {
-      canvas.drawRect(
+      paintSoftCell(
+        canvas,
         Rect.fromLTRB(court.left, midY, court.right, court.bottom),
-        Paint()..color = accent.withValues(alpha: 0.25),
+        accent.withValues(alpha: 0.25),
       );
     }
-
-    final lines = Paint()
-      ..color = line
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-    canvas.drawRect(court, lines);
+    canvas.drawRRect(
+      shape.deflate(1),
+      Paint()
+        ..color = line.withValues(alpha: 0.7)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2,
+    );
 
     // Attack lines, 3 m either side of the net.
     final attack = Paint()
-      ..color = highlight == 'attack' ? accent : line
-      ..strokeWidth = highlight == 'attack' ? 4 : 2;
+      ..color = highlight == 'attack' ? accent : line.withValues(alpha: 0.7)
+      ..strokeWidth = highlight == 'attack' ? 4 : 2
+      ..strokeCap = StrokeCap.round;
     for (final y in [midY - 3 * metre, midY + 3 * metre]) {
-      canvas.drawLine(Offset(court.left, y), Offset(court.right, y), attack);
+      canvas.drawLine(
+        Offset(court.left + 1, y),
+        Offset(court.right - 1, y),
+        attack,
+      );
     }
 
     // The net, a little wider than the court so it reads as a net.
     final netColour = highlight == 'net' ? accent : net;
-    canvas.drawLine(
+    paintNetBand(
+      canvas,
       Offset(court.left - 8, midY),
       Offset(court.right + 8, midY),
-      Paint()
-        ..color = netColour
-        ..strokeWidth = highlight == 'net' ? 8 : 5
-        ..strokeCap = StrokeCap.round,
+      netColour,
+      thickness: highlight == 'net' ? 9 : 7,
     );
 
     // Dimensions: the width above, the length on the left.

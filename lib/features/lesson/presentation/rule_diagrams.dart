@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/ui/court_view.dart';
-import 'package:six_on_six/features/lesson/presentation/diagram_paint.dart';
+import 'package:six_on_six/core/ui/diagram_paint.dart';
 
 // Diagrams for the rules: the net and its antennae, the centre line, a
 // back-row attack and the serve. Each keeps to the few labels the card
@@ -15,6 +15,7 @@ class _Ink {
     : tokens = AppTokens.of(context),
       line = Theme.of(context).colorScheme.onSurface,
       surface = Theme.of(context).colorScheme.surface,
+      dark = Theme.of(context).brightness == Brightness.dark,
       label = Theme.of(context).textTheme.labelLarge!
           .copyWith(fontWeight: FontWeight.w900),
       small = Theme.of(context).textTheme.labelMedium!
@@ -23,6 +24,10 @@ class _Ink {
   final AppTokens tokens;
   final Color line;
   final Color surface;
+
+  /// True in the dark theme, where the deep brand red needs lifting to
+  /// stand out.
+  final bool dark;
   final TextStyle label;
   final TextStyle small;
 }
@@ -63,46 +68,6 @@ class _NetPainter extends CustomPainter {
   new(this.ink);
 
   final _Ink ink;
-
-  /// A volleyball of [radius] at [centre]: a white ball with three seams.
-  void _ball(Canvas canvas, Offset centre, double radius) {
-    final outline = Paint()
-      ..color = ink.line.withValues(alpha: 0.8)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.6;
-    canvas
-      ..drawCircle(
-        centre + const Offset(1.5, 2),
-        radius,
-        Paint()..color = ink.line.withValues(alpha: 0.12),
-      )
-      ..drawCircle(centre, radius, Paint()..color = Colors.white)
-      ..drawCircle(centre, radius, outline);
-    for (var i = 0; i < 3; i++) {
-      final angle = -pi / 2 + i * 2 * pi / 3;
-      final edge = centre + Offset(cos(angle), sin(angle)) * radius;
-      final bend =
-          centre + Offset(cos(angle + 0.9), sin(angle + 0.9)) * radius * 0.55;
-      canvas.drawPath(
-        Path()
-          ..moveTo(centre.dx, centre.dy)
-          ..quadraticBezierTo(bend.dx, bend.dy, edge.dx, edge.dy),
-        outline..strokeWidth = 1.2,
-      );
-    }
-  }
-
-  /// A tick or a cross in a small white circle, at [centre].
-  void _badge(Canvas canvas, Offset centre, {required bool ok}) {
-    canvas.drawCircle(centre, 8, Paint()..color = Colors.white);
-    paintIcon(
-      canvas,
-      ok ? Icons.check_circle_rounded : Icons.cancel_rounded,
-      centre,
-      18,
-      ok ? ink.tokens.success : ink.tokens.error,
-    );
-  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -283,11 +248,21 @@ class _NetPainter extends CustomPainter {
 
     // One ball crossing in the space, and one going round the outside.
     final inBall = Offset(w * 0.4, h * 0.33);
-    _ball(canvas, inBall, 14);
-    _badge(canvas, inBall + const Offset(13, -12), ok: true);
+    paintVolleyball(canvas, inBall, 14, ink.line);
+    paintBadge(
+      canvas,
+      inBall + const Offset(13, -12),
+      ok: true,
+      colour: t.success,
+    );
     final outBall = Offset((right + w) / 2 + 4, h * 0.3);
-    _ball(canvas, outBall, 14);
-    _badge(canvas, outBall + const Offset(13, -12), ok: false);
+    paintVolleyball(canvas, outBall, 14, ink.line);
+    paintBadge(
+      canvas,
+      outBall + const Offset(13, -12),
+      ok: false,
+      colour: t.error,
+    );
     paintLabel(
       canvas,
       'out',
@@ -352,15 +327,39 @@ class _CentrePainter extends CustomPainter {
 
   final _Ink ink;
 
-  /// A shoe seen from above, toe pointing up, [length] long.
-  Path _foot(Offset heel, double length) {
-    final width = length * 0.4;
-    return Path()..addRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(heel.dx - width / 2, heel.dy - length, width, length),
-        Radius.circular(width / 2),
-      ),
-    );
+  /// A shoe seen from above, toe pointing up, [length] long: wider at the
+  /// toe than the heel.
+  Path _shoe(Offset heel, double length) {
+    final w = length * 0.42;
+    final toe = heel - Offset(0, length);
+    return Path()
+      ..moveTo(heel.dx - w * 0.32, heel.dy - w * 0.25)
+      ..quadraticBezierTo(
+        heel.dx,
+        heel.dy + w * 0.12,
+        heel.dx + w * 0.32,
+        heel.dy - w * 0.25,
+      )
+      ..quadraticBezierTo(
+        heel.dx + w * 0.55,
+        toe.dy + length * 0.45,
+        heel.dx + w * 0.5,
+        toe.dy + w * 0.5,
+      )
+      ..quadraticBezierTo(heel.dx + w * 0.45, toe.dy, toe.dx, toe.dy)
+      ..quadraticBezierTo(
+        heel.dx - w * 0.5,
+        toe.dy,
+        heel.dx - w * 0.5,
+        toe.dy + w * 0.5,
+      )
+      ..quadraticBezierTo(
+        heel.dx - w * 0.5,
+        toe.dy + length * 0.45,
+        heel.dx - w * 0.32,
+        heel.dy - w * 0.25,
+      )
+      ..close();
   }
 
   @override
@@ -370,68 +369,105 @@ class _CentrePainter extends CustomPainter {
     final h = size.height;
     final lineY = h * 0.5;
 
+    // The two sides of the floor, each fading away from the line, inside
+    // one rounded shape.
+    final area = RRect.fromRectAndRadius(
+      Offset.zero & size,
+      const Radius.circular(16),
+    );
+    final theirs = Rect.fromLTRB(0, 0, w, lineY);
+    final yours = Rect.fromLTRB(0, lineY, w, h);
     canvas
+      ..save()
+      ..clipRRect(area)
       ..drawRect(
-        Rect.fromLTRB(0, 0, w, lineY),
-        Paint()..color = t.surfaceMuted.withValues(alpha: 0.6),
+        theirs,
+        Paint()
+          ..shader = LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [
+              t.surfaceMuted.withValues(alpha: 0.8),
+              t.surfaceMuted.withValues(alpha: 0.15),
+            ],
+          ).createShader(theirs),
       )
-      ..drawRect(Rect.fromLTRB(0, lineY, w, h), Paint()..color = t.selectedBg);
+      ..drawRect(
+        yours,
+        Paint()
+          ..shader = LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [t.selectedBg, t.selectedBg.withValues(alpha: 0.25)],
+          ).createShader(yours),
+      )
+      ..restore();
     paintLabel(
       canvas,
       'Their side',
-      Offset(w / 2, 14),
+      Offset(w / 2, 16),
       ink.small.copyWith(color: t.textSecondary),
     );
     paintLabel(
       canvas,
       'Your side',
-      Offset(w / 2, h - 14),
+      Offset(w / 2, h - 16),
       ink.small.copyWith(color: t.textSecondary),
     );
 
-    // The centre line, with the net hanging above it.
-    canvas.drawLine(
-      Offset(0, lineY),
-      Offset(w, lineY),
-      Paint()
-        ..color = ink.line
-        ..strokeWidth = 8,
-    );
+    // The net's shadow just above the centre line, then the line itself.
     final dash = Paint()
-      ..color = t.brandRed
-      ..strokeWidth = 2;
-    for (var x = 0.0; x < w; x += 12) {
-      canvas.drawLine(Offset(x, lineY - 9), Offset(x + 6, lineY - 9), dash);
+      ..color = t.brandRed.withValues(alpha: 0.7)
+      ..strokeWidth = 2.5
+      ..strokeCap = StrokeCap.round;
+    for (var x = 14.0; x < w - 14; x += 12) {
+      canvas.drawLine(Offset(x, lineY - 10), Offset(x + 5, lineY - 10), dash);
     }
+    canvas.drawLine(
+      Offset(10, lineY),
+      Offset(w - 10, lineY),
+      Paint()
+        ..color = ink.line.withValues(alpha: 0.8)
+        ..strokeWidth = 7
+        ..strokeCap = StrokeCap.round,
+    );
     paintLabel(
       canvas,
       'centre line (net above)',
-      Offset(w / 2, lineY + 18),
+      Offset(w / 2, lineY + 19),
       ink.small.copyWith(color: ink.line),
     );
 
-    // Allowed: the heel still on the line.
+    // Allowed: the heel still on the line. A fault: all of it over.
     final foot = h * 0.3;
-    final ok = Offset(w * 0.27, lineY + 6);
-    final bad = Offset(w * 0.73, lineY - 8);
+    final ok = Offset(w * 0.27, lineY + 5);
+    final bad = Offset(w * 0.73, lineY - 9);
     for (final (heel, colour, allowed, caption) in [
       (ok, t.success, true, 'allowed'),
       (bad, t.error, false, 'fault'),
     ]) {
-      final shape = _foot(heel, foot);
+      final shape = _shoe(heel, foot);
       canvas
-        ..drawPath(shape, Paint()..color = colour.withValues(alpha: 0.35))
+        ..drawPath(
+          shape.shift(const Offset(1.5, 2.5)),
+          Paint()..color = ink.line.withValues(alpha: 0.1),
+        )
+        ..drawPath(
+          shape,
+          Paint()..color = Color.lerp(colour, Colors.white, 0.6)!,
+        )
         ..drawPath(
           shape,
           Paint()
             ..color = colour
             ..style = PaintingStyle.stroke
-            ..strokeWidth = 2.5,
+            ..strokeWidth = 2.5
+            ..strokeJoin = StrokeJoin.round,
         );
       paintVerdict(
         canvas,
         caption,
-        Offset(heel.dx, heel.dy - foot - 12),
+        Offset(heel.dx, heel.dy - foot - 13),
         ink.label.copyWith(color: colour),
         ok: allowed,
       );
@@ -467,79 +503,83 @@ class _BackRowPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final t = ink.tokens;
-    final court = Rect.fromLTWH(16, 22, size.width - 32, size.height - 30);
+    final court = Rect.fromLTWH(16, 24, size.width - 32, size.height - 30);
     final attackY = court.top + court.height / 3;
-    canvas
-      ..drawRect(court, Paint()..color = t.selectedBg)
-      ..drawRect(
-        Rect.fromLTRB(court.left, attackY, court.right, court.bottom),
-        Paint()..color = t.brandYellow.withValues(alpha: 0.25),
-      );
-    final lines = Paint()
-      ..color = ink.line
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-    canvas
-      ..drawRect(court, lines)
-      ..drawLine(
-        Offset(court.left, attackY),
-        Offset(court.right, attackY),
-        Paint()
-          ..color = t.brandOrange
-          ..strokeWidth = 4,
-      )
-      ..drawLine(
-        Offset(court.left - 6, court.top),
-        Offset(court.right + 6, court.top),
-        Paint()
-          ..color = t.brandRed
-          ..strokeWidth = 6,
-      );
+    paintSoftHalfCourt(
+      canvas,
+      court,
+      floor: t.selectedBg,
+      line: ink.line,
+      net: t.brandRed,
+    );
+    paintSoftCell(
+      canvas,
+      Rect.fromLTRB(court.left, attackY, court.right, court.bottom),
+      t.brandYellow.withValues(alpha: 0.3),
+    );
+    canvas.drawLine(
+      Offset(court.left + 1, attackY),
+      Offset(court.right - 1, attackY),
+      Paint()
+        ..color = t.brandOrange
+        ..strokeWidth = 4
+        ..strokeCap = StrokeCap.round,
+    );
+    paintNetBand(
+      canvas,
+      Offset(court.left - 8, court.top),
+      Offset(court.right + 8, court.top),
+      t.brandRed,
+    );
     paintLabel(
       canvas,
       'NET',
-      Offset(court.center.dx, court.top - 12),
+      Offset(court.center.dx, court.top - 14),
       ink.label.copyWith(color: t.brandRed, letterSpacing: 2),
     );
     paintLabel(
       canvas,
       'attack line',
-      Offset(court.left + 42, attackY - 11),
+      Offset(court.left + 44, attackY - 12),
       ink.small.copyWith(color: t.brandOrange),
     );
     paintLabel(
       canvas,
       'back row',
-      Offset(court.right - 40, court.bottom - 14),
+      Offset(court.right - 42, court.bottom - 16),
       ink.small.copyWith(color: t.textSecondary),
     );
 
-    // Allowed: take off behind the line.
-    final good = Offset(court.left + court.width * 0.36, attackY + 34);
-    final bad = Offset(court.left + court.width * 0.72, attackY - 36);
-    const r = 17.0;
+    // Allowed: take off behind the line. Drawn like the player tokens on
+    // the other court diagrams, with a soft shadow.
+    final good = Offset(court.left + court.width * 0.36, attackY + 36);
+    final bad = Offset(court.left + court.width * 0.72, attackY - 38);
+    const r = 18.0;
     canvas
-      ..drawCircle(good, r, Paint()..color = t.choice)
       ..drawCircle(
-        good,
+        good + const Offset(0, 2),
         r,
-        Paint()
-          ..color = t.success
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 3,
-      );
-    paintLabel(canvas, 'OH', good, ink.small.copyWith(color: Colors.white));
+        Paint()..color = ink.line.withValues(alpha: 0.15),
+      )
+      ..drawCircle(good, r, Paint()..color = t.brandOrange);
+    paintLabel(
+      canvas,
+      'OH',
+      good,
+      ink.small.copyWith(color: t.onYellowOrange, fontWeight: FontWeight.w900),
+    );
     final arrow = Paint()
       ..color = t.success
-      ..strokeWidth = 3;
-    final from = good - const Offset(0, r + 4);
-    final to = Offset(good.dx, attackY + 6);
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+    final from = good - const Offset(0, r + 5);
+    final to = Offset(good.dx, attackY + 8);
     canvas.drawLine(from, to, arrow);
     paintArrowhead(canvas, to - const Offset(0, 2), -pi / 2, arrow);
     paintVerdict(
       canvas,
       'jump from here',
-      good + const Offset(0, r + 14),
+      good + const Offset(0, r + 15),
       ink.small.copyWith(color: t.success),
       ok: true,
     );
@@ -548,7 +588,9 @@ class _BackRowPainter extends CustomPainter {
     final dashed = Paint()
       ..color = t.error
       ..strokeWidth = 2.5
+      ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
+    canvas.drawCircle(bad, r, Paint()..color = t.error.withValues(alpha: 0.08));
     for (var a = 0.0; a < 2 * pi; a += pi / 6) {
       canvas.drawArc(
         Rect.fromCircle(center: bad, radius: r),
@@ -561,7 +603,7 @@ class _BackRowPainter extends CustomPainter {
     paintVerdict(
       canvas,
       'not from here',
-      bad + const Offset(0, r + 12),
+      bad + const Offset(0, r + 13),
       ink.small.copyWith(color: t.error),
       ok: false,
     );
@@ -583,7 +625,7 @@ class ServeDiagram extends StatelessWidget {
         'Half a court with the net at the top and zone 1, the right back, '
         'highlighted. The server stands behind the end line, in the service '
         'zone, without touching the line.',
-    aspectRatio: 0.82,
+    aspectRatio: 0.72,
     painter: _ServePainter(_Ink(context)),
   );
 }
@@ -597,9 +639,17 @@ class _ServePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final t = ink.tokens;
     final side = size.width - 32;
-    final court = Rect.fromLTWH(16, 22, side, side);
+    final court = Rect.fromLTWH(16, 24, side, side);
     final attackY = court.top + side / 3;
-    canvas.drawRect(court, Paint()..color = t.selectedBg);
+    paintSoftHalfCourt(
+      canvas,
+      court,
+      floor: t.selectedBg,
+      line: ink.line,
+      net: t.brandRed,
+      attackY: attackY,
+      corner: 8,
+    );
 
     // Zone numbers, with zone 1 lit up.
     for (final (i, zone) in courtZoneOrder.indexed) {
@@ -612,10 +662,7 @@ class _ServePainter extends CustomPainter {
         front ? attackY : court.bottom,
       );
       if (zone == 1) {
-        canvas.drawRect(
-          cell,
-          Paint()..color = t.brandYellow.withValues(alpha: 0.55),
-        );
+        paintSoftCell(canvas, cell, t.brandYellow.withValues(alpha: 0.6));
       }
       paintLabel(
         canvas,
@@ -627,69 +674,68 @@ class _ServePainter extends CustomPainter {
         ),
       );
     }
-    final lines = Paint()
-      ..color = ink.line
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-    canvas
-      ..drawRect(court, lines)
-      ..drawLine(
-        Offset(court.left, attackY),
-        Offset(court.right, attackY),
-        lines,
-      )
-      ..drawLine(
-        Offset(court.left - 6, court.top),
-        Offset(court.right + 6, court.top),
-        Paint()
-          ..color = t.brandRed
-          ..strokeWidth = 6,
-      )
-      // The end line, drawn heavier.
-      ..drawLine(
-        Offset(court.left, court.bottom),
-        Offset(court.right, court.bottom),
-        Paint()
-          ..color = t.brandOrange
-          ..strokeWidth = 5,
-      );
     paintLabel(
       canvas,
       'NET',
-      Offset(court.center.dx, court.top - 12),
+      Offset(court.center.dx, court.top - 14),
       ink.label.copyWith(color: t.brandRed, letterSpacing: 2),
     );
-    paintLabel(
-      canvas,
-      'end line',
-      Offset(court.left + side * 0.3, court.bottom + 12),
-      ink.small.copyWith(color: t.brandOrange),
-    );
 
-    // The service zone behind the end line, with the server in it.
+    // The end line, drawn heavier, with the service zone behind it.
     final service = Rect.fromLTRB(
       court.left,
-      court.bottom + 4,
+      court.bottom + 8,
       court.right,
       size.height - 2,
     );
-    canvas.drawRect(
-      service,
-      Paint()..color = t.surfaceMuted.withValues(alpha: 0.5),
+    canvas
+      ..drawRRect(
+        RRect.fromRectAndRadius(service, const Radius.circular(12)),
+        Paint()
+          ..shader = LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              t.surfaceMuted.withValues(alpha: 0.7),
+              t.surfaceMuted.withValues(alpha: 0.1),
+            ],
+          ).createShader(service),
+      )
+      ..drawLine(
+        Offset(court.left + 2, court.bottom - 1),
+        Offset(court.right - 2, court.bottom - 1),
+        Paint()
+          ..color = t.brandOrange
+          ..strokeWidth = 5
+          ..strokeCap = StrokeCap.round,
+      );
+    paintLabel(
+      canvas,
+      'end line',
+      Offset(court.left + side * 0.18, court.bottom + 20),
+      ink.small.copyWith(color: t.brandOrange),
     );
-    final feet = Offset(court.left + side * 5 / 6, size.height - 6);
-    final figure = size.height - court.bottom - 14;
-    paintStickFigure(canvas, feet, figure, t.choice, armUp: true);
-    canvas.drawCircle(
-      feet + Offset(figure * 0.2, -figure * 1.02),
-      figure * 0.1,
-      Paint()..color = t.brandOrange,
+
+    // The server, behind zone 1 and clear of the line.
+    // Drawn in the team's colours, like the player tokens, rather than as
+    // a dark silhouette.
+    final kit = ink.dark ? Color.lerp(t.brandRed, t.error, 0.55)! : t.brandRed;
+    final figure = service.height * 0.62;
+    final feet = Offset(court.left + side * 5 / 6, service.bottom - 10);
+    paintServer(
+      canvas,
+      feet,
+      figure,
+      body: kit,
+      jersey: t.brandOrange,
+      shorts: kit,
+      line: ink.line,
     );
     paintLabel(
       canvas,
       'server',
-      Offset(feet.dx - figure * 0.75, feet.dy - figure * 0.45),
-      ink.small.copyWith(color: t.choice),
+      Offset(feet.dx - figure * 0.66, feet.dy - figure * 0.55),
+      ink.small.copyWith(color: kit),
     );
   }
 

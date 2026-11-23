@@ -27,28 +27,23 @@ class AppShell extends StatelessWidget {
           ),
           destinations: const [
             NavigationDestination(
-              icon: Icon(Icons.route_outlined),
-              selectedIcon: Icon(Icons.route),
+              icon: Icon(Icons.route_rounded),
               label: 'Learn',
             ),
             NavigationDestination(
-              icon: Icon(Icons.redeem_outlined),
-              selectedIcon: Icon(Icons.redeem),
+              icon: Icon(Icons.redeem_rounded),
               label: 'Quests',
             ),
             NavigationDestination(
-              icon: Icon(Icons.leaderboard_outlined),
-              selectedIcon: Icon(Icons.leaderboard),
+              icon: Icon(Icons.leaderboard_rounded),
               label: 'League',
             ),
             NavigationDestination(
-              icon: Icon(Icons.menu_book_outlined),
-              selectedIcon: Icon(Icons.menu_book),
+              icon: Icon(Icons.menu_book_rounded),
               label: 'Glossary',
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
+              icon: Icon(Icons.person_rounded),
               label: 'Profile',
             ),
           ],

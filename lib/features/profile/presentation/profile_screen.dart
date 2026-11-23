@@ -39,7 +39,7 @@ class ProfileScreen extends ConsumerWidget {
         actions: [
           IconButton(
             tooltip: 'Settings',
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.settings_rounded),
             onPressed: () => unawaited(context.push('/profile/settings')),
           ),
         ],
@@ -88,7 +88,9 @@ class ProfileScreen extends ConsumerWidget {
                             ),
                           ),
                           child: Icon(
-                            avatar == null ? Icons.add : Icons.edit,
+                            avatar == null
+                                ? Icons.add_rounded
+                                : Icons.edit_rounded,
                             size: 16,
                             color: Colors.white,
                           ),
@@ -132,7 +134,7 @@ class ProfileScreen extends ConsumerWidget {
                               ],
                             ),
                           ),
-                          Icon(Icons.edit, color: tokens.textSecondary),
+                          Icon(Icons.edit_rounded, color: tokens.textSecondary),
                         ],
                       ),
                     ),
@@ -146,7 +148,7 @@ class ProfileScreen extends ConsumerWidget {
             OutlinedButton.icon(
               key: const ValueKey('create-avatar'),
               onPressed: () => unawaited(context.push('/avatar')),
-              icon: const Icon(Icons.face_retouching_natural),
+              icon: const Icon(Icons.face_retouching_natural_rounded),
               label: const Text('Create your avatar'),
             ),
           ],
@@ -156,7 +158,7 @@ class ProfileScreen extends ConsumerWidget {
               StatCard(
                 label: 'Day streak',
                 value: '$streak',
-                icon: Icons.local_fire_department,
+                icon: Icons.local_fire_department_rounded,
                 iconColor: streak > 0
                     ? tokens.brandOrange
                     : tokens.textSecondary,
@@ -164,7 +166,7 @@ class ProfileScreen extends ConsumerWidget {
               StatCard(
                 label: 'Total XP',
                 value: '${progress.xp}',
-                icon: Icons.bolt,
+                icon: Icons.bolt_rounded,
                 iconColor: tokens.brandOrange,
               ),
             ],
@@ -174,13 +176,13 @@ class ProfileScreen extends ConsumerWidget {
               StatCard(
                 label: 'Lessons',
                 value: '$lessonsDone / ${lessons.length}',
-                icon: Icons.check_circle_outline,
+                icon: Icons.check_circle_rounded,
                 iconColor: tokens.success,
               ),
               StatCard(
                 label: 'Units',
                 value: '$unitsDone / ${units.length}',
-                icon: Icons.emoji_events_outlined,
+                icon: Icons.emoji_events_rounded,
                 iconColor: tokens.brandOrange,
               ),
             ],

@@ -1,6 +1,7 @@
 import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
+import 'package:six_on_six/core/ui/tap_haptics.dart';
 
 /// Colour tokens for the Flame Court look, taken from the app icon: maroon,
 /// flame orange, and the volleyball's yellow and blue. Screens read colours
@@ -282,6 +283,9 @@ abstract final class AppTheme {
 
     return base.copyWith(
       textTheme: type,
+      // Every ripple also gives a light haptic tap; main buttons a firmer
+      // one (see TapHaptics).
+      splashFactory: HapticSplashFactory(base: base.splashFactory),
       appBarTheme: AppBarTheme(
         backgroundColor: background,
         foregroundColor: text,
@@ -292,6 +296,10 @@ abstract final class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
+          splashFactory: HapticSplashFactory(
+            base: base.splashFactory,
+            feel: TapFeel.firm,
+          ),
           minimumSize: const Size.fromHeight(54),
           disabledBackgroundColor: tokens.surfaceMuted,
           disabledForegroundColor: tokens.textSecondary,

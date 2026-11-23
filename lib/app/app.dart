@@ -4,6 +4,7 @@ import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/router.dart';
 import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
+import 'package:six_on_six/core/ui/tap_haptics.dart';
 
 class SixOnSixApp extends ConsumerStatefulWidget {
   const new({super.key});
@@ -16,6 +17,12 @@ class _SixOnSixAppState extends ConsumerState<SixOnSixApp> {
   @override
   void initState() {
     super.initState();
+    // Everyday tap haptics follow the Haptics setting.
+    ref.listenManual(
+      settingsProvider.select((s) => s.hapticsOn),
+      (_, on) => TapHaptics.enabled = on,
+      fireImmediately: true,
+    );
     // A streak freeze covers any days missed since the app was last used.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;

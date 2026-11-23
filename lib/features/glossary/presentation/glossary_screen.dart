@@ -111,12 +111,12 @@ class _GlossaryScreenState extends ConsumerState<GlossaryScreen> {
                 textInputAction: TextInputAction.search,
                 decoration: InputDecoration(
                   hintText: 'Search terms',
-                  prefixIcon: const Icon(Icons.search),
+                  prefixIcon: const Icon(Icons.search_rounded),
                   suffixIcon: _query.isEmpty
                       ? null
                       : IconButton(
                           tooltip: 'Clear search',
-                          icon: const Icon(Icons.close),
+                          icon: const Icon(Icons.close_rounded),
                           onPressed: () => setState(() {
                             _search.clear();
                             _query = '';
