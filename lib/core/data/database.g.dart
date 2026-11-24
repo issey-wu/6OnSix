@@ -1607,6 +1607,33 @@ class $UserSettingsTable extends UserSettings
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
+  static const VerificationMeta _reminderOnMeta = const VerificationMeta(
+    'reminderOn',
+  );
+  @override
+  late final GeneratedColumn<bool> reminderOn = GeneratedColumn<bool>(
+    'reminder_on',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("reminder_on" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _reminderMinutesMeta = const VerificationMeta(
+    'reminderMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> reminderMinutes = GeneratedColumn<int>(
+    'reminder_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(19 * 60),
+  );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
   );
@@ -1626,6 +1653,8 @@ class $UserSettingsTable extends UserSettings
     hapticsOn,
     welcomeSeen,
     tipsSeen,
+    reminderOn,
+    reminderMinutes,
     updatedAt,
   ];
   @override
@@ -1681,6 +1710,21 @@ class $UserSettingsTable extends UserSettings
         tipsSeen.isAcceptableOrUnknown(data['tips_seen']!, _tipsSeenMeta),
       );
     }
+    if (data.containsKey('reminder_on')) {
+      context.handle(
+        _reminderOnMeta,
+        reminderOn.isAcceptableOrUnknown(data['reminder_on']!, _reminderOnMeta),
+      );
+    }
+    if (data.containsKey('reminder_minutes')) {
+      context.handle(
+        _reminderMinutesMeta,
+        reminderMinutes.isAcceptableOrUnknown(
+          data['reminder_minutes']!,
+          _reminderMinutesMeta,
+        ),
+      );
+    }
     if (data.containsKey('updated_at')) {
       context.handle(
         _updatedAtMeta,
@@ -1722,6 +1766,14 @@ class $UserSettingsTable extends UserSettings
         DriftSqlType.string,
         data['${effectivePrefix}tips_seen'],
       )!,
+      reminderOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}reminder_on'],
+      )!,
+      reminderMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_minutes'],
+      )!,
       updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
@@ -1745,6 +1797,13 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
   /// First-run tips already shown, as ids separated by commas (schema
   /// version 5).
   final String tipsSeen;
+
+  /// Whether the daily practice reminder is on, and its time as minutes
+  /// after midnight (schema version 6).
+  final bool reminderOn;
+
+  /// 7:00 pm, the same as `defaultReminderMinutes`.
+  final int reminderMinutes;
   final DateTime updatedAt;
   const UserSettingsRow({
     required this.userId,
@@ -1753,6 +1812,8 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
     required this.hapticsOn,
     required this.welcomeSeen,
     required this.tipsSeen,
+    required this.reminderOn,
+    required this.reminderMinutes,
     required this.updatedAt,
   });
   @override
@@ -1764,6 +1825,8 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
     map['haptics_on'] = Variable<bool>(hapticsOn);
     map['welcome_seen'] = Variable<bool>(welcomeSeen);
     map['tips_seen'] = Variable<String>(tipsSeen);
+    map['reminder_on'] = Variable<bool>(reminderOn);
+    map['reminder_minutes'] = Variable<int>(reminderMinutes);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
@@ -1776,6 +1839,8 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
       hapticsOn: Value(hapticsOn),
       welcomeSeen: Value(welcomeSeen),
       tipsSeen: Value(tipsSeen),
+      reminderOn: Value(reminderOn),
+      reminderMinutes: Value(reminderMinutes),
       updatedAt: Value(updatedAt),
     );
   }
@@ -1792,6 +1857,8 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
       hapticsOn: serializer.fromJson<bool>(json['hapticsOn']),
       welcomeSeen: serializer.fromJson<bool>(json['welcomeSeen']),
       tipsSeen: serializer.fromJson<String>(json['tipsSeen']),
+      reminderOn: serializer.fromJson<bool>(json['reminderOn']),
+      reminderMinutes: serializer.fromJson<int>(json['reminderMinutes']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
@@ -1805,6 +1872,8 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
       'hapticsOn': serializer.toJson<bool>(hapticsOn),
       'welcomeSeen': serializer.toJson<bool>(welcomeSeen),
       'tipsSeen': serializer.toJson<String>(tipsSeen),
+      'reminderOn': serializer.toJson<bool>(reminderOn),
+      'reminderMinutes': serializer.toJson<int>(reminderMinutes),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
@@ -1816,6 +1885,8 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
     bool? hapticsOn,
     bool? welcomeSeen,
     String? tipsSeen,
+    bool? reminderOn,
+    int? reminderMinutes,
     DateTime? updatedAt,
   }) => UserSettingsRow(
     userId: userId ?? this.userId,
@@ -1824,6 +1895,8 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
     hapticsOn: hapticsOn ?? this.hapticsOn,
     welcomeSeen: welcomeSeen ?? this.welcomeSeen,
     tipsSeen: tipsSeen ?? this.tipsSeen,
+    reminderOn: reminderOn ?? this.reminderOn,
+    reminderMinutes: reminderMinutes ?? this.reminderMinutes,
     updatedAt: updatedAt ?? this.updatedAt,
   );
   UserSettingsRow copyWithCompanion(UserSettingsCompanion data) {
@@ -1836,6 +1909,12 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
           ? data.welcomeSeen.value
           : this.welcomeSeen,
       tipsSeen: data.tipsSeen.present ? data.tipsSeen.value : this.tipsSeen,
+      reminderOn: data.reminderOn.present
+          ? data.reminderOn.value
+          : this.reminderOn,
+      reminderMinutes: data.reminderMinutes.present
+          ? data.reminderMinutes.value
+          : this.reminderMinutes,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
@@ -1849,6 +1928,8 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
           ..write('hapticsOn: $hapticsOn, ')
           ..write('welcomeSeen: $welcomeSeen, ')
           ..write('tipsSeen: $tipsSeen, ')
+          ..write('reminderOn: $reminderOn, ')
+          ..write('reminderMinutes: $reminderMinutes, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
@@ -1862,6 +1943,8 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
     hapticsOn,
     welcomeSeen,
     tipsSeen,
+    reminderOn,
+    reminderMinutes,
     updatedAt,
   );
   @override
@@ -1874,6 +1957,8 @@ class UserSettingsRow extends DataClass implements Insertable<UserSettingsRow> {
           other.hapticsOn == this.hapticsOn &&
           other.welcomeSeen == this.welcomeSeen &&
           other.tipsSeen == this.tipsSeen &&
+          other.reminderOn == this.reminderOn &&
+          other.reminderMinutes == this.reminderMinutes &&
           other.updatedAt == this.updatedAt);
 }
 
@@ -1884,6 +1969,8 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
   final Value<bool> hapticsOn;
   final Value<bool> welcomeSeen;
   final Value<String> tipsSeen;
+  final Value<bool> reminderOn;
+  final Value<int> reminderMinutes;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
   const UserSettingsCompanion({
@@ -1893,6 +1980,8 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
     this.hapticsOn = const Value.absent(),
     this.welcomeSeen = const Value.absent(),
     this.tipsSeen = const Value.absent(),
+    this.reminderOn = const Value.absent(),
+    this.reminderMinutes = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1903,6 +1992,8 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
     this.hapticsOn = const Value.absent(),
     this.welcomeSeen = const Value.absent(),
     this.tipsSeen = const Value.absent(),
+    this.reminderOn = const Value.absent(),
+    this.reminderMinutes = const Value.absent(),
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
   }) : userId = Value(userId),
@@ -1914,6 +2005,8 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
     Expression<bool>? hapticsOn,
     Expression<bool>? welcomeSeen,
     Expression<String>? tipsSeen,
+    Expression<bool>? reminderOn,
+    Expression<int>? reminderMinutes,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
   }) {
@@ -1924,6 +2017,8 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
       if (hapticsOn != null) 'haptics_on': hapticsOn,
       if (welcomeSeen != null) 'welcome_seen': welcomeSeen,
       if (tipsSeen != null) 'tips_seen': tipsSeen,
+      if (reminderOn != null) 'reminder_on': reminderOn,
+      if (reminderMinutes != null) 'reminder_minutes': reminderMinutes,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1936,6 +2031,8 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
     Value<bool>? hapticsOn,
     Value<bool>? welcomeSeen,
     Value<String>? tipsSeen,
+    Value<bool>? reminderOn,
+    Value<int>? reminderMinutes,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
   }) {
@@ -1946,6 +2043,8 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
       hapticsOn: hapticsOn ?? this.hapticsOn,
       welcomeSeen: welcomeSeen ?? this.welcomeSeen,
       tipsSeen: tipsSeen ?? this.tipsSeen,
+      reminderOn: reminderOn ?? this.reminderOn,
+      reminderMinutes: reminderMinutes ?? this.reminderMinutes,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -1972,6 +2071,12 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
     if (tipsSeen.present) {
       map['tips_seen'] = Variable<String>(tipsSeen.value);
     }
+    if (reminderOn.present) {
+      map['reminder_on'] = Variable<bool>(reminderOn.value);
+    }
+    if (reminderMinutes.present) {
+      map['reminder_minutes'] = Variable<int>(reminderMinutes.value);
+    }
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
@@ -1990,6 +2095,8 @@ class UserSettingsCompanion extends UpdateCompanion<UserSettingsRow> {
           ..write('hapticsOn: $hapticsOn, ')
           ..write('welcomeSeen: $welcomeSeen, ')
           ..write('tipsSeen: $tipsSeen, ')
+          ..write('reminderOn: $reminderOn, ')
+          ..write('reminderMinutes: $reminderMinutes, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -4070,6 +4177,8 @@ typedef $$UserSettingsTableCreateCompanionBuilder =
       Value<bool> hapticsOn,
       Value<bool> welcomeSeen,
       Value<String> tipsSeen,
+      Value<bool> reminderOn,
+      Value<int> reminderMinutes,
       required DateTime updatedAt,
       Value<int> rowid,
     });
@@ -4081,6 +4190,8 @@ typedef $$UserSettingsTableUpdateCompanionBuilder =
       Value<bool> hapticsOn,
       Value<bool> welcomeSeen,
       Value<String> tipsSeen,
+      Value<bool> reminderOn,
+      Value<int> reminderMinutes,
       Value<DateTime> updatedAt,
       Value<int> rowid,
     });
@@ -4138,6 +4249,16 @@ class $$UserSettingsTableFilterComposer
 
   ColumnFilters<String> get tipsSeen => $composableBuilder(
     column: $table.tipsSeen,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get reminderOn => $composableBuilder(
+    column: $table.reminderOn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderMinutes => $composableBuilder(
+    column: $table.reminderMinutes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4204,6 +4325,16 @@ class $$UserSettingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get reminderOn => $composableBuilder(
+    column: $table.reminderOn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reminderMinutes => $composableBuilder(
+    column: $table.reminderMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
@@ -4258,6 +4389,16 @@ class $$UserSettingsTableAnnotationComposer
 
   GeneratedColumn<String> get tipsSeen =>
       $composableBuilder(column: $table.tipsSeen, builder: (column) => column);
+
+  GeneratedColumn<bool> get reminderOn => $composableBuilder(
+    column: $table.reminderOn,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reminderMinutes => $composableBuilder(
+    column: $table.reminderMinutes,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
@@ -4320,6 +4461,8 @@ class $$UserSettingsTableTableManager
                 Value<bool> hapticsOn = const Value.absent(),
                 Value<bool> welcomeSeen = const Value.absent(),
                 Value<String> tipsSeen = const Value.absent(),
+                Value<bool> reminderOn = const Value.absent(),
+                Value<int> reminderMinutes = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => UserSettingsCompanion(
@@ -4329,6 +4472,8 @@ class $$UserSettingsTableTableManager
                 hapticsOn: hapticsOn,
                 welcomeSeen: welcomeSeen,
                 tipsSeen: tipsSeen,
+                reminderOn: reminderOn,
+                reminderMinutes: reminderMinutes,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),
@@ -4340,6 +4485,8 @@ class $$UserSettingsTableTableManager
                 Value<bool> hapticsOn = const Value.absent(),
                 Value<bool> welcomeSeen = const Value.absent(),
                 Value<String> tipsSeen = const Value.absent(),
+                Value<bool> reminderOn = const Value.absent(),
+                Value<int> reminderMinutes = const Value.absent(),
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
               }) => UserSettingsCompanion.insert(
@@ -4349,6 +4496,8 @@ class $$UserSettingsTableTableManager
                 hapticsOn: hapticsOn,
                 welcomeSeen: welcomeSeen,
                 tipsSeen: tipsSeen,
+                reminderOn: reminderOn,
+                reminderMinutes: reminderMinutes,
                 updatedAt: updatedAt,
                 rowid: rowid,
               ),

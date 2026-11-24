@@ -8,12 +8,14 @@ import 'package:six_on_six/app/feedback.dart';
 import 'package:six_on_six/app/providers.dart';
 import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/app/tips.dart';
+import 'package:six_on_six/core/domain/achievements.dart';
 import 'package:six_on_six/core/domain/course.dart';
 import 'package:six_on_six/core/domain/lesson_session.dart';
 import 'package:six_on_six/core/domain/tips.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
 import 'package:six_on_six/core/ui/ace.dart';
 import 'package:six_on_six/core/ui/ace_lines.dart';
+import 'package:six_on_six/core/ui/badge_art.dart';
 import 'package:six_on_six/core/ui/coach_mark.dart';
 import 'package:six_on_six/core/ui/components.dart';
 import 'package:six_on_six/core/ui/court_lineup.dart';
@@ -66,6 +68,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   bool _matchingMistake = false;
   String _praiseLine = _praise.first;
   LessonOutcome? _outcome;
+
+  /// Badges this lesson took up a level.
+  List<BadgeUp> _newBadges = const [];
 
   /// Question types by id, for counting court questions right first try.
   Map<String, QuestionType> _types = const {};
@@ -339,6 +344,15 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
 
   void _finish() {
     final localNow = ref.read(clockProvider).now().toLocal();
+    final course = ref.read(courseProvider).value;
+    AchievementStats? statsNow() => course == null
+        ? null
+        : AchievementStats.from(
+            progress: ref.read(progressProvider),
+            motivation: ref.read(motivationProvider),
+            course: course,
+          );
+    final badgesBefore = statsNow();
     _streakBefore = ref.read(progressProvider).streakOn(localNow);
     // First attempts decide what counts as "right first try".
     final firstTry = <String, bool>{};
@@ -369,6 +383,10 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
               .length,
           isWeakSpots: _node.id == Course.weakSpotsId,
         );
+    final badgesAfter = statsNow();
+    _newBadges = course == null || badgesBefore == null || badgesAfter == null
+        ? const []
+        : badgesEarned(achievementsFor(course), badgesBefore, badgesAfter);
     final feedback = ref.read(feedbackProvider)..play(FeedbackEvent.complete);
     final streakNow = ref.read(progressProvider).streakOn(localNow);
     _doneLine = aceLessonDone(
@@ -1001,6 +1019,11 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                       if (outcome != null) ...[
                         const SizedBox(height: 20),
                         DailyGoalBar(xp: outcome.todayXp, goal: outcome.goal),
+                        for (final badge in _newBadges)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: _BadgeEarnedChip(badge: badge),
+                          ),
                         for (final quest in outcome.questsJustDone)
                           Padding(
                             padding: const EdgeInsets.only(top: 12),
@@ -1016,6 +1039,62 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         ),
         _bottomButton(label: 'Continue', onPressed: _afterComplete),
       ],
+    );
+  }
+}
+
+/// A badge that went up a level, on the lesson complete screen.
+class _BadgeEarnedChip extends StatelessWidget {
+  const new({required this.badge});
+
+  final BadgeUp badge;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = AppTokens.of(context);
+    final text = Theme.of(context).textTheme;
+    final (:achievement, :level) = badge;
+    final what = level == 1 ? 'New badge' : 'Badge level $level';
+    return Semantics(
+      liveRegion: true,
+      label: '$what: ${achievement.title}. See it in Profile.',
+      excludeSemantics: true,
+      child: PopIn(
+        delay: const Duration(milliseconds: 900),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(10, 8, 14, 8),
+          decoration: BoxDecoration(
+            color: tokens.selectedBg,
+            border: Border.all(color: tokens.brandOrange),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              BadgeArt(kind: achievement.kind, level: level, size: 44),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$what!',
+                      style: text.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        color: tokens.brandOrange,
+                      ),
+                    ),
+                    Text(
+                      '${achievement.title}: '
+                      '${achievement.goalFor(level).toLowerCase()}',
+                      style: text.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

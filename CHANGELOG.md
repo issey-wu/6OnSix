@@ -7,6 +7,18 @@ All notable changes to this project are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added (Round 8: badges and reminders, Nov 24)
+- Achievement badges: eight badges with four levels each (streak, XP,
+  lessons, perfect lessons, units, quests, glossary words and weak spot
+  practice), shown on the Profile tab. Tapping one shows what the next
+  level takes. A lesson that earns a level shows it on the lesson complete
+  screen.
+- Daily practice reminders as phone notifications, written by Ace. Turn
+  them on and pick the time on the Daily goal screen or in Settings. Days
+  already practised are skipped, and the next reminder mentions a streak
+  that's going. Nothing uses the internet.
+- Developer menu: send a test reminder that arrives in 5 seconds.
+
 ### Changed (Round 7: design polish, Nov 23)
 - The lesson bar starts with a small head start instead of empty, and shows
   "2 to go" and "1 to go" over the last stretch.

@@ -6,6 +6,10 @@ import 'package:six_on_six/core/domain/progress.dart';
 
 enum ThemePreference { system, light, dark }
 
+/// The practice reminder's starting time: 7:00 pm, as minutes after
+/// midnight.
+const int defaultReminderMinutes = 19 * 60;
+
 /// The learner's app settings.
 @immutable
 class AppSettings {
@@ -15,6 +19,8 @@ class AppSettings {
     this.hapticsOn = true,
     this.welcomeSeen = false,
     this.tipsSeen = const {},
+    this.reminderOn = false,
+    this.reminderMinutes = defaultReminderMinutes,
   });
 
   final ThemePreference theme;
@@ -27,18 +33,28 @@ class AppSettings {
   /// The first-run tips (coach marks) already shown, by id.
   final Set<String> tipsSeen;
 
+  /// Whether a daily practice reminder is sent, as a phone notification.
+  final bool reminderOn;
+
+  /// When the reminder is sent, as minutes after midnight (local time).
+  final int reminderMinutes;
+
   AppSettings copyWith({
     ThemePreference? theme,
     bool? soundOn,
     bool? hapticsOn,
     bool? welcomeSeen,
     Set<String>? tipsSeen,
+    bool? reminderOn,
+    int? reminderMinutes,
   }) => AppSettings(
     theme: theme ?? this.theme,
     soundOn: soundOn ?? this.soundOn,
     hapticsOn: hapticsOn ?? this.hapticsOn,
     welcomeSeen: welcomeSeen ?? this.welcomeSeen,
     tipsSeen: tipsSeen ?? this.tipsSeen,
+    reminderOn: reminderOn ?? this.reminderOn,
+    reminderMinutes: reminderMinutes ?? this.reminderMinutes,
   );
 
   @override
@@ -48,6 +64,8 @@ class AppSettings {
       other.soundOn == soundOn &&
       other.hapticsOn == hapticsOn &&
       other.welcomeSeen == welcomeSeen &&
+      other.reminderOn == reminderOn &&
+      other.reminderMinutes == reminderMinutes &&
       other.tipsSeen.length == tipsSeen.length &&
       other.tipsSeen.containsAll(tipsSeen);
 
@@ -57,6 +75,8 @@ class AppSettings {
     soundOn,
     hapticsOn,
     welcomeSeen,
+    reminderOn,
+    reminderMinutes,
     Object.hashAllUnordered(tipsSeen),
   );
 }

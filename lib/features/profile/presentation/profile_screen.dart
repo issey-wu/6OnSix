@@ -8,6 +8,7 @@ import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/ui/avatar_view.dart';
 import 'package:six_on_six/core/ui/components.dart';
 import 'package:six_on_six/core/ui/dialogs.dart';
+import 'package:six_on_six/features/profile/presentation/achievements_section.dart';
 
 /// The Profile tab: name, streak, XP, lessons and units completed, and
 /// progress for each unit.
@@ -187,6 +188,8 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ],
           ),
+          const SizedBox(height: 24),
+          const AchievementsSection(),
           const SizedBox(height: 24),
           Text(
             'Units',

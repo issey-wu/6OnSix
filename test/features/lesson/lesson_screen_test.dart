@@ -305,6 +305,11 @@ void main() {
     expect(find.byType(AceSays), findsOneWidget);
     // The first lesson of the day starts the streak.
     expect(find.bySemanticsLabel(RegExp('^Ace says: Day one')), findsOneWidget);
+    // A perfect lesson earns the first level of the Perfect set badge.
+    expect(
+      find.bySemanticsLabel('New badge: Perfect set. See it in Profile.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('Ace stands by the next lesson and talks when tapped', (

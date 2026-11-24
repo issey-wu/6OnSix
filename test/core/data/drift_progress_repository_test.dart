@@ -195,6 +195,12 @@ void main() {
     await old.customStatement(
       'ALTER TABLE user_settings DROP COLUMN tips_seen',
     );
+    await old.customStatement(
+      'ALTER TABLE user_settings DROP COLUMN reminder_on',
+    );
+    await old.customStatement(
+      'ALTER TABLE user_settings DROP COLUMN reminder_minutes',
+    );
     await old.customStatement('PRAGMA user_version = 2');
     await old.close();
 
@@ -213,6 +219,17 @@ void main() {
     expect(reloaded.avatar?.number, 9);
     expect(reloaded.league.division, Division.club);
     expect(reloaded.settings.tipsSeen, isEmpty);
+    expect(reloaded.settings.reminderOn, isFalse);
+    expect(reloaded.settings.reminderMinutes, defaultReminderMinutes);
+  });
+
+  test('the practice reminder survives a restart', () async {
+    await repo().saveSettings(
+      const AppSettings(reminderOn: true, reminderMinutes: 8 * 60 + 30),
+    );
+    final loaded = (await repo().load()).settings;
+    expect(loaded.reminderOn, isTrue);
+    expect(loaded.reminderMinutes, 8 * 60 + 30);
   });
 
   test('the tips already seen survive a restart', () async {

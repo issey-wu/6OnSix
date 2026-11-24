@@ -56,7 +56,7 @@ A complete loop in airplane mode:
 
 Accounts and login, cloud sync, leaderboards, asynchronous duel mode, certificates, hearts or lives, streak freezes, placement tests, onboarding questionnaires, push notifications, paywalls or in-app purchases, and mascot animations.
 
-Added later, still fully offline: streak freezes (Round 2), a weekly League with friends, played against simulated "Demo community" players (Round 3), and Ace the eagle mascot with short animations (Round 4). See `docs/decisions.md`.
+Added later, still fully offline: streak freezes (Round 2), a weekly League with friends, played against simulated "Demo community" players (Round 3), Ace the eagle mascot with short animations (Round 4), and achievement badges and daily practice reminders as local notifications (Round 8). See `docs/decisions.md`.
 
 ## 2. Game rules
 

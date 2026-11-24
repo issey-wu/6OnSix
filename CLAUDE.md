@@ -17,7 +17,7 @@
 
 ## Current phase: fully offline app (Schedule 1)
 
-- No network code, backend SDKs, accounts, auth, sync, analytics, notifications, or network permissions.
+- No network code, backend SDKs, accounts, auth, sync, analytics, push notifications, or network permissions. Local notifications for the daily practice reminder are allowed: they are booked on the phone and never use the internet.
 - Demo builds install from Xcode onto a physical iPhone (free provisioning) and as a sideloaded APK on Android. There is no App Store or TestFlight in this phase.
 - No user data leaves the device. The local user is anonymous; the optional display name is stored on the device only.
 
