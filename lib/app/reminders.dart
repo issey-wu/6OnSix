@@ -127,9 +127,17 @@ final reminderSchedulerProvider = Provider<ReminderScheduler>(
       : LocalNotificationScheduler(),
 );
 
+/// The booking in progress, if any. Bookings run one at a time, so an
+/// older booking can never finish after a newer one (such as turning
+/// reminders off) and put back reminders the learner just cleared.
+Future<void> _lastSync = Future.value();
+
 /// Books the next week of reminders, or clears them when reminders are off.
 /// Called when the app opens, after a lesson and when the setting changes.
-Future<void> syncReminders(Ref ref) async {
+Future<void> syncReminders(Ref ref) =>
+    _lastSync = _lastSync.then((_) => _syncNow(ref));
+
+Future<void> _syncNow(Ref ref) async {
   final settings = ref.read(settingsProvider);
   final scheduler = ref.read(reminderSchedulerProvider);
   final localNow = ref.read(clockProvider).now().toLocal();

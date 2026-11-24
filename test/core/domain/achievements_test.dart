@@ -33,6 +33,27 @@ void main() {
     }
   });
 
+  test('a small course still gets distinct levels', () {
+    final small = Course(
+      schemaVersion: 1,
+      units: [
+        Unit(
+          id: 'u1',
+          title: 'Unit 1',
+          description: '',
+          lessons: [for (var l = 1; l <= 6; l++) _lesson('u1.l$l')],
+        ),
+      ],
+    );
+    final lessons = achievementsFor(small)
+        .firstWhere((a) => a.kind == AchievementKind.lessons);
+    expect(lessons.levels, [1, 4, 5, 6]);
+    expect(lessons.levelFor(1), 1);
+    final units = achievementsFor(small)
+        .firstWhere((a) => a.kind == AchievementKind.units);
+    expect(units.levels, [1]);
+  });
+
   test('the lesson and unit badges top out at the whole course', () {
     expect(_badge(AchievementKind.lessons).levels.last, 12);
     expect(_badge(AchievementKind.units).levels.last, 4);

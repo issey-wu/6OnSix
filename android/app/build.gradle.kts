@@ -6,7 +6,9 @@ plugins {
 
 android {
     namespace = "ca.sixonsix.six_on_six"
-    compileSdk = flutter.compileSdkVersion
+    // 37, not Flutter's default of 36: the practice reminders' notifications
+    // package needs it.
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

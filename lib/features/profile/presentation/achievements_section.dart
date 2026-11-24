@@ -96,8 +96,11 @@ class _BadgeTile extends StatelessWidget {
       button: true,
       label:
           '${achievement.title}, '
-          '${level == 0 ? 'not earned yet' : 'level $level of 4'}',
+          '${level == 0 ? 'not earned yet' : 'level $level of '
+                    '${achievement.levels.length}'}',
       excludeSemantics: true,
+      // The tap is given again here: excludeSemantics hides the InkWell's.
+      onTap: () => unawaited(showBadgeSheet(context, achievement, stats)),
       child: InkWell(
         key: ValueKey('badge-${achievement.kind.name}'),
         borderRadius: BorderRadius.circular(16),
@@ -144,7 +147,8 @@ Future<void> showBadgeSheet(
     final count = stats.countOf(achievement.kind);
     final maxed = level >= achievement.levels.length;
     final target = maxed ? achievement.levels.last : achievement.levels[level];
-    return Padding(
+    // Scrolls when space is short, such as with large text or sideways.
+    return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -163,7 +167,9 @@ Future<void> showBadgeSheet(
             ),
           ),
           Text(
-            level == 0 ? 'Not earned yet' : 'Level $level of 4',
+            level == 0
+                ? 'Not earned yet'
+                : 'Level $level of ${achievement.levels.length}',
             textAlign: TextAlign.center,
             style: text.bodyMedium?.copyWith(color: tokens.textSecondary),
           ),

@@ -206,7 +206,7 @@ class _DeveloperMenu extends ConsumerWidget {
           key: const ValueKey('test-reminder'),
           leading: const Icon(Icons.notifications_rounded),
           title: const Text('Send a test reminder'),
-          subtitle: const Text('Arrives in 5 seconds'),
+          subtitle: const Text('Arrives in about 5 seconds'),
           onTap: () => unawaited(sendTestReminder(context, ref)),
         ),
         _FreezeTile(freezes: ref.watch(motivationProvider).freezes),

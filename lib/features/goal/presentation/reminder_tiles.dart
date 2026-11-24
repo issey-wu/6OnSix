@@ -64,8 +64,9 @@ Future<void> _setReminder(
   final controller = ref.read(settingsProvider.notifier);
   if (on) {
     final allowed = await ref.read(reminderSchedulerProvider).askPermission();
+    if (!context.mounted) return;
     if (!allowed) {
-      if (context.mounted) await _showBlocked(context);
+      await _showBlocked(context);
       return;
     }
   }
@@ -171,7 +172,7 @@ Future<void> _pickTime(BuildContext context, WidgetRef ref) async {
       );
     },
   );
-  if (picked != null) {
+  if (picked != null && context.mounted) {
     ref
         .read(settingsProvider.notifier)
         .update(ref.read(settingsProvider).copyWith(reminderMinutes: picked));
@@ -182,8 +183,10 @@ Future<void> _pickTime(BuildContext context, WidgetRef ref) async {
 /// reminders in a demo without waiting for the evening.
 Future<void> sendTestReminder(BuildContext context, WidgetRef ref) async {
   final scheduler = ref.read(reminderSchedulerProvider);
-  if (!await scheduler.askPermission()) {
-    if (context.mounted) await _showBlocked(context);
+  final allowed = await scheduler.askPermission();
+  if (!context.mounted) return;
+  if (!allowed) {
+    await _showBlocked(context);
     return;
   }
   final now = ref.read(clockProvider).now().toLocal();
@@ -198,7 +201,7 @@ Future<void> sendTestReminder(BuildContext context, WidgetRef ref) async {
   if (context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Test reminder in 5 seconds. Lock your phone to see it.'),
+        content: Text('Test reminder on its way. Lock your phone to see it.'),
       ),
     );
   }

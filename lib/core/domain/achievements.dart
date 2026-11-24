@@ -107,17 +107,19 @@ List<Achievement> achievementsFor(Course course) {
   ];
 }
 
-/// [first] levels, then [total], kept strictly rising for a small course.
+/// [first] levels, then [total], each a different total. A small course
+/// fills the gaps from the top down; one with fewer than 4 lessons or
+/// units gets fewer levels rather than two levels at the same total.
 List<int> _spread(int total, List<int> first) {
-  final levels = [
+  final levels = {
     for (final n in first)
       if (n < total) n,
     total,
-  ];
-  while (levels.length < 4) {
-    levels.insert(0, max(1, levels.first - 1));
+  }.toList();
+  for (var n = total - 1; levels.length < 4 && n >= 1; n--) {
+    if (!levels.contains(n)) levels.add(n);
   }
-  return levels;
+  return levels..sort();
 }
 
 /// The totals the badges count, from the learner's saved progress.
