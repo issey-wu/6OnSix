@@ -71,6 +71,14 @@ class UserSettings extends Table {
   /// First-run tips already shown, as ids separated by commas (schema
   /// version 5).
   TextColumn get tipsSeen => text().withDefault(const Constant(''))();
+
+  /// Whether the daily practice reminder is on, and its time as minutes
+  /// after midnight (schema version 6).
+  BoolColumn get reminderOn => boolean().withDefault(const Constant(false))();
+
+  /// 7:00 pm, the same as `defaultReminderMinutes`.
+  IntColumn get reminderMinutes =>
+      integer().withDefault(const Constant(19 * 60))();
   DateTimeColumn get updatedAt => dateTime()();
 
   @override
@@ -109,16 +117,20 @@ class AppDatabase extends _$AppDatabase {
   new(super.e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
     onUpgrade: (m, from, to) async {
       // Version 2 added the motivation layer's table, version 3 the avatar,
-      // version 4 the league, version 5 the tips seen. A table created
-      // fresh has every column.
+      // version 4 the league, version 5 the tips seen, version 6 the
+      // practice reminder. A table created fresh has every column.
       if (from < 5) await m.addColumn(userSettings, userSettings.tipsSeen);
+      if (from < 6) {
+        await m.addColumn(userSettings, userSettings.reminderOn);
+        await m.addColumn(userSettings, userSettings.reminderMinutes);
+      }
       if (from < 2) {
         await m.createTable(userExtras);
         return;

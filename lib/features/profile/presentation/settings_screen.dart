@@ -11,6 +11,7 @@ import 'package:six_on_six/core/domain/user_state.dart';
 import 'package:six_on_six/core/ui/ace.dart';
 import 'package:six_on_six/core/ui/dialogs.dart';
 import 'package:six_on_six/core/ui/tap_haptics.dart';
+import 'package:six_on_six/features/goal/presentation/reminder_tiles.dart';
 import 'package:six_on_six/features/profile/presentation/jump_sheet.dart';
 
 /// App version shown under About. Keep in step with pubspec.yaml.
@@ -91,6 +92,7 @@ class SettingsScreen extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => unawaited(context.push('/goal')),
           ),
+          const ReminderTiles(),
           ListTile(
             key: const ValueKey('replay-tips'),
             leading: const Icon(Icons.tips_and_updates_rounded),
@@ -199,6 +201,13 @@ class _DeveloperMenu extends ConsumerWidget {
           leading: const Icon(Icons.skip_next_rounded),
           title: const Text('Jump to any lesson'),
           onTap: () => unawaited(_jump(context, ref)),
+        ),
+        ListTile(
+          key: const ValueKey('test-reminder'),
+          leading: const Icon(Icons.notifications_rounded),
+          title: const Text('Send a test reminder'),
+          subtitle: const Text('Arrives in about 5 seconds'),
+          onTap: () => unawaited(sendTestReminder(context, ref)),
         ),
         _FreezeTile(freezes: ref.watch(motivationProvider).freezes),
         ListTile(

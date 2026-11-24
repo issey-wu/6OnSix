@@ -92,6 +92,8 @@ class DriftProgressRepository implements ProgressRepository {
           for (final id in settings.tipsSeen.split(','))
             if (id.isNotEmpty) id,
         },
+        reminderOn: settings.reminderOn,
+        reminderMinutes: settings.reminderMinutes,
       ),
       answerStats: const AnswerStats().withResults([
         for (final a in answers) (a.questionId, a.correct),
@@ -250,6 +252,8 @@ class DriftProgressRepository implements ProgressRepository {
         hapticsOn: Value(settings.hapticsOn),
         welcomeSeen: Value(settings.welcomeSeen),
         tipsSeen: Value((settings.tipsSeen.toList()..sort()).join(',')),
+        reminderOn: Value(settings.reminderOn),
+        reminderMinutes: Value(settings.reminderMinutes),
         updatedAt: Value(_clock.now()),
       ),
     );

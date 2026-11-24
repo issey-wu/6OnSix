@@ -595,6 +595,42 @@ void main() {
     await _shot(tester, '54_jump_sheet');
   });
 
+  testWidgets('badges and reminders', (tester) async {
+    final state = StoredState(
+      name: 'Issey',
+      settings: const AppSettings(
+        welcomeSeen: true,
+        tipsSeen: Tips.all,
+        reminderOn: true,
+      ),
+      progress: _returning.progress.withBonusXp(300),
+      motivation: const MotivationState(
+        goalChosen: true,
+        glossaryViewed: {'ace', 'kill', 'dig', 'block', 'libero', 'setter'},
+        totals: MotivationTotals(
+          longestStreak: 8,
+          perfectLessons: 3,
+          questsDone: 12,
+          weakPractices: 1,
+        ),
+      ),
+    );
+    final container = await _pumpApp(tester, state: state);
+    container.read(routerProvider).go('/profile');
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView).first, const Offset(0, -500));
+    await tester.pumpAndSettle();
+    await _shot(tester, '63_achievements');
+    await _tap(tester, find.byKey(const ValueKey('badge-streak')));
+    await _shot(tester, '64_badge_sheet');
+    await _tap(tester, find.byKey(const ValueKey('badge-ok')));
+    container.read(routerProvider).go('/profile/settings');
+    await tester.pumpAndSettle();
+    await _shot(tester, '65_reminder_settings');
+    await _tap(tester, find.byKey(const ValueKey('reminder-time')));
+    await _shot(tester, '66_reminder_time');
+  });
+
   testWidgets('a glossary link', (tester) async {
     final container = await _pumpApp(tester);
     container.read(routerProvider).go('/lesson/u1.l3');

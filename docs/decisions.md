@@ -113,3 +113,10 @@ A short list of the current stack and architecture choices. Update an entry when
 - **People in diagrams:** a chunky, rounded figure in the team's colours, seen from behind, instead of a stick figure.
 - **Nested corners:** a shape around another shape uses the inner radius plus the gap (for example, the tutorial ring is 16 + 6).
 - **Settings:** risky actions (Reset progress) go last, on their own, in red.
+
+## Badges and reminders (Round 8)
+
+- **Achievement badges:** worked out from progress already saved (`core/domain/achievements.dart`), so no new storage. Eight badges, four levels each; the lesson and unit badges top out at the whole course. The badge sheet shows progress to the next level, not just what's done. Badges are medals on a ribbon in the team colours, drawn in code in one widget (`core/ui/badge_art.dart`) so Yash's artwork can replace it later. The level sets the metal: bronze, silver, gold, then a flame champion medal; the badge's picture is engraved in the centre.
+- **Practice reminders:** local notifications through `flutter_local_notifications`, with no push service and no internet. The app books the next 7 days on the phone (`core/domain/reminders.dart`) and books them again when the app opens, after a lesson and when the setting changes, so a day already practised gets no reminder. Times are booked as exact UTC moments, so no time zone data is needed. Permission is asked for only when the learner turns reminders on. This changes the earlier "no notifications" rule to "no push notifications".
+- **Settings storage:** schema version 6 adds `reminder_on` and `reminder_minutes` to the settings table.
+- **Android SDK:** the app compiles against Android SDK 37 (Android Gradle plugin 9.1.1), one above Flutter's default, because the notifications package needs it. Only `compileSdk` changed; the oldest and target Android versions stay at Flutter's defaults.

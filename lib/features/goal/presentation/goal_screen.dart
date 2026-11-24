@@ -7,6 +7,7 @@ import 'package:six_on_six/core/domain/motivation.dart';
 import 'package:six_on_six/core/ui/ace.dart';
 import 'package:six_on_six/core/ui/ace_lines.dart';
 import 'package:six_on_six/core/ui/components.dart';
+import 'package:six_on_six/features/goal/presentation/reminder_tiles.dart';
 
 /// Picks a daily goal (shown as minutes a day) and a streak to commit to.
 /// Shown once after the first lesson, and from Settings or Quests later.
@@ -110,6 +111,8 @@ class _GoalScreenState extends ConsumerState<GoalScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+                const ReminderTiles(padding: EdgeInsets.zero),
               ],
             ),
           ),

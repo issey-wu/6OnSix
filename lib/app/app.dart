@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:six_on_six/app/providers.dart';
+import 'package:six_on_six/app/reminders.dart';
 import 'package:six_on_six/app/router.dart';
 import 'package:six_on_six/app/theme.dart';
 import 'package:six_on_six/core/domain/user_state.dart';
@@ -17,6 +18,8 @@ class _SixOnSixAppState extends ConsumerState<SixOnSixApp> {
   @override
   void initState() {
     super.initState();
+    // Books practice reminders now, and again whenever they need changing.
+    ref.read(reminderSyncProvider);
     // Everyday tap haptics follow the Haptics setting.
     ref.listenManual(
       settingsProvider.select((s) => s.hapticsOn),
